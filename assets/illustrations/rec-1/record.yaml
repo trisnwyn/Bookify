@@ -1,0 +1,15 @@
+schemaVersion: "1.0"
+id: rec-1
+path: assets/catalogue/artwork/rec-1.svg
+originUrl: "local:assets/catalogue/artwork/rec-1.svg"
+creator: "Bookify catalogue (original vector artwork)"
+licence: "Original work created for this catalogue"
+licenceUrl: "local:assets/catalogue/artwork/rec-1.svg"
+credit: "Artwork: original vector drawing made for this catalogue; conceptual reconstruction, no external source."
+caption: "Conceptual reconstruction of a standing bow, assembled from a written description to show the inferred posture and its upright reference; no original drawing, photograph or object was traced, and the angles are illustrative rather than measured."
+alt: "A line drawing of a person bending forward from the hips inside a faint doorway, with a dashed vertical reference line and a dashed arc at the hip. A faint dashed upright figure stands to the right, and a horizontal floor line runs below. No lettering."
+kind: reconstruction
+rightsStatus: verified
+evidence:
+  method: "Hand-authored SVG created in this repository from a written description; vector geometry only, no raster and no image-generation service."
+  source: "None: the posture is inferred, not traced from an original."

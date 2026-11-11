@@ -1,0 +1,10 @@
+# Binary assets: do not text-diff or line-ending-convert them.
+*.pdf binary
+*.ttf binary
+*.otf binary
+*.ttc binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.wasm binary
+*.gz binary

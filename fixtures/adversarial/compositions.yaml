@@ -1,0 +1,38 @@
+schemaVersion: "1.0"
+revision: 1
+id: adversarial-compositions
+metadata:
+  title: "Adversarial compositions"
+  languages: [en, vi, ja]
+sections:
+  - id: sec-compositions
+    title: "Two side compositions"
+    standfirst: "Two photographed examples, each with the prose that belongs beside it."
+    blocks:
+      - id: b-intro
+        type: paragraph
+        text: >-
+          Both photographs are documented here with a short companion paragraph. The
+          pipeline must keep each pair together and place the second on its own page.
+      - id: b-photo-a
+        type: illustration
+        illustrationId: photo-a
+        composition:
+          preset: side-left
+          companion: b-photo-a-text
+      - id: b-photo-a-text
+        type: paragraph
+        text: >-
+          LEFT-COMPANION-MARKER. The first example places the photograph in the left
+          image column and this prose in the right-hand text column.
+      - id: b-photo-b
+        type: illustration
+        illustrationId: photo-b
+        composition:
+          preset: side-right
+          companion: b-photo-b-text
+      - id: b-photo-b-text
+        type: paragraph
+        text: >-
+          RIGHT-COMPANION-MARKER. The second example mirrors the grid: prose on the left
+          and the photograph in the right-hand image column.

@@ -1,0 +1,2246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bookify.local/schemas/manuscript.schema.json",
+  "title": "Bookify Manuscript",
+  "description": "Closed v1 manuscript contract. Cross-field rules (unique ids, reference targets, chart matrices, diagram edges, rights records, unreadable values) are enforced by src/bookify/manuscript/model.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "revision",
+    "id",
+    "metadata",
+    "sections"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "id": {
+      "$ref": "#/$defs/slug"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceId",
+        "page"
+      ],
+      "properties": {
+        "sourceId": {
+          "$ref": "#/$defs/slug"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "languages"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "subtitle": {
+          "$ref": "#/$defs/text"
+        },
+        "languages": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}$"
+          }
+        },
+        "institution": {
+          "$ref": "#/$defs/text"
+        },
+        "course": {
+          "$ref": "#/$defs/text"
+        },
+        "author": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "blocks"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "kicker": {
+          "$ref": "#/$defs/text"
+        },
+        "standfirst": {
+          "$ref": "#/$defs/text"
+        },
+        "blocks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      }
+    },
+    "blockBase": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "type": {
+          "enum": [
+            "paragraph",
+            "lead",
+            "quote",
+            "definition",
+            "example",
+            "case",
+            "assessment",
+            "list",
+            "table",
+            "equation",
+            "chart",
+            "diagram",
+            "illustration",
+            "unresolved"
+          ]
+        },
+        "sourceAnchors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/anchor"
+          }
+        },
+        "confidence": {
+          "enum": [
+            "verified",
+            "inferred",
+            "unreadable"
+          ]
+        },
+        "note": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ]
+    },
+    "block": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/blockBase"
+        },
+        {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/proseBlock"
+            },
+            {
+              "$ref": "#/$defs/listBlock"
+            },
+            {
+              "$ref": "#/$defs/tableBlock"
+            },
+            {
+              "$ref": "#/$defs/equationBlock"
+            },
+            {
+              "$ref": "#/$defs/chartBlock"
+            },
+            {
+              "$ref": "#/$defs/diagramBlock"
+            },
+            {
+              "$ref": "#/$defs/illustrationBlock"
+            },
+            {
+              "$ref": "#/$defs/unresolvedBlock"
+            }
+          ]
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "chart"
+              },
+              "chart": {
+                "properties": {
+                  "verification": {
+                    "const": "synthetic"
+                  }
+                },
+                "required": [
+                  "verification"
+                ]
+              }
+            },
+            "required": [
+              "chart"
+            ]
+          },
+          "then": {
+            "properties": {
+              "sourceAnchors": false
+            }
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "type": {
+                  "const": "illustration"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            }
+          },
+          "then": {
+            "properties": {
+              "composition": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "diagram"
+              },
+              "diagram": {
+                "properties": {
+                  "synthetic": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "synthetic"
+                ]
+              }
+            },
+            "required": [
+              "diagram"
+            ]
+          },
+          "then": {
+            "required": [
+              "note"
+            ],
+            "properties": {
+              "sourceAnchors": false
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "type": {
+          "enum": [
+            "paragraph",
+            "lead",
+            "quote",
+            "definition",
+            "example",
+            "case",
+            "assessment",
+            "list",
+            "table",
+            "equation",
+            "chart",
+            "diagram",
+            "illustration",
+            "unresolved"
+          ]
+        },
+        "sourceAnchors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/anchor"
+          }
+        },
+        "confidence": {
+          "enum": [
+            "verified",
+            "inferred",
+            "unreadable"
+          ]
+        },
+        "note": {
+          "$ref": "#/$defs/text"
+        },
+        "caption": {
+          "$ref": "#/$defs/text"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "term": {
+          "$ref": "#/$defs/text"
+        },
+        "definition": {
+          "$ref": "#/$defs/text"
+        },
+        "attribution": {
+          "$ref": "#/$defs/text"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "ordered": {
+          "type": "boolean"
+        },
+        "header": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "widths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          }
+        },
+        "align": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "right",
+              "center"
+            ]
+          }
+        },
+        "typst": {
+          "$ref": "#/$defs/text"
+        },
+        "chart": {
+          "$ref": "#/$defs/chartBlock/properties/chart"
+        },
+        "diagram": {
+          "$ref": "#/$defs/diagramBlock/properties/diagram"
+        },
+        "illustrationId": {
+          "$ref": "#/$defs/slug"
+        },
+        "composition": {
+          "$ref": "#/$defs/composition"
+        }
+      },
+      "additionalProperties": false
+    },
+    "proseBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "paragraph",
+            "lead",
+            "definition",
+            "example",
+            "case",
+            "assessment",
+            "quote"
+          ]
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "term": {
+          "$ref": "#/$defs/text"
+        },
+        "definition": {
+          "$ref": "#/$defs/text"
+        },
+        "attribution": {
+          "$ref": "#/$defs/text"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "definition"
+            }
+          },
+          "required": [
+            "term",
+            "definition"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "paragraph",
+                "lead",
+                "example",
+                "case",
+                "assessment",
+                "quote"
+              ]
+            }
+          },
+          "required": [
+            "text"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "items"
+                ]
+              },
+              {
+                "required": [
+                  "ordered"
+                ]
+              },
+              {
+                "required": [
+                  "header"
+                ]
+              },
+              {
+                "required": [
+                  "rows"
+                ]
+              },
+              {
+                "required": [
+                  "widths"
+                ]
+              },
+              {
+                "required": [
+                  "align"
+                ]
+              },
+              {
+                "required": [
+                  "typst"
+                ]
+              },
+              {
+                "required": [
+                  "chart"
+                ]
+              },
+              {
+                "required": [
+                  "diagram"
+                ]
+              },
+              {
+                "required": [
+                  "illustrationId"
+                ]
+              },
+              {
+                "required": [
+                  "caption"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "listBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "list"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "ordered": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "items"
+      ],
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "text"
+                ]
+              },
+              {
+                "required": [
+                  "term"
+                ]
+              },
+              {
+                "required": [
+                  "definition"
+                ]
+              },
+              {
+                "required": [
+                  "attribution"
+                ]
+              },
+              {
+                "required": [
+                  "title"
+                ]
+              },
+              {
+                "required": [
+                  "header"
+                ]
+              },
+              {
+                "required": [
+                  "rows"
+                ]
+              },
+              {
+                "required": [
+                  "widths"
+                ]
+              },
+              {
+                "required": [
+                  "align"
+                ]
+              },
+              {
+                "required": [
+                  "typst"
+                ]
+              },
+              {
+                "required": [
+                  "chart"
+                ]
+              },
+              {
+                "required": [
+                  "diagram"
+                ]
+              },
+              {
+                "required": [
+                  "illustrationId"
+                ]
+              },
+              {
+                "required": [
+                  "caption"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tableBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "table"
+        },
+        "caption": {
+          "$ref": "#/$defs/text"
+        },
+        "header": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "widths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          }
+        },
+        "align": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "right",
+              "center"
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "header",
+        "rows"
+      ],
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "text"
+                ]
+              },
+              {
+                "required": [
+                  "term"
+                ]
+              },
+              {
+                "required": [
+                  "definition"
+                ]
+              },
+              {
+                "required": [
+                  "attribution"
+                ]
+              },
+              {
+                "required": [
+                  "title"
+                ]
+              },
+              {
+                "required": [
+                  "items"
+                ]
+              },
+              {
+                "required": [
+                  "ordered"
+                ]
+              },
+              {
+                "required": [
+                  "typst"
+                ]
+              },
+              {
+                "required": [
+                  "chart"
+                ]
+              },
+              {
+                "required": [
+                  "diagram"
+                ]
+              },
+              {
+                "required": [
+                  "illustrationId"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "equationBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "equation"
+        },
+        "typst": {
+          "$ref": "#/$defs/text"
+        },
+        "caption": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "type",
+        "typst"
+      ],
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "text"
+                ]
+              },
+              {
+                "required": [
+                  "term"
+                ]
+              },
+              {
+                "required": [
+                  "definition"
+                ]
+              },
+              {
+                "required": [
+                  "attribution"
+                ]
+              },
+              {
+                "required": [
+                  "title"
+                ]
+              },
+              {
+                "required": [
+                  "items"
+                ]
+              },
+              {
+                "required": [
+                  "ordered"
+                ]
+              },
+              {
+                "required": [
+                  "header"
+                ]
+              },
+              {
+                "required": [
+                  "rows"
+                ]
+              },
+              {
+                "required": [
+                  "widths"
+                ]
+              },
+              {
+                "required": [
+                  "align"
+                ]
+              },
+              {
+                "required": [
+                  "chart"
+                ]
+              },
+              {
+                "required": [
+                  "diagram"
+                ]
+              },
+              {
+                "required": [
+                  "illustrationId"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceId",
+        "page"
+      ],
+      "properties": {
+        "sourceId": {
+          "$ref": "#/$defs/slug"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "chartBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "chart"
+        },
+        "caption": {
+          "$ref": "#/$defs/text"
+        },
+        "chart": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "series",
+            "verification"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "grouped_bar",
+                "bar",
+                "stacked_bar",
+                "line",
+                "area",
+                "scatter",
+                "bubble",
+                "histogram",
+                "box",
+                "violin",
+                "heatmap",
+                "pie",
+                "waterfall",
+                "radar",
+                "error_bar"
+              ]
+            },
+            "categories": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/text"
+              }
+            },
+            "series": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/slug"
+                  },
+                  "label": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              }
+            },
+            "values": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 6,
+                "items": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "axis": {
+              "$ref": "#/$defs/axis"
+            },
+            "xAxis": {
+              "$ref": "#/$defs/axis"
+            },
+            "source": {
+              "$ref": "#/$defs/sourceRef"
+            },
+            "verification": {
+              "enum": [
+                "verified",
+                "inferred",
+                "synthetic"
+              ]
+            },
+            "notes": {
+              "$ref": "#/$defs/text"
+            },
+            "hole": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.7
+            },
+            "bins": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "number"
+              }
+            },
+            "counts": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 6,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "stats": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 6,
+                "items": {
+                  "type": "array",
+                  "minItems": 5,
+                  "maxItems": 5,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "samples": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 6,
+                "items": {
+                  "type": "array",
+                  "minItems": 5,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "points": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 3,
+              "items": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 40,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "errors": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 6,
+                "items": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                }
+              }
+            },
+            "totals": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "boolean"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "grouped_bar"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 4
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "bar"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 1
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "stacked_bar"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values"
+                ],
+                "properties": {
+                  "series": {
+                    "minItems": 2,
+                    "maxItems": 4
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "line"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 4
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "area"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 4
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "scatter"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "points",
+                  "xAxis"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 3
+                  },
+                  "points": {
+                    "items": {
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "bubble"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "points",
+                  "xAxis"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 3
+                  },
+                  "points": {
+                    "items": {
+                      "items": {
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "histogram"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "bins",
+                  "counts"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 3
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "box"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "stats"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 3
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "violin"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "samples",
+                  "notes"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 3
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "heatmap"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 6
+                  },
+                  "categories": {
+                    "maxItems": 12
+                  },
+                  "values": {
+                    "maxItems": 12
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "pie"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values",
+                  "hole"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 1
+                  },
+                  "categories": {
+                    "minItems": 2,
+                    "maxItems": 8
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "waterfall"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values",
+                  "totals"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 1
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "radar"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 3
+                  },
+                  "categories": {
+                    "minItems": 3,
+                    "maxItems": 8
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "error_bar"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "categories",
+                  "values",
+                  "errors"
+                ],
+                "properties": {
+                  "series": {
+                    "maxItems": 4
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "verification": {
+                    "const": "synthetic"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "notes"
+                ],
+                "properties": {
+                  "source": false
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "verification": {
+                    "enum": [
+                      "verified",
+                      "inferred"
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "caption",
+        "chart"
+      ]
+    },
+    "diagramBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "diagram"
+        },
+        "caption": {
+          "$ref": "#/$defs/text"
+        },
+        "diagram": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "preset"
+          ],
+          "properties": {
+            "preset": {
+              "enum": [
+                "process",
+                "model",
+                "cycle",
+                "hierarchy",
+                "decision_tree",
+                "network",
+                "timeline",
+                "matrix",
+                "venn",
+                "swimlane"
+              ]
+            },
+            "synthetic": {
+              "type": "boolean"
+            },
+            "nodes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/diagramNode"
+              }
+            },
+            "edges": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/diagramEdge"
+              }
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "label",
+                  "nodes"
+                ],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/slug"
+                  },
+                  "label": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "nodes": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/slug"
+                    }
+                  }
+                }
+              }
+            },
+            "events": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 8,
+              "items": {
+                "$ref": "#/$defs/timelineEvent"
+              }
+            },
+            "rows": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/text"
+              }
+            },
+            "columns": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/text"
+              }
+            },
+            "cells": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 4,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 4,
+                "items": {
+                  "$ref": "#/$defs/text"
+                }
+              }
+            },
+            "sets": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 3,
+              "items": {
+                "$ref": "#/$defs/labelledId"
+              }
+            },
+            "overlaps": {
+              "type": "array",
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/regionLabel"
+              }
+            },
+            "lanes": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/labelledId"
+              }
+            },
+            "stages": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 6,
+              "items": {
+                "$ref": "#/$defs/labelledId"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "process"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "nodes",
+                  "edges"
+                ],
+                "properties": {
+                  "nodes": {
+                    "minItems": 2,
+                    "maxItems": 6
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "model"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "nodes",
+                  "edges"
+                ],
+                "properties": {
+                  "nodes": {
+                    "minItems": 2,
+                    "maxItems": 6
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "cycle"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "nodes",
+                  "edges"
+                ],
+                "properties": {
+                  "nodes": {
+                    "minItems": 3,
+                    "maxItems": 8
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "hierarchy"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "nodes",
+                  "edges"
+                ],
+                "properties": {
+                  "nodes": {
+                    "minItems": 2,
+                    "maxItems": 9
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "decision_tree"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "nodes",
+                  "edges"
+                ],
+                "properties": {
+                  "nodes": {
+                    "minItems": 2,
+                    "maxItems": 9
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "network"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "nodes",
+                  "edges"
+                ],
+                "properties": {
+                  "nodes": {
+                    "minItems": 3,
+                    "maxItems": 10
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "timeline"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "events"
+                ],
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "nodes"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "edges"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "matrix"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "rows",
+                  "columns",
+                  "cells"
+                ],
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "nodes"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "edges"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "venn"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "sets"
+                ],
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "nodes"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "edges"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "preset": {
+                    "const": "swimlane"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "lanes",
+                  "stages",
+                  "nodes"
+                ],
+                "properties": {
+                  "nodes": {
+                    "maxItems": 24,
+                    "items": {
+                      "required": [
+                        "lane",
+                        "stage"
+                      ]
+                    }
+                  },
+                  "edges": {
+                    "maxItems": 0
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "caption",
+        "diagram"
+      ]
+    },
+    "illustrationBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "illustration"
+        },
+        "illustrationId": {
+          "$ref": "#/$defs/slug"
+        },
+        "caption": {
+          "$ref": "#/$defs/text"
+        },
+        "composition": {
+          "$ref": "#/$defs/composition"
+        }
+      },
+      "required": [
+        "type",
+        "illustrationId"
+      ],
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "text"
+                ]
+              },
+              {
+                "required": [
+                  "term"
+                ]
+              },
+              {
+                "required": [
+                  "definition"
+                ]
+              },
+              {
+                "required": [
+                  "attribution"
+                ]
+              },
+              {
+                "required": [
+                  "title"
+                ]
+              },
+              {
+                "required": [
+                  "items"
+                ]
+              },
+              {
+                "required": [
+                  "ordered"
+                ]
+              },
+              {
+                "required": [
+                  "header"
+                ]
+              },
+              {
+                "required": [
+                  "rows"
+                ]
+              },
+              {
+                "required": [
+                  "widths"
+                ]
+              },
+              {
+                "required": [
+                  "align"
+                ]
+              },
+              {
+                "required": [
+                  "typst"
+                ]
+              },
+              {
+                "required": [
+                  "chart"
+                ]
+              },
+              {
+                "required": [
+                  "diagram"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "composition": {
+                "properties": {
+                  "preset": {
+                    "enum": [
+                      "side-left",
+                      "side-right"
+                    ]
+                  }
+                },
+                "required": [
+                  "preset"
+                ]
+              }
+            },
+            "required": [
+              "composition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "composition": {
+                "required": [
+                  "companion"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "composition": {
+                "properties": {
+                  "preset": {
+                    "const": "full"
+                  }
+                },
+                "required": [
+                  "preset"
+                ]
+              }
+            },
+            "required": [
+              "composition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "composition": {
+                "properties": {
+                  "companion": false
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "unresolvedBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "unresolved"
+        },
+        "note": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "type",
+        "note"
+      ],
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "text"
+                ]
+              },
+              {
+                "required": [
+                  "term"
+                ]
+              },
+              {
+                "required": [
+                  "definition"
+                ]
+              },
+              {
+                "required": [
+                  "attribution"
+                ]
+              },
+              {
+                "required": [
+                  "title"
+                ]
+              },
+              {
+                "required": [
+                  "items"
+                ]
+              },
+              {
+                "required": [
+                  "ordered"
+                ]
+              },
+              {
+                "required": [
+                  "header"
+                ]
+              },
+              {
+                "required": [
+                  "rows"
+                ]
+              },
+              {
+                "required": [
+                  "widths"
+                ]
+              },
+              {
+                "required": [
+                  "align"
+                ]
+              },
+              {
+                "required": [
+                  "typst"
+                ]
+              },
+              {
+                "required": [
+                  "chart"
+                ]
+              },
+              {
+                "required": [
+                  "diagram"
+                ]
+              },
+              {
+                "required": [
+                  "illustrationId"
+                ]
+              },
+              {
+                "required": [
+                  "caption"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "axis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "$ref": "#/$defs/text"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preset"
+      ],
+      "properties": {
+        "preset": {
+          "enum": [
+            "full",
+            "side-left",
+            "side-right"
+          ]
+        },
+        "companion": {
+          "$ref": "#/$defs/slug"
+        }
+      }
+    },
+    "diagramNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "sub": {
+          "$ref": "#/$defs/text"
+        },
+        "lane": {
+          "$ref": "#/$defs/slug"
+        },
+        "stage": {
+          "$ref": "#/$defs/slug"
+        }
+      }
+    },
+    "diagramEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/slug"
+        },
+        "to": {
+          "$ref": "#/$defs/slug"
+        },
+        "kind": {
+          "enum": [
+            "arrow",
+            "line"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "labelledId": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "timelineEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "when"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "sub": {
+          "$ref": "#/$defs/text"
+        },
+        "when": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "regionLabel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "sets"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/slug"
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "sets": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/slug"
+          }
+        }
+      }
+    }
+  }
+}

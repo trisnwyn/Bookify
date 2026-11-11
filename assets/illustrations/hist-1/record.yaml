@@ -1,0 +1,33 @@
+schemaVersion: "1.0"
+id: hist-1
+path: assets/illustrations/hist-1/original.jpg
+originUrl: "https://commons.wikimedia.org/wiki/File:Macarthur_hirohito.jpg"
+creator: "Gaetano Faillace, US Army"
+licence: "Public domain (US Army work)"
+licenceUrl: "https://commons.wikimedia.org/wiki/Template:PD-USGov-Military-Army"
+credit: "Photograph: Gaetano Faillace / US Army (public domain)"
+caption: "General Douglas MacArthur and Emperor Hirohito at their first meeting, US Embassy, Tokyo, 27 September 1945, during the Allied occupation of Japan."
+alt: "A black-and-white photograph of two men standing side by side indoors. On the left, a tall man in a light khaki military shirt and trousers stands with his hands at his hips; on the right, a shorter man in a dark morning coat, waistcoat, tie and striped trousers stands with his arms at his sides. Heavy curtains, columns and a potted plant stand behind them."
+kind: contemporary_photograph
+rightsStatus: verified
+retrievedAt: "2026-11-10"
+sha256: "e524d2684a642ba8035d1ea535cbdd65bfd6605bca94328d319a04028eee9a94"
+evidence:
+  source: "Wikimedia Commons file page and MediaWiki API (action=query, prop=imageinfo, iiprop=url|size|mime|extmetadata); metadata requests only, separate from the single image download."
+  filePage: "https://commons.wikimedia.org/wiki/File:Macarthur_hirohito.jpg"
+  fileTitle: "File:Macarthur hirohito.jpg"
+  downloadUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Macarthur_hirohito.jpg"
+  licenceTemplate: "PD-USGov-Military-Army"
+  licenceShortName: "Public domain"
+  usageTerms: "Public domain"
+  copyrighted: "False"
+  artistField: "Gaetano Faillace"
+  creditField: "United States Army photograph"
+  dateTimeOriginal: "27 September 1945"
+  imageDescription: "Emperor Hirohito and General MacArthur, at their first meeting, at the U.S. Embassy, Tokyo, 27 September 1945"
+  bytes: 134827
+  width: 1080
+  height: 1332
+  mime: "image/jpeg"
+  commonsSha1: "8d4c6c3c1d4d3ed5d33d557adb2369ee030aad32"
+  hashCheck: "The frozen file's SHA-1 and byte size match the Commons imageinfo values at retrieval; SHA-256 is recorded above and in LICENCE.md."

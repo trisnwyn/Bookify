@@ -1,0 +1,25 @@
+schemaVersion: "1.0"
+revision: 1
+id: composition-fixture
+metadata:
+  title: "Composition fixture"
+  languages: [en]
+sections:
+  - id: sec-a
+    title: "Composition"
+    blocks:
+      - id: b-chart
+        type: chart
+        composition:
+          preset: full
+        caption: "A chart that must not accept composition."
+        chart:
+          kind: grouped_bar
+          categories: [A]
+          series:
+            - id: s
+              label: "Series"
+          values: [[1]]
+          axis: {unit: index, min: 0, max: 2}
+          source: {sourceId: fixture, page: 1}
+          verification: verified

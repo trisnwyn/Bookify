@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.0",
+  "python": {
+    "version": "3.13.16",
+    "executable": ".venv/bin/python",
+    "packages": {
+      "matplotlib": "3.11.2",
+      "numpy": "2.5.4",
+      "pyyaml": "6.0.3",
+      "jsonschema": "4.26.0",
+      "fonttools": "4.68.0"
+    }
+  },
+  "typst": {
+    "version": "0.15.1",
+    "binary": "tools/typst/typst",
+    "sha256": "29273eaa04f6d00edd0c2bec578f565fc9c65be856bfbffc894567c68ed0b237",
+    "archiveSha256": "a6d077d0a95eed5a2eba715b2dae06be954f624ccbf85758a03f389ded33118c",
+    "source": "https://github.com/typst/typst/releases/download/v0.15.1/typst-x86_64-unknown-linux-musl.tar.xz"
+  },
+  "packages": [
+    {
+      "name": "cetz",
+      "version": "0.5.3",
+      "path": "vendor/typst/preview/cetz/0.5.3",
+      "sha256": "da5c8d53129682d55f844d1c6b5065d7e3f8db675bb9152dc462e7b1e2e07b42"
+    },
+    {
+      "name": "oxifmt",
+      "version": "1.0.0",
+      "path": "vendor/typst/preview/oxifmt/1.0.0",
+      "sha256": "25bece8dd15c506d3ebe0b37c039a4c1cb6fc217d16bd45c43b847bc3c5e7d44"
+    }
+  ],
+  "fonts": [
+    {
+      "family": "Spectral",
+      "weight": "Regular",
+      "path": "assets/fonts/Spectral-Regular.ttf",
+      "sha256": "c89021dc20720c8d0dcf40b0b2f6e00c13665fa8041717f581396f51b8c78f5d"
+    },
+    {
+      "family": "Spectral",
+      "weight": "Italic",
+      "path": "assets/fonts/Spectral-Italic.ttf",
+      "sha256": "7ec97244259db4008c4b1224c7914e5371c797c0044af9d85c2d761ba0e5f787"
+    },
+    {
+      "family": "Spectral",
+      "weight": "Medium",
+      "path": "assets/fonts/Spectral-Medium.ttf",
+      "sha256": "f385bc588599c879112272711d4acecc126674009d747a27284f59e93a240e83"
+    },
+    {
+      "family": "Spectral",
+      "weight": "SemiBold",
+      "path": "assets/fonts/Spectral-SemiBold.ttf",
+      "sha256": "5f86915a744832ecf6e4a17ab04bea091b9fa992ef5164ff65ae34c1da2fe94b"
+    },
+    {
+      "family": "Spectral",
+      "weight": "SemiBold Italic",
+      "path": "assets/fonts/Spectral-SemiBoldItalic.ttf",
+      "sha256": "46ad3a9f93b98dc2dbdeee265e76eb846c5be912aa8f09f42e3692706c6f563b"
+    },
+    {
+      "family": "Spectral",
+      "weight": "Bold",
+      "path": "assets/fonts/Spectral-Bold.ttf",
+      "sha256": "70ddb1ec6ae3b0b8d0c79231f670de786978f19baeba2130757526e407aebf9b"
+    },
+    {
+      "family": "Spectral",
+      "weight": "Bold Italic",
+      "path": "assets/fonts/Spectral-BoldItalic.ttf",
+      "sha256": "709fa4f2da9be216fd52125db2d6caa4f90150f48de1a453c9ecf91117ab49b6"
+    },
+    {
+      "family": "Noto Serif CJK JP",
+      "weight": "variable",
+      "path": "assets/fonts/NotoSerifCJK-VF.ttc",
+      "sha256": "24720ea76c8b13e822059d155cefb0f9f6be1cfdee1e2bb67b61c96067de42c9"
+    },
+    {
+      "family": "STIX Two Math",
+      "weight": "Regular",
+      "path": "assets/fonts/STIXTwoMath-Regular.otf",
+      "sha256": "3a5f3f26f40d5698b3c62dd085d48d6663696a3f80825aab8b553d5097518e8c"
+    }
+  ]
+}

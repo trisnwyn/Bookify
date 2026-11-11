@@ -1,0 +1,32 @@
+[project]
+name = "bookify"
+version = "0.1.0"
+description = "Local authoring and offline publishing pipeline"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "jsonschema>=4.26.0",
+  "matplotlib==3.11.2",
+  "numpy==2.5.4",
+  "pyyaml>=6.0.3",
+]
+
+[dependency-groups]
+dev = [
+  "fonttools>=4.68.0",
+  "pytest",
+]
+
+[project.scripts]
+bookify = "bookify.toolchain.cli:entry"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bookify"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

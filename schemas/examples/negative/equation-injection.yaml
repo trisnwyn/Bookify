@@ -1,0 +1,14 @@
+schemaVersion: '1.0'
+revision: 1
+id: equation-injection
+metadata:
+  title: Equation injection fixture
+  languages:
+  - en
+sections:
+- id: sec-a
+  title: Equation
+  blocks:
+  - id: b-eq
+    type: equation
+    typst: 'x #read("/pyproject.toml") y'

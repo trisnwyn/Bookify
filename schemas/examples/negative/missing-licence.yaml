@@ -1,0 +1,85 @@
+schemaVersion: '1.0'
+revision: 1
+id: minimal-specimen
+metadata:
+  title: A minimal manuscript
+  subtitle: Contract example
+  languages:
+  - en
+  - vi
+  - ja
+  institution: Example Institute
+  course: Specimen Methods
+sections:
+- id: sec-opening
+  title: Opening
+  kicker: CHAPTER ONE
+  standfirst: A short standfirst that sets up the chapter.
+  blocks:
+  - id: b-lead-body
+    type: paragraph
+    text: See {ref:b-chart} for the example values and {ref:sec-data} for the table.
+    confidence: verified
+    sourceAnchors:
+    - sourceId: example-source
+      page: 3
+  - id: b-definition
+    type: definition
+    term: Marker
+    definition: A recorded feature used to describe a sample.
+  - id: b-chart
+    type: chart
+    caption: Synthetic sample counts for the contract example.
+    chart:
+      kind: grouped_bar
+      categories:
+      - Alder
+      - Birch
+      - Cedar
+      series:
+      - id: sample-count
+        label: Samples recorded
+      values:
+      - - 72
+      - - 64
+      - - 58
+      axis:
+        unit: '%'
+        min: 0
+        max: 100
+      source:
+        sourceId: example-source
+        page: 7
+      verification: verified
+  - id: b-diagram
+    type: diagram
+    caption: Synthetic process diagram for the contract example.
+    confidence: inferred
+    diagram:
+      preset: process
+      nodes:
+      - id: n-plan
+        label: Plan
+      - id: n-act
+        label: Act
+      edges:
+      - from: n-plan
+        to: n-act
+        kind: arrow
+  - id: b-photo
+    type: illustration
+    illustrationId: photo-missing-record
+- id: sec-data
+  title: Data
+  blocks:
+  - id: b-table
+    type: table
+    caption: Three synthetic values.
+    header:
+    - Sample
+    - Count
+    rows:
+    - - Alder
+      - '72'
+    - - Birch
+      - '64'

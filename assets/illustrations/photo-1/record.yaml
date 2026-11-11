@@ -1,0 +1,20 @@
+schemaVersion: "1.0"
+id: photo-1
+path: assets/illustrations/photo-1/original.jpg
+originUrl: "https://commons.wikimedia.org/wiki/File:Barack_Obama_and_Emperor_Akihito_20140424.jpg"
+creator: "William Ng, US Department of State"
+licence: "Public domain (US Government work)"
+licenceUrl: "https://commons.wikimedia.org/wiki/Commons:Copyright_tags#United_States"
+credit: "Photo: William Ng / US Department of State (public domain)"
+caption: "President Barack Obama and Emperor Akihito at the welcome ceremony in Tokyo, 24 April 2014."
+alt: "Two men in dark suits walk side by side outdoors in bright sunlight; a younger man on the left and an older man on the right, with aides behind them."
+kind: contemporary_photograph
+rightsStatus: verified
+retrievedAt: "2026-11-10"
+sha256: "3ba10038ae93d38995496345d4bb654e9bba020b6d27fc88a99370b7c03ce93d"
+evidence:
+  source: "Wikimedia Commons API (imageinfo/extmetadata)"
+  licenceShortName: "Public domain"
+  usageTerms: "Public domain"
+  artistField: "State Department photo by William Ng / Public domain"
+  imageDescription: "Barack Obama, President, met Emperor Akihito at the Tokyo Imperial Palace, 24 April 2014."

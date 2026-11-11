@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "1.0",
+  "manuscript": {
+    "id": "visual-catalogue",
+    "revision": 2,
+    "languages": ["en", "vi", "ja"],
+    "sections": 12
+  },
+  "counts": {
+    "chartFamilies": 15,
+    "charts": 16,
+    "diagramPresets": 10,
+    "diagrams": 10,
+    "illustrations": 4,
+    "figures": 26,
+    "photographs": 4,
+    "tables": 1,
+    "coverageRows": 29
+  },
+  "chartFamilies": [
+    {
+      "family": "bar",
+      "familyLabel": "Bar",
+      "kind": "bar",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-bar", "label": "Figure 1"}
+      ]
+    },
+    {
+      "family": "grouped_bar",
+      "familyLabel": "Grouped bar",
+      "kind": "grouped_bar",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-grouped", "label": "Figure 2"}
+      ]
+    },
+    {
+      "family": "stacked_bar",
+      "familyLabel": "Stacked bar",
+      "kind": "stacked_bar",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-stacked", "label": "Figure 3"}
+      ]
+    },
+    {
+      "family": "line",
+      "familyLabel": "Line",
+      "kind": "line",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-line", "label": "Figure 4"}
+      ]
+    },
+    {
+      "family": "area",
+      "familyLabel": "Area",
+      "kind": "area",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-area", "label": "Figure 5"}
+      ]
+    },
+    {
+      "family": "scatter",
+      "familyLabel": "Scatter",
+      "kind": "scatter",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-scatter", "label": "Figure 6"}
+      ]
+    },
+    {
+      "family": "bubble",
+      "familyLabel": "Bubble",
+      "kind": "bubble",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-bubble", "label": "Figure 7"}
+      ]
+    },
+    {
+      "family": "histogram",
+      "familyLabel": "Histogram",
+      "kind": "histogram",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-histogram", "label": "Figure 8"}
+      ]
+    },
+    {
+      "family": "box",
+      "familyLabel": "Box plot",
+      "kind": "box",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-box", "label": "Figure 9"}
+      ]
+    },
+    {
+      "family": "violin",
+      "familyLabel": "Violin",
+      "kind": "violin",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-violin", "label": "Figure 10"}
+      ]
+    },
+    {
+      "family": "error_bar",
+      "familyLabel": "Error bar",
+      "kind": "error_bar",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-error-bar", "label": "Figure 11"}
+      ]
+    },
+    {
+      "family": "heatmap",
+      "familyLabel": "Heat map",
+      "kind": "heatmap",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-heatmap", "label": "Figure 12"}
+      ]
+    },
+    {
+      "family": "radar",
+      "familyLabel": "Radar",
+      "kind": "radar",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-radar", "label": "Figure 13"}
+      ]
+    },
+    {
+      "family": "pie",
+      "familyLabel": "Pie and donut",
+      "kind": "pie",
+      "variants": [
+        {"variant": "pie", "blockId": "b-chart-pie", "label": "Figure 14"},
+        {"variant": "donut", "blockId": "b-chart-donut", "label": "Figure 15"}
+      ]
+    },
+    {
+      "family": "waterfall",
+      "familyLabel": "Waterfall",
+      "kind": "waterfall",
+      "variants": [
+        {"variant": "default", "blockId": "b-chart-waterfall", "label": "Figure 16"}
+      ]
+    }
+  ],
+  "diagramPresets": [
+    {"preset": "process", "familyLabel": "Process", "blockId": "b-diagram-process", "label": "Figure 17"},
+    {"preset": "cycle", "familyLabel": "Cycle", "blockId": "b-diagram-cycle", "label": "Figure 18"},
+    {"preset": "timeline", "familyLabel": "Timeline", "blockId": "b-diagram-timeline", "label": "Figure 19"},
+    {"preset": "hierarchy", "familyLabel": "Hierarchy", "blockId": "b-diagram-hierarchy", "label": "Figure 20"},
+    {"preset": "decision_tree", "familyLabel": "Decision tree", "blockId": "b-diagram-decision", "label": "Figure 21"},
+    {"preset": "model", "familyLabel": "Layered model", "blockId": "b-diagram-model", "label": "Figure 22"},
+    {"preset": "network", "familyLabel": "Network", "blockId": "b-diagram-network", "label": "Figure 23"},
+    {"preset": "matrix", "familyLabel": "Matrix", "blockId": "b-diagram-matrix", "label": "Figure 24"},
+    {"preset": "venn", "familyLabel": "Venn", "blockId": "b-diagram-venn", "label": "Figure 25"},
+    {"preset": "swimlane", "familyLabel": "Swimlane", "blockId": "b-diagram-swimlane", "label": "Figure 26"}
+  ],
+  "illustrationFamilies": [
+    {
+      "family": "photograph",
+      "familyLabel": "Photograph",
+      "illustrationId": "photo-1",
+      "recordKind": "contemporary_photograph",
+      "origin": "external",
+      "licence": "Public domain (US Government work)",
+      "blockId": "b-illustration-photo",
+      "label": "Photograph 1",
+      "composition": "side-left",
+      "companion": "b-illustration-photo-note",
+      "captionRequires": []
+    },
+    {
+      "family": "historical",
+      "familyLabel": "Historical image",
+      "illustrationId": "hist-1",
+      "recordKind": "contemporary_photograph",
+      "origin": "external",
+      "licence": "Public domain (US Army work)",
+      "blockId": "b-illustration-historical",
+      "label": "Photograph 2",
+      "composition": "side-right",
+      "companion": "b-illustration-historical-note",
+      "captionRequires": []
+    },
+    {
+      "family": "editorial",
+      "familyLabel": "Editorial artwork",
+      "illustrationId": "art-1",
+      "recordKind": "conceptual_artwork",
+      "origin": "local",
+      "licence": "Original work created for this catalogue",
+      "blockId": "b-illustration-editorial",
+      "label": "Photograph 3",
+      "composition": "full",
+      "companion": null,
+      "captionRequires": ["original artwork"]
+    },
+    {
+      "family": "reconstruction",
+      "familyLabel": "Conceptual reconstruction",
+      "illustrationId": "rec-1",
+      "recordKind": "reconstruction",
+      "origin": "local",
+      "licence": "Original work created for this catalogue",
+      "blockId": "b-illustration-reconstruction",
+      "label": "Photograph 4",
+      "composition": "side-left",
+      "companion": "b-illustration-reconstruction-note",
+      "captionRequires": [
+        "conceptual reconstruction",
+        "no original drawing, photograph or object was traced"
+      ]
+    }
+  ],
+  "coverageTable": {
+    "blockId": "b-coverage-table",
+    "header": ["Family", "Kind or preset", "Figure"],
+    "rows": 29
+  },
+  "coverageRows": [
+    {"familyLabel": "Bar", "kindCell": "bar", "figureCell": "Figure 1"},
+    {"familyLabel": "Grouped bar", "kindCell": "grouped_bar", "figureCell": "Figure 2"},
+    {"familyLabel": "Stacked bar", "kindCell": "stacked_bar", "figureCell": "Figure 3"},
+    {"familyLabel": "Line", "kindCell": "line", "figureCell": "Figure 4"},
+    {"familyLabel": "Area", "kindCell": "area", "figureCell": "Figure 5"},
+    {"familyLabel": "Scatter", "kindCell": "scatter", "figureCell": "Figure 6"},
+    {"familyLabel": "Bubble", "kindCell": "bubble", "figureCell": "Figure 7"},
+    {"familyLabel": "Histogram", "kindCell": "histogram", "figureCell": "Figure 8"},
+    {"familyLabel": "Box plot", "kindCell": "box", "figureCell": "Figure 9"},
+    {"familyLabel": "Violin", "kindCell": "violin", "figureCell": "Figure 10"},
+    {"familyLabel": "Error bar", "kindCell": "error_bar", "figureCell": "Figure 11"},
+    {"familyLabel": "Heat map", "kindCell": "heatmap", "figureCell": "Figure 12"},
+    {"familyLabel": "Radar", "kindCell": "radar", "figureCell": "Figure 13"},
+    {"familyLabel": "Pie and donut", "kindCell": "pie", "figureCell": "Figures 14–15"},
+    {"familyLabel": "Waterfall", "kindCell": "waterfall", "figureCell": "Figure 16"},
+    {"familyLabel": "Process", "kindCell": "process", "figureCell": "Figure 17"},
+    {"familyLabel": "Cycle", "kindCell": "cycle", "figureCell": "Figure 18"},
+    {"familyLabel": "Timeline", "kindCell": "timeline", "figureCell": "Figure 19"},
+    {"familyLabel": "Hierarchy", "kindCell": "hierarchy", "figureCell": "Figure 20"},
+    {"familyLabel": "Decision tree", "kindCell": "decision_tree", "figureCell": "Figure 21"},
+    {"familyLabel": "Layered model", "kindCell": "model", "figureCell": "Figure 22"},
+    {"familyLabel": "Network", "kindCell": "network", "figureCell": "Figure 23"},
+    {"familyLabel": "Matrix", "kindCell": "matrix", "figureCell": "Figure 24"},
+    {"familyLabel": "Venn", "kindCell": "venn", "figureCell": "Figure 25"},
+    {"familyLabel": "Swimlane", "kindCell": "swimlane", "figureCell": "Figure 26"},
+    {"familyLabel": "Photograph", "kindCell": "contemporary_photograph", "figureCell": "Photograph 1"},
+    {"familyLabel": "Historical image", "kindCell": "contemporary_photograph or later_depiction", "figureCell": "Photograph 2"},
+    {"familyLabel": "Editorial artwork", "kindCell": "conceptual_artwork", "figureCell": "Photograph 3"},
+    {"familyLabel": "Conceptual reconstruction", "kindCell": "reconstruction", "figureCell": "Photograph 4"}
+  ],
+  "xrefs": [
+    {"blockId": "b-chart-bar", "label": "Figure 1"},
+    {"blockId": "b-diagram-process", "label": "Figure 17"},
+    {"blockId": "b-illustration-photo", "label": "Photograph 1"}
+  ]
+}

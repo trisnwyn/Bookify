@@ -1,0 +1,15 @@
+schemaVersion: "1.0"
+id: art-1
+path: assets/catalogue/artwork/art-1.svg
+originUrl: "local:assets/catalogue/artwork/art-1.svg"
+creator: "Bookify catalogue (original vector artwork)"
+licence: "Original work created for this catalogue"
+licenceUrl: "local:assets/catalogue/artwork/art-1.svg"
+credit: "Artwork: original vector drawing made for this catalogue; no external source."
+caption: "Original artwork: an abstract editorial composition of two facing page fields joined by a single reading line. It is a design study made for this catalogue, not a record of any specific book, object or event."
+alt: "Two outlined page panels face each other across a narrow gutter and are filled with rows of short grey rules. A dark blue curved line crosses the gutter to a small ring at the centre, with registration marks at the outer margins. Abstract, with no figures or lettering."
+kind: conceptual_artwork
+rightsStatus: verified
+evidence:
+  method: "Hand-authored SVG created in this repository; vector geometry only, no raster and no image-generation service."
+  source: "None: original conceptual artwork, not a reproduction."

@@ -1,0 +1,12 @@
+schemaVersion: "1.0"
+id: photo-c
+path: fixtures/negative/c.jpg
+originUrl: "https://commons.wikimedia.org/wiki/File:Barack_Obama_and_Emperor_Akihito_20140424.jpg"
+creator: "Unknown"
+licence: "Unknown"
+credit: "Credit unknown"
+caption: "Unconfirmed-rights fixture."
+alt: "A small test crop of the specimen photograph."
+kind: contemporary_photograph
+rightsStatus: unconfirmed
+sha256: "532727494bcc4c0771705a5377b99146649a604ab11b790d418b776738d34b00"

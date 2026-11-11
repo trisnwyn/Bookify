@@ -1,0 +1,14 @@
+schemaVersion: "1.0"
+revision: 1
+id: negative-rights
+metadata:
+  title: "Unconfirmed rights"
+  languages: [en]
+sections:
+  - id: sec-only
+    title: "Rights"
+    blocks:
+      - id: b-photo
+        type: illustration
+        illustrationId: photo-c
+        caption: "This image has unconfirmed rights."

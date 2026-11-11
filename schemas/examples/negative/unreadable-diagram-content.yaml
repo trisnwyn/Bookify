@@ -1,0 +1,27 @@
+schemaVersion: '1.0'
+revision: 1
+id: unreadable-diagram-content
+metadata:
+  title: Unreadable diagram fixture
+  languages:
+  - en
+sections:
+- id: sec-a
+  title: Unreadable diagram
+  blocks:
+  - id: b-d
+    type: diagram
+    caption: Reconstruction of the process.
+    confidence: unreadable
+    note: The figure could not be read.
+    diagram:
+      preset: process
+      nodes:
+      - id: n-plan
+        label: Plan
+      - id: n-act
+        label: Act
+      edges:
+      - from: n-plan
+        to: n-act
+        kind: arrow

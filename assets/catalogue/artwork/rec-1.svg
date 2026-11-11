@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" width="860" height="520" fill="none">
+  <!-- Original conceptual reconstruction: an inferred standing bow, with the
+       upright reference and the inferred spine drawn as construction lines.
+       No original drawing, photograph or object was traced; angles are illustrative. -->
+  <g stroke="#d6dbe2" stroke-width="1.2">
+    <path d="M120 70 V450 H740 V70"/>
+  </g>
+  <g stroke="#a8a8a8" stroke-width="0.9">
+    <path d="M50 450 H810"/>
+  </g>
+  <g stroke="#a8a8a8" stroke-width="0.9" stroke-dasharray="7 7">
+    <path d="M390 150 V450"/>
+    <path d="M390 275 A85 85 0 0 1 450 300"/>
+  </g>
+  <g stroke="#d6dbe2" stroke-width="1" stroke-dasharray="4 6">
+    <circle cx="620" cy="250" r="20"/>
+    <path d="M620 270 V362 M620 362 L600 450 M620 362 L640 450"/>
+    <path d="M620 292 L604 338 M620 292 L636 338"/>
+  </g>
+  <g stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M390 360 L450 300"/>
+    <circle cx="470" cy="283" r="20"/>
+    <path d="M390 360 L372 450 M390 360 L402 450"/>
+    <path d="M362 450 H386 M394 450 H416"/>
+    <path d="M448 306 L436 342 L432 380"/>
+  </g>
+  <g stroke="#4d4d4d" stroke-width="1.1">
+    <circle cx="390" cy="360" r="2.6"/>
+    <path d="M390 340 H400"/>
+  </g>
+  <g stroke="#a8a8a8" stroke-width="0.9" stroke-linecap="round">
+    <path d="M120 430 H160 M700 430 H740 M470 70 V96 M620 70 V96"/>
+  </g>
+</svg>

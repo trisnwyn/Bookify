@@ -1,0 +1,31 @@
+schemaVersion: "1.0"
+description: "Local font manifest. Every face is vendored under assets/fonts; nothing is resolved from the system."
+families:
+  - family: Spectral
+    licence: "SIL Open Font License 1.1"
+    files:
+      - { path: assets/fonts/Spectral-Regular.ttf, weight: 400, style: normal }
+      - { path: assets/fonts/Spectral-Italic.ttf, weight: 400, style: italic }
+      - { path: assets/fonts/Spectral-Medium.ttf, weight: 500, style: normal }
+      - { path: assets/fonts/Spectral-SemiBold.ttf, weight: 600, style: normal }
+      - { path: assets/fonts/Spectral-SemiBoldItalic.ttf, weight: 600, style: italic }
+      - { path: assets/fonts/Spectral-Bold.ttf, weight: 700, style: normal }
+      - { path: assets/fonts/Spectral-BoldItalic.ttf, weight: 700, style: italic }
+  - family: Noto Serif CJK JP
+    licence: "SIL Open Font License 1.1"
+    files:
+      - { path: assets/fonts/NotoSerifCJK-VF.ttc, weight: variable, style: normal, axis: "wght 200..900" }
+  - family: STIX Two Math
+    licence: "SIL Open Font License 1.1"
+    files:
+      - { path: assets/fonts/STIXTwoMath-Regular.otf, weight: 400, style: normal }
+scripts:
+  latin-vietnamese:
+    chain: ["Spectral"]
+    note: "Covers Latin, Vietnamese precomposed characters and common punctuation."
+  japanese:
+    chain: ["Noto Serif CJK JP"]
+    note: "Second family in the text font list; Typst falls back per glyph for Han, Hiragana, Katakana and CJK punctuation."
+  maths:
+    chain: ["STIX Two Math"]
+    note: "Applied through a math.equation show rule."

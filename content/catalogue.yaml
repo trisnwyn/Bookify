@@ -1,0 +1,630 @@
+schemaVersion: "1.0"
+revision: 2
+id: visual-catalogue
+metadata:
+  title: "Visual catalogue"
+  subtitle: "Reusable chart, diagram and illustration presets"
+  languages: [en, vi, ja]
+  institution: "Foreign Trade University"
+  course: "Japanese Style International Business"
+  author: "Bookify catalogue"
+sections:
+  - id: sec-about
+    title: "About this catalogue"
+    standfirst: "What this catalogue is, what its numbers are, and how its descriptions are set."
+    blocks:
+      - id: b-about-scope
+        type: paragraph
+        text: >-
+          This catalogue is a review instrument for the reusable visual vocabulary of
+          Bookify. It shows fifteen chart families in sixteen figures, ten diagram
+          presets and four illustration families. {ref:b-chart-bar} is the first chart,
+          {ref:b-diagram-process} is the first diagram, and {ref:b-illustration-photo}
+          is the first photograph.
+      - id: b-about-synthetic
+        type: paragraph
+        text: >-
+          Every chart value here is synthetic and authored for this review; none is a
+          measurement. The diagrams are illustrative schematics, not reconstructions of
+          a source figure. The printed caption and a build warning say so, and no figure
+          carries an invented source anchor.
+      - id: b-about-captions
+        type: paragraph
+        text: >-
+          Every chart, diagram and full-width photograph description is centred line by
+          line, including wrapped lines. A side illustration's description is centred
+          line by line in its image column, and its credit stays separate and
+          left-aligned in that column. Source notes remain left; table and equation
+          captions are unchanged.
+      - id: b-about-classes
+        type: paragraph
+        text: >-
+          The four illustration families are a contemporary photograph, one public-domain
+          historical image, original editorial artwork, and a conceptual reconstruction.
+          The artwork is local vector work; the reconstruction states that no original
+          was traced. None of the local originals claims documentary status.
+      - id: b-about-vi
+        type: paragraph
+        text: >-
+          Đây là bản duyệt cho hệ thống hình ảnh của Bookify: mười lăm họ biểu đồ,
+          mười bố cục sơ đồ và bốn họ minh hoạ. Mọi giá trị biểu đồ là dữ liệu tổng hợp,
+          không phải số đo; sơ đồ chỉ có tính minh hoạ. Mô tả được căn giữa từng dòng,
+          còn ghi nguồn và tín dụng vẫn căn trái.
+      - id: b-about-ja
+        type: paragraph
+        text: >-
+          このカタログは、再利用できる図表の語彙を一度に確認するための資料です。
+          図の説明は行ごとに中央揃えにし、出典とクレジットは左揃えのまま分けて示します。
+          写真、歴史画像、編集用の原画、概念的な再構成は、それぞれ種類を明記します。
+
+  - id: sec-charts-bars
+    title: "Charts: bars"
+    standfirst: "Three bar layouts: one series, grouped series and stacked segments."
+    blocks:
+      - id: b-chart-bar
+        type: chart
+        caption: "Weekly sessions by quarter."
+        chart:
+          kind: bar
+          categories: [Quý 1, Quý 2, Quý 3, Quý 4]
+          series:
+            - {id: sessions, label: Lượt truy cập}
+          values: [[42], [58], [51], [67]]
+          axis: {unit: lượt, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-grouped
+        type: chart
+        caption: >-
+          Two years of quarterly sessions by region, shown side by side so the direction
+          of change is readable without a legend. Hai năm hoạt động theo khu vực, đặt
+          cạnh nhau để thấy chiều thay đổi.
+        chart:
+          kind: grouped_bar
+          categories: [North, South, East]
+          series:
+            - {id: y2025, label: "2025"}
+            - {id: y2026, label: "2026"}
+          values: [[32, 38], [27, 31], [22, 29]]
+          axis: {unit: sessions, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-stacked
+        type: chart
+        caption: >-
+          Monthly sessions split into direct, search and referral traffic; each stack
+          total stays labelled.
+        chart:
+          kind: stacked_bar
+          categories: [Jan, Feb, Mar]
+          series:
+            - {id: direct, label: Direct}
+            - {id: search, label: Search}
+            - {id: referral, label: Referral}
+          values: [[20, 14, 8], [22, 16, 9], [19, 15, 11]]
+          axis: {unit: sessions, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+
+  - id: sec-charts-lines
+    title: "Charts: lines"
+    standfirst: "Two continuous forms: a line with a gap and a stacked area."
+    blocks:
+      - id: b-chart-line
+        type: chart
+        caption: >-
+          Active and returning readers across six weeks. The gap is an unrecorded week,
+          not a zero.
+        chart:
+          kind: line
+          categories: [W1, W2, W3, W4, W5, W6]
+          series:
+            - {id: active, label: Active}
+            - {id: returning, label: Returning}
+          values: [[12, 5], [14, 6], [13, 7], [null, 8], [16, 9], [18, 10]]
+          axis: {unit: readers, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; the week-four gap is unrecorded, not zero."
+      - id: b-chart-area
+        type: chart
+        caption: >-
+          Morning and afternoon attendance on five teaching days, stacked to show the
+          daily total.
+        chart:
+          kind: area
+          categories: [Thứ 2, Thứ 3, Thứ 4, Thứ 5, Thứ 6]
+          series:
+            - {id: morning, label: Buổi sáng}
+            - {id: afternoon, label: Buổi chiều}
+          values: [[18, 12], [20, 14], [17, 15], [22, 13], [19, 16]]
+          axis: {unit: người, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+
+  - id: sec-charts-points
+    title: "Charts: points"
+    standfirst: "Two point forms: scatter and bubble."
+    blocks:
+      - id: b-chart-scatter
+        type: chart
+        caption: >-
+          Session length against pages read for two reader groups, with one mark per
+          reader.
+        chart:
+          kind: scatter
+          series:
+            - {id: cohort-a, label: "Cohort A"}
+            - {id: cohort-b, label: "Cohort B"}
+          points:
+            - [[12, 4], [18, 6], [22, 5], [27, 8], [31, 9], [36, 11]]
+            - [[14, 3], [19, 5], [24, 7], [29, 6], [33, 10], [38, 12]]
+          xAxis: {unit: minutes, min: 0, max: 45}
+          axis: {unit: pages, min: 0, max: 15}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-bubble
+        type: chart
+        caption: >-
+          Reach against engagement for six channels; bubble area encodes the stored
+          audience size.
+        chart:
+          kind: bubble
+          series:
+            - {id: channels, label: Channels}
+          points:
+            - [[12, 4, 8], [18, 6, 14], [22, 5, 10], [27, 8, 18], [31, 9, 22], [36, 11, 26]]
+          xAxis: {unit: index, min: 0, max: 45}
+          axis: {unit: score, min: 0, max: 15}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+
+  - id: sec-charts-distributions
+    title: "Charts: distributions"
+    standfirst: "Four distribution forms, each with stored summaries or samples."
+    blocks:
+      - id: b-chart-histogram
+        type: chart
+        caption: "Distribution of session lengths in five-minute bins."
+        chart:
+          kind: histogram
+          bins: [0, 5, 10, 15, 20, 25]
+          series:
+            - {id: sessions, label: Sessions}
+          counts: [[4], [9], [14], [11], [6]]
+          axis: {unit: sessions, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-box
+        type: chart
+        caption: >-
+          Five-number summaries for four class groups; whiskers are the stored minimum
+          and maximum.
+        chart:
+          kind: box
+          categories: [A, B, C, D]
+          series:
+            - {id: score, label: Score}
+          stats:
+            - [[12, 18, 24, 30, 38]]
+            - [[14, 20, 25, 31, 40]]
+            - [[11, 17, 22, 29, 36]]
+            - [[15, 21, 27, 33, 42]]
+          axis: {unit: points, min: 0, max: 45}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-violin
+        type: chart
+        caption: >-
+          Session-length density for three cohorts, using a fixed Gaussian kernel and
+          stored samples.
+        chart:
+          kind: violin
+          categories: ["Cohort A", "Cohort B", "Cohort C"]
+          series:
+            - {id: density, label: Density}
+          samples:
+            - [[12, 14, 14, 16, 18, 18, 20, 22, 24]]
+            - [[10, 12, 13, 15, 16, 18, 19, 21, 23]]
+            - [[15, 16, 17, 18, 19, 20, 21, 22, 24]]
+          axis: {unit: score, min: 0, max: 30}
+          verification: synthetic
+          notes: "Synthetic samples authored for the catalogue; density uses a fixed Gaussian kernel and Silverman bandwidth."
+      - id: b-chart-error-bar
+        type: chart
+        caption: "Mean score by cohort with stored uncertainty bars."
+        chart:
+          kind: error_bar
+          categories: [A, B, C, D]
+          series:
+            - {id: mean, label: Mean}
+          values: [[24], [31], [28], [36]]
+          errors: [[2.1], [2.8], [2.4], [3.0]]
+          axis: {unit: points, min: 0, max: 45}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+
+  - id: sec-charts-matrices
+    title: "Charts: matrices"
+    standfirst: "Two matrix-like forms: a vector heat map and a shared-scale radar."
+    blocks:
+      - id: b-chart-heatmap
+        type: chart
+        caption: "Weekly activity by channel; every cell prints its stored value."
+        chart:
+          kind: heatmap
+          categories: [Mon, Tue, Wed, Thu, Fri]
+          series:
+            - {id: morning, label: Morning}
+            - {id: midday, label: Midday}
+            - {id: afternoon, label: Afternoon}
+            - {id: evening, label: Evening}
+          values:
+            - [3, 5, 4, 2]
+            - [4, 6, 5, 3]
+            - [2, 4, 6, 4]
+            - [5, 7, 5, 3]
+            - [3, 5, 4, 2]
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-radar
+        type: chart
+        caption: >-
+          Five service dimensions for the current and target state on one shared scale.
+          Năm chiều dịch vụ trên một thang chung cho hiện tại và mục tiêu.
+        chart:
+          kind: radar
+          categories: [Tốc độ, Độ tin cậy, Chi phí, Linh hoạt, Độ phủ]
+          series:
+            - {id: current, label: Hiện tại}
+            - {id: target, label: Mục tiêu}
+          values: [[3, 4], [4, 5], [2, 3], [3, 4], [4, 4]]
+          axis: {unit: score, min: 0, max: 5}
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+
+  - id: sec-charts-parts
+    title: "Charts: parts"
+    standfirst: "Three part-to-whole forms: pie, donut and waterfall."
+    blocks:
+      - id: b-chart-pie
+        type: chart
+        caption: >-
+          Share of sessions by channel; every slice prints its value and derived share.
+        chart:
+          kind: pie
+          categories: [Direct, Search, Referral, Social]
+          series:
+            - {id: share, label: Share}
+          values: [[38], [27], [21], [14]]
+          hole: 0
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-donut
+        type: chart
+        caption: >-
+          The same channel share with a centre hole; the values are stored, not
+          recomputed at render.
+        chart:
+          kind: pie
+          categories: [Direct, Search, Referral, Social]
+          series:
+            - {id: share, label: Share}
+          values: [[34], [26], [22], [18]]
+          hole: 0.55
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+      - id: b-chart-waterfall
+        type: chart
+        caption: >-
+          A running total from start to end, with gains and losses shown as deltas.
+        chart:
+          kind: waterfall
+          categories: [Start, Gain, Loss, End]
+          series:
+            - {id: delta, label: Change}
+          values: [[40], [12], [-7], [45]]
+          totals: [false, false, false, true]
+          verification: synthetic
+          notes: "Synthetic values authored for the catalogue; not measurements."
+
+  - id: sec-diagrams-flow
+    title: "Diagrams: flow"
+    standfirst: "Three flow layouts: process, cycle and timeline."
+    blocks:
+      - id: b-diagram-process
+        type: diagram
+        caption: "観察、解釈、応答の一巡。"
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: process
+          synthetic: true
+          nodes:
+            - {id: n-observe, label: 観察, sub: 信号}
+            - {id: n-interpret, label: 解釈, sub: 設定}
+            - {id: n-respond, label: 応答, sub: 行動}
+          edges:
+            - {from: n-observe, to: n-interpret, kind: arrow}
+            - {from: n-interpret, to: n-respond, kind: arrow}
+            - {from: n-respond, to: n-observe, kind: arrow}
+          groups:
+            - {id: g-turn, label: 一巡, nodes: [n-observe, n-interpret, n-respond]}
+      - id: b-diagram-cycle
+        type: diagram
+        caption: "計画から改善へ戻る四段階の循環。"
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: cycle
+          synthetic: true
+          nodes:
+            - {id: n-plan, label: 計画}
+            - {id: n-do, label: 実行}
+            - {id: n-check, label: 確認}
+            - {id: n-act, label: 改善}
+          edges:
+            - {from: n-plan, to: n-do}
+            - {from: n-do, to: n-check}
+            - {from: n-check, to: n-act}
+            - {from: n-act, to: n-plan}
+      - id: b-diagram-timeline
+        type: diagram
+        caption: >-
+          四つの出来事を時間順に置く。 Four events in time order, with labels alternating
+          above and below.
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: timeline
+          synthetic: true
+          events:
+            - {id: ev-propose, label: 提案, sub: 準備, when: "1月"}
+            - {id: ev-build, label: 作成, sub: 草稿, when: "2月"}
+            - {id: ev-review, label: 確認, sub: 校閲, when: "3月"}
+            - {id: ev-publish, label: 公開, sub: 配布, when: "4月"}
+
+  - id: sec-diagrams-structure
+    title: "Diagrams: structure"
+    standfirst: "Three structure layouts: hierarchy, decision tree and layered model."
+    blocks:
+      - id: b-diagram-hierarchy
+        type: diagram
+        caption: >-
+          全体から入力・処理・出力へ下る階層。 A hierarchy from the whole to input, process
+          and output, with one parent per node.
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: hierarchy
+          synthetic: true
+          nodes:
+            - {id: n-all, label: 全体}
+            - {id: n-in, label: 入力}
+            - {id: n-process, label: 処理}
+            - {id: n-out, label: 出力}
+            - {id: n-record, label: 記録}
+          edges:
+            - {from: n-all, to: n-in}
+            - {from: n-all, to: n-process}
+            - {from: n-all, to: n-out}
+            - {from: n-all, to: n-record}
+      - id: b-diagram-decision
+        type: diagram
+        caption: >-
+          信号の有無で分岐する決定木。 A decision tree branches on the signal, and every
+          edge carries its condition.
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: decision_tree
+          synthetic: true
+          nodes:
+            - {id: n-signal, label: 信号はあるか}
+            - {id: n-yes, label: 設定を読む}
+            - {id: n-no, label: 空白を記録}
+            - {id: n-check, label: 再確認}
+            - {id: n-record, label: 記録する}
+          edges:
+            - {from: n-signal, to: n-yes, label: はい}
+            - {from: n-signal, to: n-no, label: いいえ}
+            - {from: n-yes, to: n-check, label: 一致}
+            - {from: n-check, to: n-record, label: 完了}
+      - id: b-diagram-model
+        type: diagram
+        caption: >-
+          三段の層モデル。 A three-layer model ordered policy, procedure and record.
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: model
+          synthetic: true
+          nodes:
+            - {id: n-policy, label: 方針}
+            - {id: n-process, label: 手続き}
+            - {id: n-record, label: 記録}
+          edges:
+            - {from: n-policy, to: n-process}
+            - {from: n-process, to: n-record}
+
+  - id: sec-diagrams-relations
+    title: "Diagrams: relations"
+    standfirst: "Four relation layouts: network, matrix, Venn and swimlane."
+    blocks:
+      - id: b-diagram-network
+        type: diagram
+        caption: >-
+          六つの節点を円周に置く関係図。 A relation diagram places six nodes on a circle,
+          with no self edges.
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: network
+          synthetic: true
+          nodes:
+            - {id: n-centre, label: 中心}
+            - {id: n-in, label: 入力}
+            - {id: n-process, label: 処理}
+            - {id: n-record, label: 記録}
+            - {id: n-check, label: 確認}
+            - {id: n-publish, label: 公開}
+          edges:
+            - {from: n-centre, to: n-in}
+            - {from: n-centre, to: n-process}
+            - {from: n-in, to: n-record}
+            - {from: n-process, to: n-record}
+            - {from: n-record, to: n-check}
+            - {from: n-check, to: n-publish}
+            - {from: n-publish, to: n-centre}
+            - {from: n-process, to: n-check}
+      - id: b-diagram-matrix
+        type: diagram
+        caption: "三行三列の対応表。"
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: matrix
+          synthetic: true
+          rows: [入力, 処理, 出力]
+          columns: [速さ, 正確さ, 記録]
+          cells:
+            - [速い, 高い, 自動]
+            - [中程度, 高い, 手動]
+            - [遅い, 中程度, 自動]
+      - id: b-diagram-venn
+        type: diagram
+        caption: >-
+          三集合の重なり。 A three-set overlap with four region labels; area carries no
+          quantity.
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: venn
+          synthetic: true
+          sets:
+            - {id: set-policy, label: 方針}
+            - {id: set-process, label: 手続き}
+            - {id: set-record, label: 記録}
+          overlaps:
+            - {id: ov-policy-process, label: 根拠, sets: [set-policy, set-process]}
+            - {id: ov-policy-record, label: 判断, sets: [set-policy, set-record]}
+            - {id: ov-process-record, label: 証拠, sets: [set-process, set-record]}
+            - {id: ov-all, label: 改善, sets: [set-policy, set-process, set-record]}
+      - id: b-diagram-swimlane
+        type: diagram
+        caption: >-
+          三つの役割と四つの段階からなるスイムレーン。 A swimlane with three roles and four
+          stages, at most one node per cell.
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: swimlane
+          synthetic: true
+          lanes:
+            - {id: lane-author, label: 著者}
+            - {id: lane-review, label: 校閲}
+            - {id: lane-publish, label: 公開}
+          stages:
+            - {id: stage-draft, label: 草稿}
+            - {id: stage-check, label: 確認}
+            - {id: stage-fix, label: 修正}
+            - {id: stage-release, label: 配布}
+          nodes:
+            - {id: n-draft, label: 草稿, lane: lane-author, stage: stage-draft}
+            - {id: n-check, label: 点検, lane: lane-review, stage: stage-check}
+            - {id: n-fix, label: 修正, lane: lane-author, stage: stage-fix}
+            - {id: n-release, label: 配布, lane: lane-publish, stage: stage-release}
+
+  - id: sec-illustrations
+    title: "Illustrations"
+    standfirst: "Four curation families, each with its own rights record."
+    blocks:
+      - id: b-illustration-photo
+        type: illustration
+        illustrationId: photo-1
+        caption: "A welcome ceremony in Tokyo, 2014."
+        composition:
+          preset: side-left
+          companion: b-illustration-photo-note
+      - id: b-illustration-photo-note
+        type: paragraph
+        text: >-
+          Contemporary photograph: this documentary image is placed beside a short
+          note so the picture and its rights statement stay together. The record
+          identifies the creator and the public-domain licence; the caption and credit
+          remain separate.
+      - id: b-illustration-historical
+        type: illustration
+        illustrationId: hist-1
+        caption: >-
+          General Douglas MacArthur and Emperor Hirohito at their first meeting, Tokyo,
+          27 September 1945. Tướng MacArthur và Thiên hoàng Hirohito trong lần gặp đầu
+          tiên, Tokyo, ngày 27 tháng 9 năm 1945.
+        composition:
+          preset: side-right
+          companion: b-illustration-historical-note
+      - id: b-illustration-historical-note
+        type: paragraph
+        text: >-
+          Historical image: this public-domain photograph records a 1945 meeting in
+          Tokyo. The caption gives the people, place and date; this note records the
+          rights basis without adding a new claim about the event.
+      - id: b-illustration-editorial
+        type: illustration
+        illustrationId: art-1
+        composition:
+          preset: full
+      - id: b-illustration-reconstruction
+        type: illustration
+        illustrationId: rec-1
+        composition:
+          preset: side-left
+          companion: b-illustration-reconstruction-note
+      - id: b-illustration-reconstruction-note
+        type: paragraph
+        text: >-
+          Conceptual reconstruction: the drawing is inferred from a written
+          description, not traced from an original. The caption states that
+          limitation; this note keeps the class wording and the reading order beside
+          the image.
+
+  - id: sec-coverage
+    title: "Coverage"
+    standfirst: "The finite inventory behind every figure in this document."
+    blocks:
+      - id: b-coverage-intro
+        type: paragraph
+        text: >-
+          The table lists every named family once. Pie and donut share one row and
+          reference two figures; every other row references one figure.
+      - id: b-coverage-table
+        type: table
+        caption: "Coverage of the fifteen chart families, ten diagram presets and four illustration families."
+        header: [Family, Kind or preset, Figure]
+        rows:
+          - [Bar, bar, "Figure 1"]
+          - [Grouped bar, grouped_bar, "Figure 2"]
+          - [Stacked bar, stacked_bar, "Figure 3"]
+          - [Line, line, "Figure 4"]
+          - [Area, area, "Figure 5"]
+          - [Scatter, scatter, "Figure 6"]
+          - [Bubble, bubble, "Figure 7"]
+          - [Histogram, histogram, "Figure 8"]
+          - [Box plot, box, "Figure 9"]
+          - [Violin, violin, "Figure 10"]
+          - [Error bar, error_bar, "Figure 11"]
+          - [Heat map, heatmap, "Figure 12"]
+          - [Radar, radar, "Figure 13"]
+          - [Pie and donut, pie, "Figures 14–15"]
+          - [Waterfall, waterfall, "Figure 16"]
+          - [Process, process, "Figure 17"]
+          - [Cycle, cycle, "Figure 18"]
+          - [Timeline, timeline, "Figure 19"]
+          - [Hierarchy, hierarchy, "Figure 20"]
+          - [Decision tree, decision_tree, "Figure 21"]
+          - [Layered model, model, "Figure 22"]
+          - [Network, network, "Figure 23"]
+          - [Matrix, matrix, "Figure 24"]
+          - [Venn, venn, "Figure 25"]
+          - [Swimlane, swimlane, "Figure 26"]
+          - [Photograph, contemporary_photograph, "Photograph 1"]
+          - [Historical image, "contemporary_photograph or later_depiction", "Photograph 2"]
+          - [Editorial artwork, conceptual_artwork, "Photograph 3"]
+          - [Conceptual reconstruction, reconstruction, "Photograph 4"]
+        widths: [0.42, 0.30, 0.28]
+        align: [left, left, left]
+      - id: b-coverage-close
+        type: paragraph
+        text: >-
+          No family outside this table is part of the catalogue. A missing or extra
+          kind, preset or illustration family fails the catalogue gate rather than
+          appearing silently.

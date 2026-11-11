@@ -1,0 +1,41 @@
+# Synthetic public trial fixture.
+#
+# This file is authored test data, not a manuscript derived from a lecture,
+# book, dataset or other external source. It deliberately carries no
+# sourceAnchors and makes no measurement or provenance claim. The private
+# development trial remains local and is not published.
+schemaVersion: "1.0"
+revision: 1
+id: synthetic-trial
+metadata:
+  title: "Synthetic trial fixture"
+  subtitle: "A source-independent manuscript for the public test suite"
+  languages: [en, vi, ja]
+  institution: "Bookify public test fixture"
+  course: "Not derived from any source document"
+  author: "Bookify test suite"
+sections:
+  - id: sec-purpose
+    title: "Purpose"
+    kicker: "TEST FIXTURE"
+    standfirst: "This manuscript is synthetic. It is not extracted from, and does not describe, any private source document."
+    blocks:
+      - id: b-purpose
+        type: paragraph
+        text: "The fixture exercises manuscript validation and deterministic normalization without depending on private material. It contains no source anchors, no measurements and no claims about an external document."
+      - id: b-steps
+        type: list
+        ordered: true
+        items:
+          - "Validate the public manuscript contract."
+          - "Normalize the document deterministically."
+          - "Keep the public test suite independent of private sources."
+  - id: sec-languages
+    title: "Language coverage"
+    blocks:
+      - id: b-vi
+        type: paragraph
+        text: "Tiếng Việt có đủ dấu: ế ộ ữ đ ạ ỹ. Đây là câu kiểm tra, không trích từ tài liệu nào."
+      - id: b-ja
+        type: paragraph
+        text: "日本語の文章は単語の間に空白がないため、行内で折り返されます。これは試験用の文であり、外部資料からの引用ではありません。"

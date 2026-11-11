@@ -1,0 +1,28 @@
+# Local build and probe output
+.venv/
+.cache/
+build/
+dist/
+probe/out/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Web research cache
+.firecrawl/
+
+# Internal planning, prompts, audit trails and worklogs (not published)
+.opencode/
+tasks/
+
+# Development material excluded from the public source for rights/privacy:
+# the trial manuscript derives from a private lecture deck; the reports are
+# internal worklogs and the portable archive is a local release artifact.
+content/trial.yaml
+docs/trial.md
+docs/catalogue-report.md
+docs/visual-layout-report.md
+docs/skill-bundle.md
+*.tar.gz

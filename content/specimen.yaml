@@ -1,0 +1,161 @@
+schemaVersion: "1.0"
+revision: 1
+id: specimen-book
+metadata:
+  title: "Reading a Sample"
+  subtitle: "A synthetic specimen for the offline publishing pipeline"
+  languages: [en, vi, ja]
+  institution: "Example Institute"
+  course: "Specimen Methods"
+  author: "Bookify specimen"
+sections:
+  - id: sec-reading-a-sample
+    title: "Reading a sample"
+    kicker: "SPECIMEN CHAPTER"
+    standfirst: "A synthetic chapter that exercises every typographic and structural element the pipeline must carry: scripts, an equation, a chart, a diagram, a sourced photograph, a table and a cross-reference. No passage is taken from an external source."
+    blocks:
+      - id: b-opening
+        type: paragraph
+        text: "A sample can be read at several levels: what is visible, what the setting suggests, and what remains uncertain. This specimen uses a simple public scene to show how the manuscript records each level before the page is compiled. The photograph in {ref:b-photo} is a public-domain image; the model in {ref:b-process} is a synthetic diagram authored for this chapter."
+        confidence: verified
+      - id: b-definition
+        type: definition
+        term: "Sample"
+        definition: "A bounded piece of material selected for inspection, with its context and limits recorded alongside it."
+      - id: b-vi
+        type: paragraph
+        text: "Tiếng Việt có đủ dấu: ế ộ ữ đ ạ ỹ ỡ ư ơ ằ ắ ẳ ẵ ặ. Một mẫu chỉ có nghĩa khi đi kèm bối cảnh: nhãn, thời điểm và giới hạn của nó cần được ghi lại trước khi diễn giải."
+        confidence: verified
+      - id: b-ja
+        type: paragraph
+        text: "日本語の文章は単語の間に空白がないため、行の折り返しが正しく行われるかを確認します。見本は文脈と限界を記録して初めて意味を持ちます。見えたままの事実と推測を分けて扱うことが大切です。"
+        confidence: verified
+      - id: b-special
+        type: paragraph
+        text: "Special characters survive the pipeline: em dash — en dash – curly quotes ‘and’, arrows →, inequality ≤ ≥, and a sum ∑."
+        confidence: verified
+      - id: b-assessment
+        type: assessment
+        title: "Check your reading"
+        text: "Which detail in {ref:b-photo} is visible without interpretation? Answer in one sentence, using the vocabulary of {ref:b-definition}."
+      - id: b-equation
+        type: equation
+        typst: "overline(x) = 1/n sum_(i=1)^n x_i"
+        caption: "A mean is used here only to show that display mathematics stays vector text."
+      - id: b-chart
+        type: chart
+        caption: "Synthetic values for the specimen. The bars demonstrate a grouped-bar chart and are not measurements; this caption is intentionally long enough to wrap across two centred lines so the verifier can check line-by-line centring."
+        confidence: inferred
+        note: "Authored synthetic values; not measurements."
+        chart:
+          kind: grouped_bar
+          categories: [Alder, Birch, Cedar]
+          series:
+            - id: sample-count
+              label: "Samples recorded"
+          values: [[72], [64], [58]]
+          axis:
+            unit: "units"
+            min: 0
+            max: 100
+          verification: synthetic
+          notes: "Authored for this specimen; no external data."
+      - id: b-process
+        type: diagram
+        caption: "A synthetic three-step diagram authored for this specimen: collect, label, then review. The dashed return marks a sample sent back for another look."
+        confidence: inferred
+        note: "Synthetic diagram authored for this specimen; no original figure was traced."
+        diagram:
+          preset: process
+          nodes:
+            - id: n-observe
+              label: "Collect"
+              sub: "sample"
+            - id: n-interpret
+              label: "Label"
+              sub: "context"
+            - id: n-respond
+              label: "Review"
+              sub: "limits"
+          edges:
+            - from: n-observe
+              to: n-interpret
+              kind: arrow
+            - from: n-interpret
+              to: n-respond
+              kind: arrow
+            - from: n-respond
+              to: n-observe
+              kind: arrow
+          groups:
+            - id: g-outer
+              label: "One pass"
+              nodes: [n-observe, n-interpret, n-respond]
+      - id: b-photo
+        type: illustration
+        illustrationId: photo-1
+        caption: "A formal public greeting: two people in a receiving line, with the setting and the sequence of gestures visible in the frame; this caption is written to wrap so the verifier can check centring on both lines."
+      - id: b-list
+        type: list
+        items:
+          - "Read the visible detail before naming it."
+          - "Compare the detail with the setting, not with your own defaults."
+          - "Record what is uncertain instead of filling the gap."
+      - id: b-example
+        type: example
+        title: "Worked example"
+        text: "Two labels disagree about the same sample. Reading the labels alone suggests an error; reading the order of the labels shows that one was written before the sample was moved. The interpretation changes the advice."
+      - id: b-wrap
+        type: paragraph
+        text: "Synthetic specimens are useful precisely because they can be small. The chapter does not need a real case to exercise a page break, a caption, a credit, a cross-reference or a table; it needs enough material to make those elements interact, and an honest mark wherever the evidence stops."
+        confidence: verified
+
+      - id: b-elements
+        type: paragraph
+        text: "None of the block types is decorative. A list shows order; a table shows comparison; a chart shows a relationship; a diagram shows a sequence; a photograph shows a scene. The specimen puts them on adjacent pages so the verifier can check that numbering, captions and credits remain attached to the right element even when the page breaks change. If a caption separates from its figure, the page is wrong even when every word is present."
+        confidence: verified
+
+      - id: b-check
+        type: paragraph
+        text: "The same rule applies to every block: the element, its description and its evidence travel together. A page that satisfies the text check but separates a credit from its photograph is not accepted, even if every word is present. This is why the specimen is checked as rendered pages, not only as a manuscript file."
+        confidence: verified
+  - id: sec-evidence
+    title: "Evidence and limits"
+    blocks:
+      - id: b-lead
+        type: lead
+        text: "The specimen separates what is visible from what is inferred. That separation is the point of the pipeline, not a formatting detail."
+      - id: b-context
+        type: paragraph
+        text: "Every specimen element is authored for this repository. The chart values, the diagram nodes and the table rows are synthetic; they exist to exercise layout, not to report an observation. The photograph is a public-domain image with its own rights record, and the prose makes no claim about an external document."
+        confidence: verified
+      - id: b-case
+        type: case
+        title: "Case: the missing label"
+        text: "A sample arrives without its label. The visible properties can be recorded; the origin cannot. The manuscript records the visible properties and leaves the origin absent, so the published description cannot imply a precision the material did not have."
+      - id: b-limits
+        type: paragraph
+        text: "Limits belong in the record, not in a footnote. A reader should be able to see which parts of a page are observed, which are authored, and which are deliberately left open; the layout should make that distinction visible without a second document."
+        confidence: verified
+      - id: b-table
+        type: table
+        caption: "The three layers a reader has to hold at once."
+        header: [Layer, Question, Failure mode]
+        rows:
+          - ["Detail", "What is visible?", "Naming it before looking"]
+          - ["Setting", "What does it mean here?", "Assuming your own default"]
+          - ["Warrant", "What is the evidence?", "Sounding certain without a source"]
+        widths: [0.18, 0.42, 0.4]
+        align: [left, left, left]
+      - id: b-evidence
+        type: paragraph
+        text: "Evidence is not the same as certainty. A page may carry a public photograph, a synthetic chart and a quoted checklist together; each element keeps its own status. The table is a prompt to ask what kind of support a sentence has, not a guarantee that the support is sufficient."
+        confidence: verified
+      - id: b-quote
+        type: quote
+        text: "A claim should carry its evidence."
+        attribution: "Specimen note"
+      - id: b-closing
+        type: paragraph
+        text: "The chapter ends where the pipeline begins: with a claim, a recorded limit and a visible mark where the evidence stops. See {ref:b-table} for the reading checklist."
+        confidence: verified

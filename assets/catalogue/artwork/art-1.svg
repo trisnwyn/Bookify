@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" width="860" height="520" fill="none">
+  <!-- Original conceptual artwork: two facing page fields and a shared reading line.
+       Abstract editorial composition, not a depiction of a specific object or event. -->
+  <g stroke="#a8a8a8" stroke-width="0.8">
+    <rect x="30" y="30" width="800" height="460"/>
+    <path d="M30 58 H52 M30 58 V80 M830 58 H808 M830 58 V80 M30 462 H52 M30 462 V440 M830 462 H808 M830 462 V440"/>
+  </g>
+  <g stroke="#d6dbe2" stroke-width="1">
+    <rect x="62" y="64" width="348" height="392"/>
+    <rect x="450" y="64" width="348" height="392"/>
+  </g>
+  <g stroke="#7a7a7a" stroke-width="1.6" stroke-linecap="round">
+    <path d="M92 104 H300 M92 126 H330 M92 148 H286 M92 170 H318 M92 192 H300 M92 214 H336"/>
+    <path d="M92 268 H290 M92 290 H326 M92 312 H302 M92 334 H318 M92 356 H280 M92 378 H310 M92 400 H296"/>
+    <path d="M480 104 H688 M480 126 H718 M480 148 H674 M480 170 H706 M480 192 H688 M480 214 H724"/>
+    <path d="M480 268 H678 M480 290 H714 M480 312 H690 M480 334 H706 M480 356 H668 M480 378 H698 M480 400 H684"/>
+  </g>
+  <g stroke="#4d4d4d" stroke-width="1.1">
+    <path d="M62 232 H112 M62 236 V228 M798 232 H748 M798 236 V228"/>
+    <path d="M410 44 V84 M410 476 V436"/>
+  </g>
+  <path d="M92 244 C 260 212, 600 276, 768 244" stroke="#2f3e5c" stroke-width="1.4" stroke-linecap="round"/>
+  <g stroke="#2f3e5c" stroke-width="1.2">
+    <circle cx="430" cy="244" r="5"/>
+    <path d="M430 228 V214 M430 260 V274"/>
+  </g>
+  <g stroke="#a8a8a8" stroke-width="0.9" stroke-linecap="round">
+    <path d="M52 88 V168 M52 344 V424 M808 88 V168 M808 344 V424"/>
+  </g>
+</svg>

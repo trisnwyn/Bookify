@@ -1,0 +1,21 @@
+schemaVersion: "1.0"
+revision: 1
+id: adversarial-illustrations
+metadata:
+  title: "Adversarial placement"
+  languages: [en]
+sections:
+  - id: sec-only
+    title: "Two photographs, one page"
+    blocks:
+      - id: b-intro
+        type: paragraph
+        text: "Two small photographs follow. The pipeline must keep them on separate final pages."
+      - id: b-photo-a
+        type: illustration
+        illustrationId: photo-a
+        caption: "First placement photograph."
+      - id: b-photo-b
+        type: illustration
+        illustrationId: photo-b
+        caption: "Second placement photograph."

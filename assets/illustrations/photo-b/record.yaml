@@ -1,0 +1,12 @@
+schemaVersion: "1.0"
+id: photo-b
+path: fixtures/adversarial/b.jpg
+originUrl: "https://commons.wikimedia.org/wiki/File:Barack_Obama_and_Emperor_Akihito_20140424.jpg"
+creator: "William Ng, US Department of State"
+licence: "Public domain (test fixture derived from Photo 1)"
+credit: "Photo: William Ng / US Department of State (public domain)"
+caption: "Test fixture photograph b for placement checks."
+alt: "A small test crop of the specimen photograph."
+kind: contemporary_photograph
+rightsStatus: verified
+sha256: "3e14b2bdaae6eff996fdcec28821cf56694083c4597b78e008b7f95a3ddb8e87"
