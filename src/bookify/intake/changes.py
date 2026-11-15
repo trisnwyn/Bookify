@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from bookify.intake import manifest as manifest_module
+from bookify.intake import ocr
 
 SCHEMA_VERSION = "1.0"
 
@@ -27,6 +28,7 @@ def empty(source_id: str) -> dict[str, Any]:
         "changedPages": [],
         "addedImages": [],
         "removedImages": [],
+        "ocrChangedPages": [],
     }
 
 
@@ -53,6 +55,12 @@ def diff(previous: dict[str, Any] | None, current: dict[str, Any]) -> dict[str, 
         ),
         "addedImages": sorted(set(new_images) - set(old_images)),
         "removedImages": sorted(set(old_images) - set(new_images)),
+        "ocrChangedPages": sorted(
+            page
+            for page in set(old_pages) | set(new_pages)
+            if ocr.page_ocr_hash(old_pages.get(page, {}).get("ocr"))
+            != ocr.page_ocr_hash(new_pages.get(page, {}).get("ocr"))
+        ),
     }
 
 

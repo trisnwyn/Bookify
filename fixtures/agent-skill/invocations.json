@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "Public-safe command-driven acceptance invocations for the same synthetic source used by both authoring modes.",
+  "source": {
+    "path": "fixtures/agent-skill/source.pdf",
+    "sha256": "2c751d32ba89126b996db5045814e6ed2dc03468f0785ba74c3d28077f4ae1be",
+    "pages": 6
+  },
+  "notes": [
+    "Composer attachments are supplied separately and are listed here, not expanded from @path text.",
+    "Arguments are prompt text handed to the agent, never shell input.",
+    "Three command entries select exactly two modes: source-faithful (default alias) and teachable."
+  ],
+  "cases": [
+    {
+      "id": "default-alias",
+      "command": "bookify",
+      "expect": {
+        "mode": "source-faithful",
+        "conflict": false,
+        "otherEntry": null,
+        "preserved": [
+          "the attached source.pdf",
+          "British English",
+          "second-year undergraduates",
+          "twelve pages",
+          "author-date citations",
+          "dist/harbour.pdf",
+          "source order and coverage"
+        ]
+      },
+      "arguments": "Use the attached source.pdf. Write in British English for second-year undergraduates; keep it to twelve pages; use author-date citations; save the PDF to dist/harbour.pdf. Keep the source order and coverage.",
+      "attachments": ["source.pdf"]
+    },
+    {
+      "id": "explicit-source-faithful",
+      "command": "bookify-source-faithful",
+      "expect": {
+        "mode": "source-faithful",
+        "conflict": false,
+        "otherEntry": null,
+        "preserved": [
+          "British English",
+          "source's chapter order",
+          "no outside sources",
+          "dist/harbour-strict.pdf"
+        ]
+      },
+      "arguments": "Use British English and keep the source's chapter order. No outside sources. Put the PDF at dist/harbour-strict.pdf.",
+      "attachments": ["source.pdf"]
+    },
+    {
+      "id": "explicit-teachable",
+      "command": "bookify-teachable-textbook",
+      "expect": {
+        "mode": "teachable",
+        "conflict": false,
+        "otherEntry": null,
+        "preserved": [
+          "six chapters",
+          "advanced secondary students",
+          "no outside sources",
+          "standalone coursebook",
+          "Vietnamese",
+          "dist/harbour-teachable.pdf"
+        ]
+      },
+      "arguments": "Reorganise into six chapters for advanced secondary students. No outside sources. Write a standalone coursebook, not a report on the source. Use Vietnamese for explanations and save the PDF to dist/harbour-teachable.pdf.",
+      "attachments": ["source.pdf"]
+    },
+    {
+      "id": "default-alias-teachable-conflict",
+      "command": "bookify",
+      "expect": {
+        "mode": "source-faithful",
+        "conflict": true,
+        "otherEntry": "/bookify-teachable-textbook",
+        "preserved": [
+          "teachable textbook",
+          "exercises",
+          "Vietnamese",
+          "first-year undergraduates",
+          "dist/harbour-conflict.pdf"
+        ]
+      },
+      "arguments": "Make this a teachable textbook with exercises. Write in Vietnamese for first-year undergraduates; save the PDF to dist/harbour-conflict.pdf.",
+      "attachments": ["source.pdf"]
+    },
+    {
+      "id": "teachable-source-faithful-conflict",
+      "command": "bookify-teachable-textbook",
+      "expect": {
+        "mode": "teachable",
+        "conflict": true,
+        "otherEntry": "/bookify-source-faithful",
+        "preserved": [
+          "source-faithful",
+          "exact source order",
+          "no teaching material",
+          "British English",
+          "dist/harbour-teachable-conflict.pdf"
+        ]
+      },
+      "arguments": "Keep this book source-faithful with the exact source order and no teaching material. Use British English and save the PDF to dist/harbour-teachable-conflict.pdf.",
+      "attachments": ["source.pdf"]
+    }
+  ]
+}

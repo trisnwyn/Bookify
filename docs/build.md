@@ -39,6 +39,8 @@ Equation `typst` is math source, not markup. It is parsed with `eval(source, mod
 | illustration-limit | page text: `Photograph N.` | `ILLUSTRATION_LIMIT` |
 | rights | records + page text | `RIGHTS_INCOMPLETE` |
 | xrefs | contents lines, numbered labels | `XREF_MISSING` |
+| machine_read | manuscript `machineRead` blocks: region/method/confidence, never `verified`, table note, digit cross-check, no OCR chart | `SCHEMA_INVALID` |
+| ocr_free_build | build report OCR boundary record | `BUILD_FAILED` |
 | review | contact sheet + reviewer | `VERIFY_FAILED` |
 
 Exit code 0 only when the gate passes; 3 when it fails.
@@ -48,6 +50,10 @@ Exit code 0 only when the gate passes; 3 when it fails.
 - `pdfimages -list` rows include soft masks. Extraction pairs the files positionally and stores only `image` rows; masks are not counted as illustrations.
 - Manifests contain no timestamps and no absolute paths, so an unchanged source reproduces the same manifest byte for byte.
 - `--changed-only` with an unchanged source extracts nothing and writes an empty `changes.json`.
+- OCR runs only here. Pages with fewer than 40 non-space text characters are OCR'd whole at 300/450 dpi; otherwise image placements of at least 12,000 pt² are cropped and OCR'd. A page's `ocr.status` is `applied`, `uncertain`, `below_threshold`, `not_required`, `skipped` or `failed`; only adequate/uncertain lines are usable, digits need a recorded cross-check, and a below-threshold page stays unresolved with the measured reason.
+- `--ocr-lang` accepts `eng` (default) or `eng+vie` (opt-in); `jpn` is refused. The release engine is the system Tesseract package.
+- Intake is sandboxed by default: `pdfinfo`, `pdftotext`, `pdfimages`, `pdftohtml`, `pdftoppm` and Tesseract run under `bwrap --unshare-net` with only the intake output writable, each with a per-command timeout. `--allow-unsandboxed` is the explicit escape hatch for a trusted local source; `ocr/runlog.jsonl` records the actual sandbox state (extraction and OCR phases).
+- A pin change (engine, data, raster, PSM/OEM/threads or trigger) invalidates every page OCR record and appears in `changes.json` as `ocrChangedPages`. An unchanged source and pin skips all work.
 - A one-page edit produces exactly one entry in `changes.json`; unchanged page files keep their content.
 
 ## Authoring notes
@@ -64,6 +70,7 @@ Exit code 0 only when the gate passes; 3 when it fails.
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | `build requires --offline` | publishing without the flag | add `--offline` |
+| `bwrap is required for an offline intake run` | no bubblewrap, or the default guard cannot start | install bubblewrap, or pass `--allow-unsandboxed` for a trusted local source |
 | `draft for page N was authored from different content` | old draft or plan after a source/prompt change | run `author plan` again and re-author the page with the new `textSha256`/`inputHash` |
 | `build directory must live inside the project root` | output build dir outside repo | use `build/<name>` |
 | contents folio mismatch after a cover with the same title | verifier ignored cover and contents pages | fixed; rerun verify |
@@ -73,4 +80,4 @@ Exit code 0 only when the gate passes; 3 when it fails.
 
 ## Pins
 
-`toolchain.lock.json` records Typst binary and archive hashes, CeTZ/oxifmt tree hashes, nine font files and Python package versions. `toolchain doctor` verifies all of them locally; nothing is downloaded at build time.
+`toolchain.lock.json` records Typst binary and archive hashes, CeTZ/oxifmt tree hashes, nine font files, Python package versions and the `ocr` identity (engine/data/library/Leptonica hashes, raster, trigger and options). `toolchain doctor` verifies the build stack locally; OCR is intake-only, so a missing OCR engine does not fail a build. Nothing is downloaded at build time.

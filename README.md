@@ -15,7 +15,8 @@ rights record and attribution.
 ## Requirements
 
 - Linux with `uv` (verified 0.12.24), Python managed by uv (3.13 environment), and the local tools already vendored here: Typst CLI under `tools/typst/`, CeTZ under `vendor/typst/`.
-- Poppler utilities (`pdftotext`, `pdfimages`, `pdffonts`, `pdftoppm`, `pdfinfo`) and `bwrap` for verification and the offline build namespace.
+- Poppler utilities (`pdftotext`, `pdfimages`, `pdffonts`, `pdftoppm`, `pdfinfo`, `pdftohtml`) and `bwrap` for verification and the offline build namespace.
+- OCR is intake-only: the system `tesseract` CLI plus `tesseract-langpack-eng` (add `tesseract-langpack-vie` only when Vietnamese OCR is enabled). Build and verify never need it. Fedora: `sudo dnf install tesseract tesseract-langpack-eng`.
 - Ghostscript and ImageMagick are only needed for the test suite's contact sheets and PDF comparisons.
 
 Pinned versions live in `toolchain.lock.json` (Typst 0.15.1, CeTZ 0.5.3, Matplotlib 3.11.2, Python 3.13.16 at the time of writing). Run `uv run bookify toolchain doctor` to check a machine.
@@ -50,6 +51,10 @@ A passing gate prints `gate: pass`. The specimen report is `docs/specimen-report
 
 ```bash
 uv run bookify intake --source "<deck>.pdf" --out build/intake --changed-only --json
+# Intake is sandboxed (bwrap --unshare-net) by default; --allow-unsandboxed is the
+# explicit escape hatch for a trusted local source. OCR is the default for a
+# source that needs it; --no-ocr records a pre-OCR baseline.
+# Whitelisted/pinned languages: eng (default) or eng+vie (opt-in).
 uv run bookify author plan --intake build/intake --manuscript content/<book>.yaml \
   --out build/author-plan.json --cache-dir build/cache/authoring --json
 # read build/intake/pages/page-NNN.txt, write a draft (see skill/bookify/SKILL.md)
@@ -60,12 +65,37 @@ uv run bookify author apply --plan build/author-plan.json --draft <draft>.json \
 
 The authoring guide is `skill/bookify/SKILL.md`; `docs/build.md` records the authoring and build behaviour.
 
+## OCR intake
+
+OCR is intake-only. It reads image-borne text from a supplied source and is
+never used by publishing: `bookify build` and `bookify verify` are offline,
+model-free and OCR-free, and a machine with no OCR engine can still build and
+verify a manuscript.
+
+The release engine is the system Tesseract package, like Poppler:
+
+```sh
+# Fedora; add tesseract-langpack-vie only when Vietnamese OCR is enabled
+sudo dnf install tesseract tesseract-langpack-eng
+```
+
+- `eng` is the default; `vie` is opt-in with a measured tone-mark caveat. No CJK
+  OCR. Adequate text is `inferred`, never `verified`; digits need a recorded
+  cross-check.
+- The extracted development CLI (`tools/ocr/tesseract`) and vendored
+  `vendor/ocr/tessdata/**` are development-only and are excluded from the
+  public bundle.
+- The measured planning budget is 11.65 s per dual-pass page: about 39 minutes
+  for 200 whole pages, about 13 minutes for 200 regions. The old 30-minute
+  estimate counted OCR but not rendering; acceptance is now the measured
+  budget (200 whole pages ≤ 45 minutes). The second pass is never dropped.
+
 ## Commands
 
 | Command | Purpose |
 | --- | --- |
 | `uv run bookify toolchain doctor` | verify pins, fonts, packages and interpreter |
-| `uv run bookify intake --source TARGET --out DIR` | stable extraction: text pages, images, hashes |
+| `uv run bookify intake --source TARGET --out DIR` | stable extraction: text pages, images, hashes, OCR records |
 | `uv run bookify author plan` | pages that need work since the last apply |
 | `uv run bookify author apply` | merge an agent draft, validate, bump revision |
 | `uv run bookify author select` / `status` | illustration provenance and rights |
@@ -79,7 +109,7 @@ The authoring guide is `skill/bookify/SKILL.md`; `docs/build.md` records the aut
 ## Package the skill bundle
 
 ```bash
-python packaging/bookify_skill_bundle.py pack --out dist/bookify-skill.tar.gz \
+python packaging/bookify_skill_bundle.py pack --out dist/bookify-skill-v2-final.tar.gz \
   --check-determinism
 ```
 
@@ -106,7 +136,7 @@ build/, dist/   generated output (ignored)
 ## Limits (v1)
 
 - One chart kind (`grouped_bar`) and two diagram presets; no other output formats.
-- No OCR. Image-only pages are recorded as unresolved, never guessed.
+- OCR is Latin-first: `eng` by default, `vie` opt-in (tone-mark errors measured below the adequate band), no CJK. Adequate OCR is inferred, never verified; digits need a recorded cross-check. Image-only pages stay unresolved when OCR is below threshold.
 - Publishing requires `--offline` and a build directory inside the repository; the build uses `bwrap --unshare-net`.
 - `bwrap` is a verification dependency, not a pinned runtime package.
 - Typst still adds spacing after `。`; pagination is not hand-tuned.

@@ -16,7 +16,7 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
     unembedded = [line.split()[0] for line in fonts.splitlines()[2:] if re.search(r"\s+no\s+", line)]
     if unembedded:
         return failed("glyphs", "GLYPH_MISSING", f"unembedded font(s): {unembedded}", fonts=unembedded)
-    result = coverage.check(manuscript, manuscript.root)
+    result = coverage.check(manuscript, manuscript.engine)
     if not result.ok:
         missing = [code for _, code in result.missing]
         return failed("glyphs", "GLYPH_MISSING", f"missing glyphs: {missing[:10]}", missing=missing)

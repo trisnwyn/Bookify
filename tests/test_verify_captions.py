@@ -281,7 +281,9 @@ def test_table_and_equation_captions_are_ignored_and_stay_left(tmp_path: Path) -
     assert abs(equation_line.centre - equation_line.page_width / 2) > 20
 
 
-def test_note_and_credit_stay_left_while_the_description_is_centred(tmp_path: Path) -> None:
+def test_note_joins_the_centred_caption_while_the_credit_stays_left(tmp_path: Path) -> None:
+    # Bookify v2 D5: the provenance note is part of the centred caption block;
+    # the credit remains a separate left-aligned line at credit size.
     manuscript = _six_caption_manuscript(tmp_path)
     pdf = _caption_pdf(tmp_path, manuscript)
 
@@ -289,10 +291,12 @@ def test_note_and_credit_stay_left_while_the_description_is_centred(tmp_path: Pa
     note = _line_with(lines, "Short note.")
     credit = _line_with(lines, "Short credit.")
 
-    assert abs(note.centre - note.page_width / 2) > 20
+    assert abs(note.centre - note.page_width / 2) <= captions.TOLERANCE_PT
     assert abs(credit.centre - credit.page_width / 2) > 20
-    assert note.x_min < note.page_width / 3
     assert credit.x_min < credit.page_width / 3
+    # Caption size, not the retired 9.2 pt note size.
+    note_size = (note.y_max - note.y_min) / 1.5217
+    assert abs(note_size - 8.2) <= 0.5, note_size
 
 
 def test_wrapped_centred_illustration_caption_still_maps(tmp_path: Path) -> None:

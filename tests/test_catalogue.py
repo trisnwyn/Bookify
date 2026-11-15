@@ -23,11 +23,16 @@ from bookify.verify.checks import Check, passed as check_passed
 from bookify.verify.checks import captions
 from bookify.verify.checks import catalogue as catalogue_check
 from bookify.verify.checks import (
+    cover,
+    definitions,
     determinism,
     glyphs,
     illustration_limit,
+    plates,
     offline,
     pages,
+    readability,
+    rhythm,
     rights,
     text,
     xrefs,
@@ -491,10 +496,15 @@ def _stub_runner_checks(monkeypatch: pytest.MonkeyPatch) -> None:
         (offline, "offline"),
         (determinism, "determinism"),
         (glyphs, "glyphs"),
+        (cover, "cover"),
+        (definitions, "definitions"),
+        (rhythm, "rhythm"),
         (text, "text"),
         (illustration_limit, "illustration-limit"),
         (rights, "rights"),
         (xrefs, "xrefs"),
+        (plates, "plates"),
+        (readability, "readability"),
     ):
         monkeypatch.setattr(module, "check", pass_(identifier))
     monkeypatch.setattr(pages, "check_geometry", pass_("pages"))

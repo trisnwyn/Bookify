@@ -105,9 +105,9 @@ def test_retry_after_a_failed_extraction_succeeds(tmp_path: Path, monkeypatch: p
     original = extract.list_images
     calls = {"count": 0}
 
-    def flaky(path: Path, page: int):
+    def flaky(path: Path, page: int, policy=None):
         calls["count"] += 1
-        rows = original(path, page)
+        rows = original(path, page, policy)
         if calls["count"] == 1:
             return rows + [extract.ImageInfo(index=99, width=1, height=1, page=page, kind="image")]
         return rows
@@ -129,8 +129,8 @@ def test_image_count_mismatch_is_source_unreadable(tmp_path: Path, monkeypatch: 
     source = compile_typ('#set page(paper: "a4", margin: 40pt)\nText only.\n', "intake-count-mismatch")
     original = extract.list_images
 
-    def extra(path: Path, page: int):
-        rows = original(path, page)
+    def extra(path: Path, page: int, policy=None):
+        rows = original(path, page, policy)
         return rows + [extract.ImageInfo(index=99, width=1, height=1, page=page, kind="image")]
 
     monkeypatch.setattr(extract, "list_images", extra)
@@ -189,6 +189,6 @@ def test_intake_modules_do_not_import_network_or_models() -> None:
 def test_cli_intake_reports_pages(source_pdf: Path, tmp_path: Path, capsys) -> None:
     from bookify.toolchain.cli import main
 
-    assert main(["intake", "--source", str(source_pdf), "--out", str(tmp_path), "--json"]) == 0
+    assert main(["intake", "--source", str(source_pdf), "--out", str(tmp_path), "--no-ocr", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is True and payload["pages"] == 3 and payload["images"] == 2

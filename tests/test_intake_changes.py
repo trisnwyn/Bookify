@@ -31,12 +31,12 @@ def test_unchanged_source_skips_extraction(tmp_path: Path, capsys) -> None:
 
     source = compile_typ(BASE, "changes-base")
     out = tmp_path / "intake"
-    assert main(["intake", "--source", str(source), "--out", str(out), "--json"]) == 0
+    assert main(["intake", "--source", str(source), "--out", str(out), "--no-ocr", "--json"]) == 0
     capsys.readouterr()
     before = _sha(out / "manifest.json")
     page_mtime = (out / "pages" / "page-001.txt").stat().st_mtime_ns
 
-    assert main(["intake", "--source", str(source), "--out", str(out), "--changed-only", "--json"]) == 0
+    assert main(["intake", "--source", str(source), "--out", str(out), "--changed-only", "--no-ocr", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
 
     assert payload["skipped"] is True

@@ -64,10 +64,48 @@ def expected_probes(manuscript: model.Manuscript) -> list[str]:
     return [probe for probe in probes if probe]
 
 
+def machine_read_probes(manuscript: model.Manuscript) -> list[str]:
+    """Probes drawn only from OCR-derived blocks, reported as rendering probes.
+
+    A missing machine-read probe fails exactly like a text probe; it is never
+    reported as factual verification of the OCR value.
+    """
+    probes: list[str] = []
+    for block in _blocks(manuscript):
+        if not isinstance(block.get("machineRead"), dict):
+            continue
+        if block["type"] == "table":
+            header = [cell for cell in block.get("header", []) if cell]
+            rows = [cell for row in block.get("rows", []) for cell in row if cell]
+            if header:
+                probes.append(header[0])
+            if rows:
+                probes.append(rows[0])
+        else:
+            for field in ("text", "definition", "term", "title"):
+                value = block.get(field)
+                if isinstance(value, str) and value.strip():
+                    probes.append(value[:24])
+                    break
+    return probes
+
+
 def check(pdf: Path, manuscript: model.Manuscript) -> Check:
     text = _normalise("\n".join(page_texts(pdf)))
-    probes = expected_probes(manuscript)
-    missing = [probe for probe in probes if _normalise(probe) not in text]
+    probes = list(dict.fromkeys(expected_probes(manuscript)))
+    derived = list(dict.fromkeys(machine_read_probes(manuscript)))
+    all_probes = list(dict.fromkeys([*probes, *derived]))
+    missing = [probe for probe in all_probes if _normalise(probe) not in text]
     if missing:
-        return failed("text", "BUILD_FAILED", f"missing from extraction: {missing[:6]}", missing=missing)
-    return passed("text", f"{len(probes)} probes extracted intact")
+        return failed(
+            "text",
+            "BUILD_FAILED",
+            f"missing from extraction: {missing[:6]}",
+            missing=missing,
+            machineReadProbes=len(derived),
+        )
+    return passed(
+        "text",
+        f"{len(all_probes)} probes extracted intact ({len(derived)} machine-read)",
+        machineReadProbes=len(derived),
+    )

@@ -38,6 +38,14 @@ illustrations keep the terms recorded below.
 | Spectral | 7 faces | SIL Open Font License 1.1 | `assets/fonts/fonts.yaml`, `packaging/payload/licences/OFL-1.1.txt`, `packaging/payload/licences/fonts-metadata.md` |
 | Noto Serif CJK JP | variable TTC | SIL Open Font License 1.1 | same as above |
 | STIX Two Math | Regular OTF | SIL Open Font License 1.1 | same as above |
+| Tesseract OCR CLI | 5.5.3-2.fc44 | Apache-2.0 | `tools/ocr/LICENSE`, `tools/ocr/README.md` |
+| Tesseract tessdata (`eng`, `vie`) | 4.1.0-12.fc44 | Apache-2.0 | `tools/ocr/README.md`, `vendor/ocr/tessdata/` |
+
+The Tesseract CLI and the two `traineddata` files are unmodified distribution
+artefacts. `libtesseract` and `libleptonica` are system dependencies (BSD-2-Clause
+for Leptonica) and are not redistributed here. The OCR fixture in
+`fixtures/ocr-capability/` is original synthetic content authored for this
+repository.
 
 The Typst binary is the upstream static `x86_64-unknown-linux-musl` build. It is
 unmodified. CeTZ and Oxifmt are unmodified vendored Typst packages. The font

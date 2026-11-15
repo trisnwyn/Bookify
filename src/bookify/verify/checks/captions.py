@@ -166,12 +166,18 @@ def expected_captions(manuscript: model.Manuscript) -> tuple[CaptionSpec, ...]:
     for section in document.data["sections"]:
         for block in section["blocks"]:
             if block["type"] in FIGURE_KINDS:
+                # D5: the provenance line shares the centred caption block, so
+                # the expected rendered text is description + note. Credits stay
+                # separate and are measured on their own left edge.
+                text = block["caption"]
+                if block.get("note"):
+                    text = f"{text} {block['note']}"
                 specs.append(
                     CaptionSpec(
                         block_id=block["id"],
                         kind=block["type"],
                         label=block["label"],
-                        text=block["caption"],
+                        text=text,
                         preset=block.get("composition", "full"),
                         credit=block.get("credit") if block["type"] == "illustration" else None,
                     )
@@ -460,12 +466,14 @@ def check(
         groups[measurement.kind][shape] += 1
 
     if require_coverage:
-        missing = [
-            f"{kind} {shape}"
-            for kind in FIGURE_KINDS
+        # D5 merges the provenance line into the centred caption, so a chart or
+        # diagram with a source note is never a single-line caption. Coverage
+        # still requires both rendered shapes across the figure set.
+        totals = {
+            shape: sum(groups[kind][shape] for kind in FIGURE_KINDS)
             for shape in ("single", "wrapped")
-            if groups[kind][shape] == 0
-        ]
+        }
+        missing = [shape for shape, count in totals.items() if count == 0]
         if missing:
             return failed(
                 "captions",

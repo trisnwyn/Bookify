@@ -18,9 +18,12 @@ from bookify.manuscript import schema as manuscript_schema
 from bookify.authoring import apply as author_apply
 from bookify.authoring import illustrations as author_illustrations
 from bookify.authoring import plan as author_plan
+from bookify.authoring import record as author_record
+from bookify.authoring import workspace as author_workspace
 from bookify.intake import changes as intake_changes
 from bookify.intake import extract as intake_extract
 from bookify.intake import manifest as intake_manifest
+from bookify.intake import ocr as intake_ocr
 from bookify.publish import typst_driver
 from bookify.verify import runner as verify_runner
 from bookify.toolchain import doctor
@@ -58,12 +61,14 @@ def _parser() -> argparse.ArgumentParser:
     build.add_argument("--offline", action="store_true")
     build.add_argument("--draft", action="store_true", help="allow unconfirmed rights")
     build.add_argument("--build-dir", type=Path, default=Path("build"))
+    build.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     build.add_argument("--json", action="store_true")
 
     manuscript = subparsers.add_parser("manuscript", help="check a manuscript against the contract")
     manuscript_sub = manuscript.add_subparsers(dest="manuscript_command", required=True)
     check = manuscript_sub.add_parser("check", help="validate a manuscript and its assets")
     check.add_argument("--manuscript", type=Path, required=True)
+    check.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     check.add_argument("--json", action="store_true")
     schema_parser = manuscript_sub.add_parser("schema", help="print the normative schema")
     schema_parser.add_argument("--print", action="store_true", dest="print_schema")
@@ -72,6 +77,7 @@ def _parser() -> argparse.ArgumentParser:
     design_sub = design.add_subparsers(dest="design_command", required=True)
     design_check = design_sub.add_parser("check", help="check a manuscript against the design layer")
     design_check.add_argument("--manuscript", type=Path, required=True)
+    design_check.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     design_check.add_argument("--json", action="store_true")
 
     figures = subparsers.add_parser("figures", help="render charts and diagrams from a manuscript")
@@ -79,6 +85,7 @@ def _parser() -> argparse.ArgumentParser:
     figures_render = figures_sub.add_parser("render", help="write deterministic SVG and CeTZ assets")
     figures_render.add_argument("--manuscript", type=Path, required=True)
     figures_render.add_argument("--out", type=Path, required=True)
+    figures_render.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     figures_render.add_argument("--json", action="store_true")
 
     verify = subparsers.add_parser("verify", help="check a built PDF against the acceptance gate")
@@ -90,12 +97,35 @@ def _parser() -> argparse.ArgumentParser:
     verify.add_argument("--contact-sheet", type=Path, default=None)
     verify.add_argument("--reviewed-by", type=str, default=None)
     verify.add_argument("--reviewed-at", type=str, default=None)
+    verify.add_argument("--review-notes", type=Path, default=None, help="JSON decisions for every warning")
+    verify.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     verify.add_argument("--json", action="store_true")
 
     intake = subparsers.add_parser("intake", help="extract a source into a stable manifest")
     intake.add_argument("--source", type=Path, required=True)
     intake.add_argument("--out", type=Path, required=True)
     intake.add_argument("--changed-only", action="store_true")
+    intake.add_argument(
+        "--ocr",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="OCR image-borne text at intake (default; --no-ocr records a baseline)",
+    )
+    intake.add_argument("--ocr-lang", default="eng", help="pinned OCR language: eng (default) or eng+vie")
+    intake.add_argument("--ocr-tesseract", type=Path, default=None, help="explicit Tesseract CLI (tests)")
+    intake.add_argument("--ocr-tessdata", type=Path, default=None, help="explicit tessdata directory")
+    intake.add_argument("--ocr-require-system", action="store_true", help="refuse the development copy")
+    intake.add_argument("--keep-ocr-raster", action="store_true", help="retain per-region crop PNGs")
+    intake.add_argument(
+        "--offline",
+        action="store_true",
+        help="accepted for compatibility; intake is sandboxed by default",
+    )
+    intake.add_argument(
+        "--allow-unsandboxed",
+        action="store_true",
+        help="trusted local source only: run extraction/OCR outside bwrap and record it",
+    )
     intake.add_argument("--json", action="store_true")
 
     author = subparsers.add_parser("author", help="plan, apply and track authored content")
@@ -128,6 +158,15 @@ def _parser() -> argparse.ArgumentParser:
     status_parser.add_argument("--store", type=Path, default=Path("build/authoring/selections.json"))
     status_parser.add_argument("--section", default=None)
     status_parser.add_argument("--json", action="store_true")
+
+    contract = author_sub.add_parser("contract", help="validate the durable authoring record")
+    contract_sub = contract.add_subparsers(dest="contract_command", required=True)
+    contract_check = contract_sub.add_parser("check", help="check mode, provenance, coverage and enrichment")
+    contract_check.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
+    contract_check.add_argument("--record", type=Path, default=None)
+    contract_check.add_argument("--manuscript", type=Path, default=None)
+    contract_check.add_argument("--source", type=Path, default=None)
+    contract_check.add_argument("--json", action="store_true")
     return parser
 
 
@@ -143,13 +182,15 @@ def _toolchain_doctor(args: argparse.Namespace) -> int:
 
 
 def _manuscript_check(args: argparse.Namespace) -> int:
-    manuscript = manuscript_model.load(args.manuscript)
+    workspace = author_workspace.resolve(args.workspace)
+    manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
     payload = {
         "ok": True,
         "id": manuscript.id,
         "revision": manuscript.revision,
         "sections": len(manuscript.sections),
         "blocks": sum(len(section["blocks"]) for section in manuscript.sections),
+        "workspace": str(workspace) if workspace is not None else None,
     }
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -209,11 +250,83 @@ def _author_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def _author_contract_check(args: argparse.Namespace) -> int:
+    workspace = author_workspace.resolve(args.workspace)
+    record_path = args.record
+    if record_path is None:
+        if workspace is None:
+            raise BookifyError(
+                "INPUT_INVALID",
+                "contract check needs --workspace or --record",
+                "--record",
+            )
+        record_path = workspace / "authoring" / "record.json"
+    payload = author_record.check(
+        record_path,
+        manuscript_path=args.manuscript,
+        workspace=workspace,
+        source_path=args.source,
+    )
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        coverage = payload["coverage"]
+        print(
+            f"ok  {payload['bookId']} mode {payload['mode']}: "
+            f"{coverage['covered']} covered, {coverage['merged']} merged, {coverage['excluded']} excluded"
+        )
+    return 0
+
+
+def _intake_options(args: argparse.Namespace) -> intake_ocr.OcrOptions:
+    return intake_ocr.OcrOptions(
+        enabled=bool(args.ocr),
+        lang=args.ocr_lang,
+        # Sandboxed is the default; the flag is the documented escape hatch for
+        # a trusted local source, and the run log records the actual state.
+        offline=not bool(args.allow_unsandboxed),
+        allow_unsandboxed=bool(args.allow_unsandboxed),
+        keep_raster=bool(args.keep_ocr_raster),
+        require_system=bool(args.ocr_require_system),
+        tesseract=args.ocr_tesseract,
+        tessdata=args.ocr_tessdata,
+    )
+
+
+def _ocr_payload(manifest: dict) -> dict[str, Any]:
+    statuses: dict[str, int] = {}
+    pin: str | None = None
+    for page in manifest.get("pages", []):
+        record = page.get("ocr")
+        if not isinstance(record, dict):
+            continue
+        status = record.get("status", "unknown")
+        statuses[status] = statuses.get(status, 0) + 1
+        pin = record.get("pinSha256") or pin
+    return {"pages": sum(statuses.values()), "statuses": statuses, "pinSha256": pin}
+
+
 def _intake(args: argparse.Namespace) -> int:
     out = args.out
     previous = intake_manifest.load(out)
     digest = intake_extract.source_sha256(args.source)
-    if args.changed_only and previous and previous.get("sourceSha256") == digest:
+    options = _intake_options(args)
+    previous_ocr = (previous or {}).get("ocr")
+    previous_has_ocr = isinstance(previous_ocr, dict) and bool(previous_ocr.get("pinSha256"))
+    pin: str | None = None
+    if args.ocr and previous_has_ocr:
+        # `--changed-only` may skip only when source and the whole OCR pin
+        # (engine binary/source, data, raster, params) match.
+        pin = intake_ocr.pin_for(options)
+    if (
+        args.changed_only
+        and previous
+        and previous.get("sourceSha256") == digest
+        and (
+            (args.ocr and previous_has_ocr and previous_ocr.get("pinSha256") == pin)
+            or (not args.ocr and not previous_has_ocr)
+        )
+    ):
         intake_changes.write(out, intake_changes.empty(previous["sourceId"]))
         payload = {
             "ok": True,
@@ -221,10 +334,12 @@ def _intake(args: argparse.Namespace) -> int:
             "sourceId": previous["sourceId"],
             "pages": previous.get("pageCount", 0),
             "changedPages": [],
+            "ocrChangedPages": [],
             "images": sum(len(page["images"]) for page in previous.get("pages", [])),
+            "ocr": _ocr_payload(previous),
         }
     else:
-        current = intake_manifest.build(args.source, out)
+        current = intake_manifest.build(args.source, out, ocr_options=options)
         diff = intake_changes.diff(previous, current)
         intake_changes.write(out, diff)
         payload = {
@@ -233,7 +348,9 @@ def _intake(args: argparse.Namespace) -> int:
             "sourceId": current["sourceId"],
             "pages": current["pageCount"],
             "changedPages": diff["changedPages"],
+            "ocrChangedPages": diff["ocrChangedPages"],
             "images": sum(len(page["images"]) for page in current["pages"]),
+            "ocr": _ocr_payload(current),
         }
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -246,13 +363,35 @@ def _intake(args: argparse.Namespace) -> int:
 
 
 def _verify(args: argparse.Namespace) -> int:
+    workspace = author_workspace.resolve(args.workspace)
+    pdf = args.pdf
+    manuscript_path = args.manuscript
+    report_path = args.report
+    previous_pdf = args.previous_pdf
+    build_report = args.build_report
+    contact_sheet = args.contact_sheet
+    review_notes = args.review_notes
+    if workspace is not None:
+        pdf = author_workspace.inside(workspace, pdf, label="PDF")
+        manuscript_path = author_workspace.inside(workspace, manuscript_path, code="INPUT_INVALID", label="manuscript")
+        report_path = author_workspace.inside(workspace, report_path, label="verify report")
+        if previous_pdf is not None:
+            previous_pdf = author_workspace.inside(workspace, previous_pdf, label="comparison PDF")
+        if build_report is not None:
+            build_report = author_workspace.inside(workspace, build_report, label="build report")
+        if contact_sheet is not None:
+            contact_sheet = author_workspace.inside(workspace, contact_sheet, label="contact sheet")
+        if review_notes is not None:
+            review_notes = author_workspace.inside(workspace, review_notes, label="review notes")
     report = verify_runner.run(
-        args.pdf, args.manuscript, args.report,
-        previous_pdf=args.previous_pdf,
-        build_report=args.build_report,
-        contact_sheet=args.contact_sheet,
+        pdf, manuscript_path, report_path,
+        previous_pdf=previous_pdf,
+        build_report=build_report,
+        contact_sheet=contact_sheet,
         reviewed_by=args.reviewed_by,
         reviewed_at=args.reviewed_at,
+        review_notes=review_notes,
+        workspace=workspace,
     )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
@@ -264,14 +403,19 @@ def _verify(args: argparse.Namespace) -> int:
 
 
 def _figures_render(args: argparse.Namespace) -> int:
-    manuscript = manuscript_model.load(args.manuscript)
-    out_dir = args.out
+    workspace = author_workspace.resolve(args.workspace)
+    manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
+    out_dir = (
+        author_workspace.inside(workspace, args.out, label="figures directory")
+        if workspace is not None
+        else args.out
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
     entries: list[dict[str, str]] = []
     for section in manuscript.sections:
         for block in section["blocks"]:
             if block["type"] == "chart":
-                rendered = chart_engine.render(block, manuscript.root, out_dir)
+                rendered = chart_engine.render(block, manuscript.engine, out_dir)
                 entries.append({"kind": "chart", "blockId": block["id"], "path": str(rendered.path), "sha256": rendered.sha256})
             elif block["type"] == "diagram":
                 rendered = diagram_engine.render(block, out_dir)
@@ -286,10 +430,11 @@ def _figures_render(args: argparse.Namespace) -> int:
 
 
 def _design_check(args: argparse.Namespace) -> int:
-    manuscript = manuscript_model.load(args.manuscript)
-    result = design_coverage.check(manuscript, manuscript.root)
-    issues = design_lint.lint(manuscript.root)
-    missing = sorted(design_lint.missing_presets(manuscript.root))
+    workspace = author_workspace.resolve(args.workspace)
+    manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
+    result = design_coverage.check(manuscript, manuscript.engine)
+    issues = design_lint.lint(manuscript.engine)
+    missing = sorted(design_lint.missing_presets(manuscript.engine))
     payload = {
         "ok": result.ok and not issues and not missing,
         "coverage": {
@@ -312,8 +457,14 @@ def _design_check(args: argparse.Namespace) -> int:
 def _build(args: argparse.Namespace) -> int:
     if not args.manuscript or not args.out:
         raise BookifyError("INPUT_INVALID", "build needs --manuscript and --out")
+    workspace = author_workspace.resolve(args.workspace)
     result = typst_driver.build(
-        args.manuscript, args.out, args.build_dir, offline=args.offline, draft=args.draft
+        args.manuscript,
+        args.out,
+        args.build_dir,
+        offline=args.offline,
+        draft=args.draft,
+        workspace=workspace,
     )
     summary = {
         "ok": True,
@@ -357,6 +508,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _author_select(args)
         if args.command == "author" and args.author_command == "status":
             return _author_status(args)
+        if args.command == "author" and args.author_command == "contract":
+            return _author_contract_check(args)
         if args.command == "build":
             return _build(args)
         raise BookifyError("INPUT_INVALID", f"unknown command: {args.command}")

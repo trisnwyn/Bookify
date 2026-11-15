@@ -87,5 +87,137 @@
       "path": "assets/fonts/STIXTwoMath-Regular.otf",
       "sha256": "3a5f3f26f40d5698b3c62dd085d48d6663696a3f80825aab8b553d5097518e8c"
     }
-  ]
+  ],
+  "ocr": {
+    "engine": "tesseract",
+    "version": "5.5.4",
+    "binary": "tesseract",
+    "binarySha256": "2e54bf61c56a3ca1ac11758a7d9764f52333b5777a74272b4e083b016cefa74a",
+    "binaryBytes": 53336,
+    "library": {
+      "name": "libtesseract",
+      "version": "5.5.4",
+      "soname": "libtesseract.so.5.5",
+      "path": "/usr/lib64/libtesseract.so.5.5.4",
+      "sha256": "7cc5ff7e31dcdc612f963792e5ad57ac24af5a2c4d51bacc912530dd64f537fb"
+    },
+    "leptonica": {
+      "version": "1.87.0",
+      "soname": "libleptonica.so.6",
+      "path": "/usr/lib64/libleptonica.so.6.0.0",
+      "sha256": "27f70f645a88e57cc5be893913933c8bd3a92de934093f5d8d5f82ccf5fb6c63"
+    },
+    "tessdataPrefix": "/usr/share/tesseract/tessdata",
+    "languages": [
+      {
+        "lang": "eng",
+        "file": "eng.traineddata",
+        "size": 4113088,
+        "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+        "tessdataVersion": "4.1.0",
+        "package": "tesseract-langpack-eng-4.1.0-12.fc44",
+        "default": true
+      },
+      {
+        "lang": "vie",
+        "file": "vie.traineddata",
+        "sha256": "79df64caf7bcfb2a27df5042ecb6121e196eada34da774956995747636d5bfa1",
+        "tessdataVersion": "4.1.0",
+        "systemInstalled": false,
+        "default": false,
+        "note": "opt-in only until Vietnamese bands are calibrated; install tesseract-langpack-vie on the system, the development copy carries the vendored data"
+      }
+    ],
+    "raster": {
+      "dpi": 300,
+      "secondPassDpi": 450,
+      "colorspace": "gray"
+    },
+    "trigger": {
+      "minTextChars": 40,
+      "minRegionAreaPt2": 12000
+    },
+    "engineOptions": {
+      "oem": 1,
+      "pagePsm": 3,
+      "regionPsm": 6,
+      "threads": 1
+    },
+    "license": "Apache-2.0",
+    "install": {
+      "supported": "system-package",
+      "fedora": "sudo dnf install tesseract tesseract-langpack-eng [tesseract-langpack-vie]",
+      "binary": "/usr/bin/tesseract",
+      "tessdataPrefix": "/usr/share/tesseract/tessdata",
+      "note": "Release uses the system package, like Poppler. The CLI binary, libtesseract, Leptonica and data hashes are all pinned; the system run measured and satisfied them."
+    },
+    "release": {
+      "engineSource": "system-package",
+      "devCopyIncluded": false,
+      "devCopyPath": "tools/ocr/tesseract",
+      "devDataPath": "vendor/ocr/tessdata",
+      "verifiedEngine": "system",
+      "verifiedOn": "2026-11-14"
+    },
+    "system": {
+      "packages": {
+        "tesseract": "5.5.4-1.fc44",
+        "tesseract-libs": "5.5.4-1.fc44",
+        "tesseract-common": "5.5.4-1.fc44",
+        "tesseract-langpack-eng": "4.1.0-12.fc44",
+        "leptonica": "1.87.0-4.fc44"
+      },
+      "binary": "/usr/bin/tesseract",
+      "binarySha256": "2e54bf61c56a3ca1ac11758a7d9764f52333b5777a74272b4e083b016cefa74a",
+      "binaryBytes": 53336,
+      "tessdataPrefix": "/usr/share/tesseract/tessdata",
+      "languages": [
+        "eng"
+      ],
+      "rpmVerify": "rpm -V tesseract tesseract-libs tesseract-langpack-eng leptonica exits 0 (no changes)",
+      "signature": "installed from the Fedora 44 repository; package signature RSA/SHA256 key ID dbfcf71c6d9f90a6",
+      "versionOutput": "tesseract 5.5.4 / leptonica-1.87.0 / libgif 6.1.3, libjpeg 6b (libjpeg-turbo 3.1.3), libpng 1.6.58, libtiff 4.7.2, zlib 1.3.1.zlib-ng, libwebp 1.6.0 / AVX2 AVX FMA SSE4.1 / libcurl 8.18.0"
+    },
+    "developmentCopy": {
+      "purpose": "local development and capability tests only",
+      "binary": "tools/ocr/tesseract",
+      "binarySha256": "2e54bf61c56a3ca1ac11758a7d9764f52333b5777a74272b4e083b016cefa74a",
+      "byteIdenticalToSystem": true,
+      "tessdataPrefix": "vendor/ocr/tessdata",
+      "warning": "never ship; excluded from the public bundle and ignored by git",
+      "provenanceCaveat": "a byte copy of the installed Fedora tesseract-5.5.4-1.fc44 CLI; it loads the system libtesseract 5.5.4 and only differs in how it is resolved, so development and release measure the same engine"
+    },
+    "defaults": {
+      "languages": [
+        "eng"
+      ],
+      "ocrLang": "eng",
+      "vie": {
+        "default": false,
+        "optIn": true,
+        "reason": "tone-mark errors; measured agreement 0.8429 on the Vietnamese fixture page, below the adequate band; the system package for vie is not installed on this host"
+      },
+      "agreement": {
+        "role": "corroboration-only",
+        "note": "ruled tables at PSM 6 produced agreement 1.000 on shared garbage; agreement is not correctness"
+      },
+      "regionPsm": {
+        "default": 6,
+        "ruledTables": 4,
+        "note": "PSM 6 assumes one uniform block; calibrate per region shape"
+      },
+      "resolution": {
+        "dpi": 300,
+        "secondPassDpi": 450,
+        "note": "96 dpi passed and 84 dpi failed on the fixture; the gate is agreement, not a DPI constant"
+      },
+      "budget": {
+        "dualPassPageSeconds": 11.65,
+        "wholePages200Minutes": 39,
+        "regions200Minutes": 13,
+        "supersedes": "the 30-minute whole-page estimate, which counted OCR but not rendering",
+        "note": "11.65 s is the 2026-11-13 development-copy measurement; the 2026-11-14 system-engine F1 run measured its own timings in ocr/runlog.jsonl and did not change the accepted budget"
+      }
+    }
+  }
 }

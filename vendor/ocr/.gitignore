@@ -1,0 +1,2 @@
+# Development-only language data. The release uses the system tessdata.
+/tessdata/

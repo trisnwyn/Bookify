@@ -43,14 +43,19 @@ def test_defer_later_moves_the_later_illustration() -> None:
     assert document["sections"][0]["blocks"][1]["pagebreak"] is True
 
 
-def test_adversarial_build_defers_exactly_one_illustration() -> None:
+def test_adversarial_build_keeps_one_full_plate_per_page() -> None:
+    # Bookify v2 D4 puts a full illustration at the text measure. Two
+    # full-measure plates no longer co-fit a page, so the fixture reflows to one
+    # plate per page without a deferral; the one-per-page invariant still holds
+    # and the deferral path itself stays covered by the side-composition fixture
+    # and the `defer_later` unit test.
     work = _work("adversarial")
     result = typst_driver.build(FIXTURE, work / "adversarial.pdf", work / "build", offline=True)
 
     placements = result.report["placements"]
     assert len(placements) == 2
     assert len({item["page"] for item in placements}) == 2
-    assert result.report["deferredIllustrations"] == ["photo-b"]
+    assert result.report["deferredIllustrations"] == []
 
     texts = []
     for page in sorted({item["page"] for item in placements}):
@@ -78,7 +83,7 @@ def test_multiline_caption_still_maps_and_defers(tmp_path: Path) -> None:
     placements = result.report["placements"]
     assert all(item["page"] is not None for item in placements)
     assert len({item["page"] for item in placements}) == 2
-    assert result.report["deferredIllustrations"] == ["photo-b"]
+    assert result.report["deferredIllustrations"] == []
 
 
 def test_both_multiline_captions_still_map_and_defer() -> None:
@@ -98,7 +103,7 @@ def test_both_multiline_captions_still_map_and_defer() -> None:
     placements = result.report["placements"]
     assert all(item["page"] is not None for item in placements), placements
     assert len({item["page"] for item in placements}) == 2
-    assert result.report["deferredIllustrations"] == ["photo-b"]
+    assert result.report["deferredIllustrations"] == []
 
 
 def test_specimen_has_one_illustration_on_one_page() -> None:

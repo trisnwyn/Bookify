@@ -59,6 +59,10 @@
         "page": {
           "type": "integer",
           "minimum": 1
+        },
+        "region": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     },
@@ -111,6 +115,28 @@
         "title": {
           "$ref": "#/$defs/text"
         },
+        "level": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "chapter",
+            "appendix"
+          ]
+        },
+        "breakBefore": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "page"
+          ]
+        },
         "kicker": {
           "$ref": "#/$defs/text"
         },
@@ -123,6 +149,9 @@
           "items": {
             "$ref": "#/$defs/block"
           }
+        },
+        "noPlate": {
+          "$ref": "#/$defs/text"
         }
       }
     },
@@ -166,6 +195,9 @@
         },
         "note": {
           "$ref": "#/$defs/text"
+        },
+        "machineRead": {
+          "$ref": "#/$defs/machineRead"
         }
       },
       "required": [
@@ -402,6 +434,9 @@
         },
         "composition": {
           "$ref": "#/$defs/composition"
+        },
+        "machineRead": {
+          "$ref": "#/$defs/machineRead"
         }
       },
       "additionalProperties": false
@@ -857,6 +892,10 @@
           "$ref": "#/$defs/slug"
         },
         "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "region": {
           "type": "integer",
           "minimum": 1
         }
@@ -2239,6 +2278,35 @@
           "items": {
             "$ref": "#/$defs/slug"
           }
+        }
+      }
+    },
+    "machineRead": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "region",
+        "method",
+        "confidence"
+      ],
+      "properties": {
+        "region": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "method": {
+          "enum": [
+            "ocr-line",
+            "ocr-table-v1"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "crossCheckedBy": {
+          "$ref": "#/$defs/text"
         }
       }
     }

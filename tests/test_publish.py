@@ -32,6 +32,8 @@ def built() -> typst_driver.BuildResult:
 def test_pdf_is_a4_and_has_expected_pages(built: typst_driver.BuildResult) -> None:
     info = subprocess.run(["pdfinfo", str(built.pdf)], capture_output=True, text=True, check=True).stdout
     assert "595.276 x 841.89 pts (A4)" in info
+    # Bookify v2 D4: the designed cover and chapter opener add one page; the
+    # measured semantic facts below are rebaselined with evidence.
     assert built.report["pdf"]["pages"] == 6
     assert built.report["offline"] is True
     assert built.report["draft"] is False

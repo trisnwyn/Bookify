@@ -1,4 +1,7 @@
 // Block presets: one function per manuscript block type, tokens only.
+//
+// Space semantics are deliberate: `space.between_paragraphs` is prose rhythm
+// (line pitch + 5.4 pt), while heading/role/lead/note gaps stay absolute.
 
 #import "theme.typ": tokens, fonts
 
@@ -7,62 +10,93 @@
   below: tokens.space.after_block,
   {
     set text(size: tokens.type.small, fill: tokens.role.at(role), weight: 600)
+    set par(leading: tokens.leading_extra.small)
     body
   },
 )
 
 #let preset-paragraph(body) = block(
-  below: tokens.space.after_block,
-  body,
+  below: tokens.space.between_paragraphs,
+  {
+    set par(leading: tokens.leading_extra.body)
+    body
+  },
 )
 
-#let preset-lead(body) = block(
+#let preset-lead(body, above: auto) = block(
+  above: above,
   below: tokens.space.after_lead,
   {
     set text(size: tokens.type.lead, fill: tokens.ink.grey_1)
-    set par(leading: tokens.leading.lead, justify: false)
+    set par(leading: tokens.leading_extra.lead, justify: false)
     body
   },
+)
+
+// A level-1 chapter deck: the chapter title needs a clear white gap before the
+// standfirst or first lead. The token is additive because Typst maxes adjacent
+// block spacing against the heading's after_heading.
+#let preset-standfirst(body) = preset-lead(
+  body,
+  above: tokens.space.after_heading + tokens.space.before_standfirst,
 )
 
 #let preset-quote(body, attribution: none) = block(
   above: tokens.space.before_heading,
-  below: tokens.space.after_block,
+  below: tokens.leading_extra.quote + tokens.space.after_block,
   {
-    set text(size: tokens.type.lead, style: "italic")
-    set par(leading: tokens.leading.lead, justify: false)
+    set text(size: tokens.type.quote, style: "italic")
+    set par(leading: tokens.leading_extra.quote, justify: false)
     body
     if attribution != none {
       linebreak()
-      set text(size: tokens.type.small, fill: tokens.ink.grey_1, style: "normal")
-      [— #attribution]
+      block({
+        set text(size: tokens.type.small, fill: tokens.ink.grey_1, style: "normal")
+        set par(leading: tokens.leading_extra.small)
+        [— #attribution]
+      })
     }
   },
 )
 
-#let preset-definition(term, definition) = {
-  role-label("definition", term)
-  block(below: tokens.space.after_block, definition)
-}
+// D1: one paragraph, bold term, colon, definition. No role label, no grey,
+// no standalone term line. A collated glossary is an ordinary authored table.
+#let preset-definition(term, definition) = block(
+  below: tokens.space.between_paragraphs,
+  {
+    set par(leading: tokens.leading_extra.body)
+    [*#term*: #definition]
+  },
+)
 
 #let preset-example(title: none, body) = {
   role-label("example", if title != none { title } else { "Example" })
-  block(below: tokens.space.after_block, body)
+  block(below: tokens.space.between_paragraphs, {
+    set par(leading: tokens.leading_extra.body)
+    body
+  })
 }
 
 #let preset-case(title: none, body) = {
   role-label("case", if title != none { title } else { "Case" })
-  block(below: tokens.space.after_block, body)
+  block(below: tokens.space.between_paragraphs, {
+    set par(leading: tokens.leading_extra.body)
+    body
+  })
 }
 
 #let preset-assessment(title: none, body) = {
   role-label("assessment", if title != none { title } else { "Assessment" })
-  block(below: tokens.space.after_block, body)
+  block(below: tokens.space.between_paragraphs, {
+    set par(leading: tokens.leading_extra.body)
+    body
+  })
 }
 
 #let preset-list(items, ordered: false) = block(
-  below: tokens.space.after_block,
+  below: tokens.space.between_paragraphs,
   {
+    set par(leading: tokens.leading_extra.body)
     if ordered { enum(..items) } else { list(..items) }
   },
 )
@@ -72,24 +106,35 @@
   below: tokens.space.after_figure,
   {
     set text(size: tokens.type.table)
+    set par(leading: tokens.leading_extra.table)
     let columns = header.len()
     let columns_spec = if widths == none { range(columns).map(_ => 1fr) } else { widths.map(w => w * 1fr) }
+    let captions = if caption == none {
+      ()
+    } else {
+      (table.footer(
+        repeat: false,
+        table.cell(colspan: columns, {
+          set text(size: tokens.type.caption, fill: tokens.ink.grey_1, style: "italic")
+          set par(leading: tokens.leading_extra.caption, justify: false)
+          caption
+        }),
+      ),)
+    }
     table(
       columns: columns_spec,
       align: left,
       stroke: none,
       table.hline(y: 0, stroke: tokens.rule.table_top),
+      table.header(
+        repeat: true,
+        ..header.map(cell => text(weight: 600, size: tokens.type.table_head, cell)),
+      ),
       table.hline(y: 1, stroke: tokens.rule.table_head),
-      ..header.map(cell => text(weight: 600, size: tokens.type.table_head, cell)),
       ..rows.flatten(),
       table.hline(y: rows.len() + 1, stroke: tokens.rule.table_bottom),
+      ..captions,
     )
-    if caption != none {
-      block(above: tokens.space.after_caption, {
-        set text(size: tokens.type.caption, fill: tokens.ink.grey_1, style: "italic")
-        caption
-      })
-    }
   },
 )
 
@@ -101,6 +146,7 @@
     if caption != none {
       block(above: tokens.space.after_caption, {
         set text(size: tokens.type.caption, fill: tokens.ink.grey_1, style: "italic")
+        set par(leading: tokens.leading_extra.caption, justify: false)
         caption
       })
     }
@@ -111,15 +157,24 @@
   above: tokens.space.after_caption,
   below: tokens.space.after_block,
   {
-    set text(size: tokens.type.small, fill: tokens.ink.grey_1, style: "italic")
+    set text(size: tokens.type.note, fill: tokens.ink.grey_1, style: "italic")
+    set par(leading: tokens.leading_extra.note, justify: false)
     note
   },
 )
 
-#let preset-figure-caption(caption) = block(width: 100%, align(tokens.figure.caption_align, {
+// D5: description and provenance share one centred caption block. A line break
+// separates them; the size, alignment and centre are the caption's, never a
+// separate note. Credits remain a separate left-aligned line at credit size.
+#let preset-figure-caption(caption, note: none) = block(width: 100%, align(tokens.figure.caption_align, {
   set par(justify: false)
+  set par(leading: tokens.leading_extra.caption)
   set text(size: tokens.type.caption, fill: tokens.ink.grey_1, style: "italic")
   caption
+  if note != none {
+    linebreak()
+    note
+  }
 }))
 
 #let preset-chart(figure, caption: none, note: none) = block(
@@ -129,9 +184,8 @@
   {
     block(width: 100%, align(center, figure))
     if caption != none {
-      block(above: tokens.space.after_caption, preset-figure-caption(caption))
-    }
-    if note != none {
+      block(above: tokens.space.after_caption, preset-figure-caption(caption, note: note))
+    } else if note != none {
       preset-note(note)
     }
   },
@@ -141,10 +195,12 @@
 
 // One image unit: image, then its centred caption, then its left credit.
 // Used by the side branch; the full path below keeps its historical structure.
-#let illustration-unit(figure, caption: none, credit: none) = {
+#let illustration-unit(figure, caption: none, credit: none, note: none) = {
   figure
   if caption != none {
-    block(above: tokens.space.after_caption, preset-figure-caption(caption))
+    block(above: tokens.space.after_caption, preset-figure-caption(caption, note: note))
+  } else if note != none {
+    preset-note(note)
   }
   if credit != none {
     block(above: tokens.space.after_caption, {
@@ -186,6 +242,7 @@
   credit: none,
   composition: "full",
   companion: none,
+  note: none,
 ) = {
   if composition == "full" {
     block(
@@ -195,7 +252,9 @@
       {
         block(width: 100%, align(center, figure))
         if caption != none {
-          block(above: tokens.space.after_caption, preset-figure-caption(caption))
+          block(above: tokens.space.after_caption, preset-figure-caption(caption, note: note))
+        } else if note != none {
+          preset-note(note)
         }
         if credit != none {
           block(above: tokens.space.after_caption, {
@@ -212,7 +271,7 @@
       width: 100%,
       breakable: false,
       {
-        let image-column = illustration-unit(figure, caption: caption, credit: credit)
+        let image-column = illustration-unit(figure, caption: caption, credit: credit, note: note)
         if composition == "side-left" {
           grid(
             columns: (tokens.measure.body * tokens.measure.side_fraction, 1fr),
@@ -237,7 +296,8 @@
   above: tokens.space.before_role,
   below: tokens.space.after_block,
   {
-    set text(size: tokens.type.small, fill: tokens.ink.grey_1, style: "italic")
+    set text(size: tokens.type.note, fill: tokens.ink.grey_1, style: "italic")
+    set par(leading: tokens.leading_extra.note, justify: false)
     note
   },
 )

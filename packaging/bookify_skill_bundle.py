@@ -3,10 +3,13 @@
 
 Standard library only. The payload is an explicit allowlist; the archive has a
 single top-level ``bookify/`` directory, sorted entries, fixed metadata, and a
-``MANIFEST.json`` covering every payload file. Installation is no-clobber,
-validated, staged, and atomic. Rebuilding is byte-identical on the same
-interpreter and zlib build; the compressed SHA-256 can differ across zlib builds
-while the uncompressed tar content stays identical.
+``MANIFEST.json`` covering every payload file. Skill installation is no-clobber,
+validated, staged, and atomic. A verified-ownership upgrade backs up the previous
+payload and rolls back on failure. Command installation is no-clobber per file,
+preflighted, staged and rolled back on failure; there is no ``--force``.
+Rebuilding is byte-identical on the same interpreter and zlib build; the
+compressed SHA-256 can differ across zlib builds while the uncompressed tar
+content stays identical.
 """
 
 from __future__ import annotations
@@ -27,9 +30,42 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD = ROOT / "packaging" / "payload"
 PREFIX = "bookify"
-RELEASE = "2026-11-11"
-CANONICAL_CATALOGUE_SHA = "b285d49f9263f85f45fbcbc20f6c61882b1ebbf125e0d6959d86a34c5e67c930"
+RELEASE = "2026-11-14"
+CANONICAL_CATALOGUE_SHA = "614cf15108a760e3ddf6ceedcd0098c88220949b352e6f7b9657aeae0fc73b37"
 MAX_MEMBER_BYTES = 1 << 30
+
+# The three slash entries. Two modes; ``bookify`` is the default alias, not a
+# third mode. The physical payload copies are byte-compared with the canonical
+# tracked assets at pack time.
+COMMAND_NAMES = (
+    "bookify",
+    "bookify-source-faithful",
+    "bookify-teachable-textbook",
+)
+COMMAND_MODES = {
+    "bookify": "source-faithful",
+    "bookify-source-faithful": "source-faithful",
+    "bookify-teachable-textbook": "teachable",
+}
+COMMAND_DEFAULT_ALIAS = "bookify"
+
+# Guides shipped at the payload top level so the installed skill carries them
+# outside ``engine/`` as well.
+REFERENCE_NAMES = (
+    "checklist",
+    "modes-and-playbooks",
+    "source-and-provenance",
+    "editorial",
+    "visual-design",
+    "limits",
+)
+
+# Future same-source books and trial workspaces are owned by their authoring
+# tracks. They must never leak into a packaging release from this tree.
+EXCLUDED_TREE_PREFIXES = {
+    "content": ("agent-skill",),
+    "examples": ("agent-skill",),
+}
 
 # Explicit source allowlist. Nothing else from the working tree is packaged.
 SOURCE_TREES = (
@@ -38,9 +74,7 @@ SOURCE_TREES = (
     "typst",
     "vendor",
     "assets",
-    "content",
     "fixtures",
-    "tests",
     "tools",
     "skill",
 )
@@ -49,6 +83,13 @@ SOURCE_FILES = (
     "uv.lock",
     "toolchain.lock.json",
 )
+# ``content/trial.yaml`` derives from a private lecture deck and is ignored in
+# git for rights/privacy; only the public manuscripts are packaged.
+CONTENT_FILES = (
+    "content/catalogue.yaml",
+    "content/specimen.yaml",
+)
+
 # The test suite checks these probe scripts exist and are executable. Generated
 # probe/out/ artifacts are deliberately not packaged.
 PROBE_FILES = (
@@ -68,7 +109,25 @@ EXCLUDED_DIR_NAMES = {
     ".cache",
     ".git",
 }
-EXCLUDED_SUFFIXES = {".pyc", ".pyo"}
+EXCLUDED_SUFFIXES = {".pyc", ".pyo", ".traineddata"}
+# Development-only OCR artefacts. The release engine is the system Tesseract
+# package; the extracted CLI and vendored language data must never be published.
+# See .opencode/bookify-v2-ocr-capability.md §11.4 for the canonical exclusion.
+# Files the public bundle must retain for OCR intake. They are validated at pack
+# time so a future allowlist edit cannot silently drop the capability.
+REQUIRED_OCR_FILES = (
+    "engine/src/bookify/intake/ocr.py",
+    "engine/src/bookify/verify/checks/machine_read.py",
+    "engine/src/bookify/verify/checks/ocr_free.py",
+    "engine/tools/ocr/ocr_harness.py",
+    "engine/tools/ocr/ocr.lock.fragment.json",
+    "engine/tools/ocr/README.md",
+    "engine/tools/ocr/LICENSE",
+    "engine/fixtures/ocr-capability/fixture.pdf",
+    "engine/fixtures/ocr-capability/README.md",
+    "engine/fixtures/ocr-capability/build_fixture.py",
+    "engine/fixtures/ocr-capability/source/fixture.typ",
+)
 RUNTIME_PREFIXES = (
     ("engine", ".venv"),
     ("engine", "work"),
@@ -81,13 +140,26 @@ RUNTIME_PREFIXES = (
 STATIC_FILES = (
     ("SKILL.md", PAYLOAD / "SKILL.md", 0o644),
     ("README.md", PAYLOAD / "README.md", 0o644),
+    ("LICENSE", ROOT / "LICENSE", 0o644),
     ("LICENCES.md", PAYLOAD / "LICENCES.md", 0o644),
     ("verify_manifest.py", PAYLOAD / "verify_manifest.py", 0o644),
-    ("references/checklist.md", ROOT / "skill" / "bookify" / "references" / "checklist.md", 0o644),
     ("licences/OFL-1.1.txt", PAYLOAD / "licences" / "OFL-1.1.txt", 0o644),
     ("licences/fonts-metadata.md", PAYLOAD / "licences" / "fonts-metadata.md", 0o644),
     ("licences/python-dependencies.md", PAYLOAD / "licences" / "python-dependencies.md", 0o644),
 )
+
+# Packaged command copies live under ``packaging/payload/commands/`` and must
+# stay byte-identical to the canonical tracked assets. Each tuple is
+# (command name, packaged copy, canonical source).
+COMMAND_FILES = tuple(
+    (
+        name,
+        PAYLOAD / "commands" / f"{name}.md",
+        ROOT / "skill" / "bookify" / "commands" / f"{name}.md",
+    )
+    for name in COMMAND_NAMES
+)
+
 
 
 class BundleError(RuntimeError):
@@ -106,19 +178,39 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _is_excluded(rel: Path) -> bool:
+def _is_ocr_excluded(rel: Path, tree: str | None) -> bool:
+    """Exclude development-only OCR artefacts from the public bundle."""
+    if tree == "tools":
+        parts = rel.parts
+        return len(parts) >= 2 and parts[0] == "ocr" and parts[1].startswith("tesseract")
+    if tree == "vendor":
+        return rel.parts[:2] == ("ocr", "tessdata")
+    if tree == "fixtures":
+        return rel.parts[:2] == ("ocr-capability", "build")
+    return False
+
+
+def _is_excluded(rel: Path, tree: str | None = None) -> bool:
     if any(part in EXCLUDED_DIR_NAMES for part in rel.parts):
         return True
-    return rel.suffix.lower() in EXCLUDED_SUFFIXES
+    if rel.suffix.lower() in EXCLUDED_SUFFIXES:
+        return True
+    if tree is not None:
+        prefixes = EXCLUDED_TREE_PREFIXES.get(tree, ())
+        if prefixes and rel.parts[:1] and rel.parts[0] in prefixes:
+            return True
+        if _is_ocr_excluded(rel, tree):
+            return True
+    return False
 
 
-def _walk_tree(base: Path, rel_base: Path) -> list[tuple[str, Path, int]]:
+def _walk_tree(base: Path, rel_base: Path, tree: str | None = None) -> list[tuple[str, Path, int]]:
     entries: list[tuple[str, Path, int]] = []
     for path in sorted(base.rglob("*")):
         if path.is_dir():
             continue
         rel = path.relative_to(base)
-        if _is_excluded(rel):
+        if _is_excluded(rel, tree):
             continue
         if path.is_symlink():
             raise BundleError(f"refusing to package a symlink: {path}")
@@ -142,7 +234,28 @@ def _collect_payload() -> dict[str, tuple[Path, int]]:
             raise BundleError(f"missing packaging input: {source}")
         payload[name] = (source, mode)
 
+    for name, packaged, canonical in COMMAND_FILES:
+        if not packaged.is_file():
+            raise BundleError(f"missing packaged command copy: {packaged}")
+        if not canonical.is_file():
+            raise BundleError(f"missing canonical command asset: {canonical}")
+        if packaged.read_bytes() != canonical.read_bytes():
+            raise BundleError(
+                f"packaged command {name}.md drifted from the canonical asset: {canonical}"
+            )
+        payload[f"commands/{name}.md"] = (packaged, 0o644)
+
+    for name in REFERENCE_NAMES:
+        source = ROOT / "skill" / "bookify" / "references" / f"{name}.md"
+        if not source.is_file():
+            raise BundleError(f"missing reference guide: {source}")
+        payload[f"references/{name}.md"] = (source, 0o644)
+
+    # The payload ships the engine, not its test suite. The suite reads
+    # source-only `content/agent-skill` workspaces and the development OCR copy,
+    # both deliberately outside the allowlist, so a shipped copy could not pass.
     example = ROOT / "examples" / "catalogue.pdf"
+
     if not example.is_file():
         example = ROOT / "dist" / "catalogue.pdf"
     if not example.is_file():
@@ -161,8 +274,14 @@ def _collect_payload() -> dict[str, tuple[Path, int]]:
         base = ROOT / tree
         if not base.is_dir():
             raise BundleError(f"missing source tree: {base}")
-        for arcname, source, mode in _walk_tree(base, Path("engine") / tree):
+        for arcname, source, mode in _walk_tree(base, Path("engine") / tree, tree):
             payload[arcname] = (source, mode)
+
+    for name in CONTENT_FILES:
+        source = ROOT / name
+        if not source.is_file():
+            raise BundleError(f"missing public manuscript: {source}")
+        payload[f"engine/{name}"] = (source, 0o644)
 
     for name in SOURCE_FILES:
         source = ROOT / name
@@ -176,24 +295,45 @@ def _collect_payload() -> dict[str, tuple[Path, int]]:
             raise BundleError(f"missing probe file: {source}")
         payload[f"engine/{name}"] = (source, mode)
 
+    for required in REQUIRED_OCR_FILES:
+        if required not in payload:
+            raise BundleError(f"missing required OCR support file in bundle: {required}")
+
     return payload
 
 
 def _manifest_bytes(payload: dict[str, tuple[Path, int]]) -> bytes:
     files = []
     total = 0
+    by_path: dict[str, dict] = {}
     for arcname in sorted(payload):
         source, mode = payload[arcname]
         size = source.stat().st_size
         total += size
-        files.append(
-            {
-                "path": arcname,
-                "sha256": _sha256_file(source),
-                "size": size,
-                "mode": f"{mode:04o}",
-            }
-        )
+        entry = {
+            "path": arcname,
+            "sha256": _sha256_file(source),
+            "size": size,
+            "mode": f"{mode:04o}",
+        }
+        files.append(entry)
+        by_path[arcname] = entry
+
+    commands = {}
+    for name in COMMAND_NAMES:
+        entry = by_path.get(f"commands/{name}.md")
+        if entry is None:
+            continue
+        commands[name] = {
+            "path": entry["path"],
+            "mode": COMMAND_MODES[name],
+            "defaultAlias": name == COMMAND_DEFAULT_ALIAS,
+            "sha256": entry["sha256"],
+        }
+    guides = sorted(
+        path for path in by_path if path.startswith("references/") and path.endswith(".md")
+    )
+
     document = {
         "schemaVersion": "1.0",
         "id": PREFIX,
@@ -214,8 +354,11 @@ def _manifest_bytes(payload: dict[str, tuple[Path, int]]) -> bytes:
         "entrypoints": {
             "skill": "SKILL.md",
             "engine": "engine/",
+            "commands": "commands/",
             "doctor": "cd engine && uv run bookify toolchain doctor --json",
         },
+        "commands": commands,
+        "guides": guides,
         "fileCount": len(files),
         "payloadBytes": total,
         "files": files,
@@ -351,6 +494,26 @@ def _verify_manifest(root: Path, *, allow_runtime: bool) -> dict:
     if extra:
         raise BundleError(f"unmanifested files present: {sorted(extra)[:20]}")
 
+    declared_commands = document.get("commands")
+    if declared_commands is not None:
+        if not isinstance(declared_commands, dict) or set(declared_commands) != set(COMMAND_NAMES):
+            raise BundleError("manifest command entries are incomplete or unknown")
+        for name, entry in declared_commands.items():
+            path = f"commands/{name}.md"
+            if entry.get("path") != path or path not in expected:
+                raise BundleError(f"manifest command path mismatch: {name}")
+            if entry.get("mode") != COMMAND_MODES[name]:
+                raise BundleError(f"manifest command mode mismatch: {name}")
+            if entry.get("sha256") != expected[path].get("sha256"):
+                raise BundleError(f"manifest command hash mismatch: {name}")
+    guides = document.get("guides")
+    if guides is not None:
+        if not isinstance(guides, list) or not guides:
+            raise BundleError("manifest guides entry is empty or invalid")
+        for guide in guides:
+            if not isinstance(guide, str) or guide not in expected or not guide.startswith("references/"):
+                raise BundleError(f"manifest guide path mismatch: {guide!r}")
+
     for path, entry in expected.items():
         file_path = root / path
         size = file_path.stat().st_size
@@ -374,13 +537,15 @@ def _verify_manifest(root: Path, *, allow_runtime: bool) -> dict:
     }
 
 
-def _extract_to_stage(archive_path: Path, parent: Path) -> tuple[Path, Path]:
+def _extract_to_stage(
+    archive_path: Path, parent: Path, *, allow_existing_target: bool = False
+) -> tuple[Path, Path]:
     try:
         parent.mkdir(parents=True, exist_ok=True)
     except OSError as error:
         raise BundleError(f"cannot prepare install parent {parent}: {error}") from error
     target = parent / PREFIX
-    if os.path.lexists(target):
+    if not allow_existing_target and os.path.lexists(target):
         raise BundleError(f"refusing to overwrite existing target: {target}")
     members = _validate_archive(archive_path)
     try:
@@ -459,6 +624,8 @@ def inspect(archive_path: Path) -> dict:
         "files": manifest.get("fileCount"),
         "payloadBytes": manifest.get("payloadBytes"),
         "release": manifest.get("release"),
+        "commands": sorted((manifest.get("commands") or {})),
+        "guides": manifest.get("guides"),
         "firstMembers": [member.name for member in members[:12]],
     }
 
@@ -505,6 +672,237 @@ def verify_install(target: Path) -> dict:
     return _verify_manifest(raw_target.resolve(), allow_runtime=True)
 
 
+def _is_within(path: Path, parent: Path) -> bool:
+    return path == parent or parent in path.parents
+
+
+def _prepare_commands_directory(target: Path, *, create: bool) -> Path:
+    raw_target = target.expanduser()
+    if raw_target.is_symlink():
+        raise BundleError(f"refusing a symlinked commands target: {raw_target}")
+    if os.path.lexists(raw_target) and not raw_target.exists():
+        raise BundleError(f"commands target is a broken link: {raw_target}")
+    if raw_target.exists():
+        if not raw_target.is_dir():
+            raise BundleError(f"commands target is not a directory: {raw_target}")
+    else:
+        if not create:
+            raise BundleError(
+                f"commands directory does not exist: {raw_target} "
+                "(pass --create to create only the final directory)"
+            )
+        parent = raw_target.parent
+        if parent.is_symlink() or not parent.is_dir():
+            raise BundleError(
+                f"refusing to create commands under {parent}: parent must be an existing directory"
+            )
+        try:
+            raw_target.mkdir(mode=0o755)
+        except OSError as error:
+            raise BundleError(f"cannot create commands directory {raw_target}: {error}") from error
+    return raw_target.resolve()
+
+
+def _archive_commands(archive_path: Path) -> tuple[dict[str, bytes], dict, str]:
+    """Read and cross-check the three command payloads from an archive."""
+    _validate_archive(archive_path)
+    try:
+        with tarfile.open(archive_path, "r:gz") as archive:
+            handle = archive.extractfile(f"{PREFIX}/MANIFEST.json")
+            if handle is None:
+                raise BundleError("manifest entry is not a regular file")
+            manifest_bytes = handle.read()
+            manifest = json.loads(manifest_bytes.decode())
+            files = {
+                entry.get("path"): entry
+                for entry in manifest.get("files", [])
+                if isinstance(entry, dict)
+            }
+            declared = manifest.get("commands")
+            if not isinstance(declared, dict):
+                raise BundleError("archive manifest declares no command assets")
+            blobs: dict[str, bytes] = {}
+            for name in COMMAND_NAMES:
+                path = f"commands/{name}.md"
+                entry = files.get(path)
+                command_entry = declared.get(name)
+                if entry is None or not isinstance(command_entry, dict):
+                    raise BundleError(f"archive is missing command asset: {path}")
+                if command_entry.get("path") != path:
+                    raise BundleError(f"archive command path mismatch: {name}")
+                if command_entry.get("mode") != COMMAND_MODES[name]:
+                    raise BundleError(f"archive command mode mismatch: {name}")
+                command_file = archive.extractfile(f"{PREFIX}/{path}")
+                if command_file is None:
+                    raise BundleError(f"archive command entry is not a regular file: {path}")
+                data = command_file.read()
+                digest = _sha256_bytes(data)
+                if digest != entry.get("sha256") or digest != command_entry.get("sha256"):
+                    raise BundleError(f"archive command hash mismatch: {name}")
+                blobs[name] = data
+    except (tarfile.TarError, OSError, json.JSONDecodeError) as error:
+        raise BundleError(f"cannot read command payloads: {error}") from error
+    return blobs, manifest, _sha256_bytes(manifest_bytes)
+
+
+def install_commands(archive_path: Path, target: Path, *, create: bool = False) -> dict:
+    """Install the three slash command assets without overwriting anything."""
+    directory = _prepare_commands_directory(target, create=create)
+    blobs, manifest, manifest_sha = _archive_commands(archive_path)
+    destinations = {name: directory / f"{name}.md" for name in COMMAND_NAMES}
+
+    unchanged: list[str] = []
+    for name, destination in destinations.items():
+        if not os.path.lexists(destination):
+            continue
+        if destination.is_symlink():
+            raise BundleError(f"refusing a symlinked command target: {destination}")
+        if not destination.is_file():
+            raise BundleError(f"refusing a non-regular command target: {destination}")
+        if _sha256_file(destination) != _sha256_bytes(blobs[name]):
+            raise BundleError(
+                "refusing to overwrite an existing command that is not this "
+                f"Bookify release: {destination} (no --force is provided; move "
+                "or edit the file deliberately)"
+            )
+        unchanged.append(name)
+
+    staging = Path(tempfile.mkdtemp(prefix=".bookify-commands-", dir=directory))
+    installed: list[Path] = []
+    try:
+        for name, data in blobs.items():
+            staged = staging / f"{name}.md"
+            staged.write_bytes(data)
+            staged.chmod(0o644)
+        for name, destination in destinations.items():
+            if name in unchanged:
+                continue
+            try:
+                os.rename(staging / f"{name}.md", destination)
+            except OSError as error:
+                raise BundleError(f"cannot install command {destination}: {error}") from error
+            installed.append(destination)
+    except BaseException:
+        for installed_path in installed:
+            try:
+                installed_path.unlink()
+            except OSError:
+                pass
+        raise
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+
+    summary = verify_commands(archive_path, directory)
+    summary["installed"] = [path.name for path in installed]
+    summary["unchanged"] = unchanged
+    summary["manifestSha256"] = manifest_sha
+    summary["release"] = manifest.get("release")
+    return summary
+
+
+def verify_commands(archive_path: Path, target: Path) -> dict:
+    raw_target = target.expanduser()
+    if raw_target.is_symlink():
+        raise BundleError(f"refusing to verify a symlinked commands target: {raw_target}")
+    if not raw_target.is_dir():
+        raise BundleError(f"commands target is not a directory: {raw_target}")
+    directory = raw_target.resolve()
+    blobs, manifest, manifest_sha = _archive_commands(archive_path)
+    for name in COMMAND_NAMES:
+        destination = directory / f"{name}.md"
+        if destination.is_symlink():
+            raise BundleError(f"refusing a symlinked installed command: {destination}")
+        if not destination.is_file():
+            raise BundleError(f"missing installed command: {destination}")
+        if _sha256_file(destination) != _sha256_bytes(blobs[name]):
+            raise BundleError(f"installed command drifted from the archive: {destination}")
+    return {
+        "ok": True,
+        "target": str(directory),
+        "manifestSha256": manifest_sha,
+        "release": manifest.get("release"),
+        "commands": [f"{name}.md" for name in COMMAND_NAMES],
+    }
+
+
+def upgrade(
+    archive_path: Path,
+    target: Path,
+    *,
+    expect_manifest_sha256: str,
+    backup: Path,
+) -> dict:
+    """Replace a verified Bookify install, keeping an atomic backup.
+
+    The explicit expected manifest hash is the ownership proof. A payload whose
+    manifest hash differs, or whose files no longer match its own manifest, is
+    refused rather than replaced. Runtime-only directories created by setup are
+    tolerated, exactly as in ``verify-install``. There is no ``--force``.
+    """
+    expected = expect_manifest_sha256.strip().lower()
+    if len(expected) != 64 or any(character not in "0123456789abcdef" for character in expected):
+        raise BundleError("--expect-manifest-sha256 must be a lowercase SHA-256 hex digest")
+
+    raw_target = target.expanduser()
+    if raw_target.is_symlink():
+        raise BundleError(f"refusing to upgrade a symlinked skill: {raw_target}")
+    if not raw_target.is_dir():
+        raise BundleError(f"skill target is not a directory: {raw_target}")
+    target_dir = raw_target.resolve()
+    manifest_path = target_dir / "MANIFEST.json"
+    if manifest_path.is_symlink() or not manifest_path.is_file():
+        raise BundleError(f"missing or symlinked install manifest: {manifest_path}")
+    previous_sha = _sha256_file(manifest_path)
+    if previous_sha != expected:
+        raise BundleError(
+            "refusing to upgrade: installed MANIFEST.json does not match the "
+            f"expected release hash ({previous_sha} != {expected})"
+        )
+    # Detects a user-edited payload: the manifest hash can still match while a
+    # file does not. Runtime-only directories created by setup are tolerated.
+    _verify_manifest(target_dir, allow_runtime=True)
+
+    backup_path = backup.expanduser()
+    if os.path.lexists(backup_path):
+        raise BundleError(f"refusing to overwrite existing backup: {backup_path}")
+    if backup_path.parent.is_symlink() or not backup_path.parent.is_dir():
+        raise BundleError(f"backup parent is not an existing directory: {backup_path.parent}")
+    backup_dir = backup_path.parent.resolve() / backup_path.name
+    if _is_within(backup_dir, target_dir) or _is_within(target_dir, backup_dir):
+        raise BundleError("backup and skill target must not contain each other")
+
+    stage, payload_root = _extract_to_stage(
+        archive_path, target_dir.parent, allow_existing_target=True
+    )
+    try:
+        try:
+            os.rename(target_dir, backup_dir)
+        except OSError as error:
+            raise BundleError(f"cannot move the existing install to backup: {error}") from error
+        try:
+            os.rename(payload_root, target_dir)
+            summary = _verify_manifest(target_dir, allow_runtime=False)
+        except (OSError, BundleError) as error:
+            try:
+                if os.path.lexists(target_dir):
+                    os.rename(target_dir, stage / "failed-new")
+                os.rename(backup_dir, target_dir)
+            except OSError as rollback_error:
+                raise BundleError(
+                    f"upgrade failed ({error}) and rollback failed "
+                    f"({rollback_error}); restore {backup_dir} to {target_dir} manually"
+                ) from error
+            raise BundleError(f"upgrade failed and was rolled back: {error}") from error
+    finally:
+        shutil.rmtree(stage, ignore_errors=True)
+
+    summary["target"] = str(target_dir)
+    summary["backup"] = str(backup_dir)
+    summary["previousManifestSha256"] = previous_sha
+    summary["manifestSha256"] = _sha256_file(target_dir / "MANIFEST.json")
+    return summary
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build and safely install the Bookify skill bundle")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -524,6 +922,29 @@ def _parser() -> argparse.ArgumentParser:
     install_parser.add_argument("--archive", type=Path, required=True)
     install_parser.add_argument("--target", type=Path, required=True)
 
+    upgrade_parser = sub.add_parser(
+        "upgrade", help="replace a verified Bookify skill install, keeping a backup"
+    )
+    upgrade_parser.add_argument("--archive", type=Path, required=True)
+    upgrade_parser.add_argument("--target", type=Path, required=True)
+    upgrade_parser.add_argument("--expect-manifest-sha256", required=True)
+    upgrade_parser.add_argument("--backup", type=Path, required=True)
+
+    install_commands_parser = sub.add_parser(
+        "install-commands", help="install the three slash commands without overwriting"
+    )
+    install_commands_parser.add_argument("--archive", type=Path, required=True)
+    install_commands_parser.add_argument("--target", type=Path, required=True)
+    install_commands_parser.add_argument(
+        "--create", action="store_true", help="create the final commands directory (parent must exist)"
+    )
+
+    verify_commands_parser = sub.add_parser(
+        "verify-commands", help="re-check installed slash commands against an archive"
+    )
+    verify_commands_parser.add_argument("--archive", type=Path, required=True)
+    verify_commands_parser.add_argument("--target", type=Path, required=True)
+
     verify_parser = sub.add_parser("verify-install", help="re-check an installed payload")
     verify_parser.add_argument("--target", type=Path, required=True)
     return parser
@@ -540,6 +961,17 @@ def main(argv: list[str] | None = None) -> int:
             result = extract(args.archive, args.into)
         elif args.command == "install":
             result = install(args.archive, args.target)
+        elif args.command == "upgrade":
+            result = upgrade(
+                args.archive,
+                args.target,
+                expect_manifest_sha256=args.expect_manifest_sha256,
+                backup=args.backup,
+            )
+        elif args.command == "install-commands":
+            result = install_commands(args.archive, args.target, create=args.create)
+        elif args.command == "verify-commands":
+            result = verify_commands(args.archive, args.target)
         elif args.command == "verify-install":
             result = verify_install(args.target)
         else:  # pragma: no cover

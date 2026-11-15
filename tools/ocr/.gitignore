@@ -1,0 +1,2 @@
+# Development-only extracted Tesseract CLI. The release uses the system package.
+/tesseract

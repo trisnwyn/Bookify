@@ -12,7 +12,9 @@ from dataclasses import dataclass
 
 from bookify.design import tokens
 
-CHART_FIGSIZE = (4.7, 2.45)
+# D4: charts are authored at the full text measure (475.28 pt = 6.6011 in) so a
+# plate is placed at 100 % without scaling its type.
+CHART_FIGSIZE = (tokens.BODY_MEASURE_PT / 72.0, 2.45)
 CHART_UNIT_WIDTH = 0.8
 DIAGRAM_WIDTH_PT = 430
 SERIES_COLOURS = (

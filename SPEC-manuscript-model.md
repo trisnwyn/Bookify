@@ -43,6 +43,8 @@ metadata: { title: "...", languages: [en, vi, ja], institution: "...", course: "
 sections:
   - id: sec-opening
     title: "Opening"
+    level: 1             # optional 1|2|3; absent means 1 (chapter)
+    breakBefore: page    # optional auto|page; absent means page for level 1, auto for level 2/3
     blocks:
       - id: b-1
         type: paragraph
@@ -79,6 +81,9 @@ Block types v1: `paragraph`, `lead`, `definition`, `example`, `case`, `assessmen
 6. `diagram.geometry` must contain every id referenced by an edge; no orphan edges.
 7. `illustration` must reference an existing record with all rights fields present; `rightsStatus` is required.
 8. `revision` increments on any content change; breaking shape changes require a migration, never a silent rename.
+9. Section `level` is an optional integer `1|2|3`. Absent means `1`. The first body section must be level 1. A section may not skip a level: a level 3 section requires a current level 2 parent in the preceding flow, and `1 → 3` is rejected with `SCHEMA_INVALID` at `sections[i].level`. A valid `1 → 2 → 3 → 2 → 1` flow is accepted.
+10. Section `breakBefore` is an optional enum `auto|page`. Absent means `page` for level 1 and `auto` for levels 2/3. `auto` flows; `page` starts a new page. `breakBefore: page` on the first body section is ignored and never creates a blank page. A level alone never implies a break.
+11. Section titles must be unique. The contents/xrefs checks key entries by printed title and would otherwise collapse two sections named alike; duplicates fail with `SCHEMA_INVALID` at `sections[i].title`.
 
 ## Code style
 
@@ -119,3 +124,38 @@ def require_target(target: str, index: Mapping[str, Anchor]) -> Anchor:
 3. Every block in the fixture reaches a source anchor or is marked `inferred`/`unreadable`.
 4. Adding a field to the schema requires a spec change first; the validator has no undocumented exceptions.
 5. `revision` and `schemaVersion` are present and checked on every load.
+
+## Amendment — Phase 2 section hierarchy (2026-11-13)
+
+User authorization, verbatim: “Proceed with the coordinated line-spacing and page-break layout changes.” This is an additive `schemaVersion: "1.0"` extension; no migration, new block type, dependency or schema-version bump. It does not claim earlier approval of `level` or `breakBefore`.
+
+- `level` (`integer`, enum `[1,2,3]`) and `breakBefore` (`string`, enum `["auto","page"]`) are optional properties of `$defs.section`; the schema stays closed, so malformed values still fail as `SCHEMA_INVALID`.
+- Defaults are documented here, not written into the JSON Schema: level 1, and `breakBefore` `page` for level 1 / `auto` for level 2/3. `normalize` materialises the concrete values so the template never infers.
+- Missing fields keep legacy chapter semantics: every existing manuscript still validates and its sections still default to level 1 with a page before each non-first section. The corrected line leading is the only intentional legacy layout change.
+- The first body section resolves to `breakBefore: auto` regardless of input; the template also keeps an explicit `section-index > 0` guard, so a redundant or explicit break cannot insert a blank page.
+- A pure plate section (exactly one `illustration` block, optionally preceded by an `unresolved` note) is normalised with `keepTogether: true`; its heading, note, image, caption and credit are one unbreakable unit. A section that also holds prose, or more than one illustration, is not collapsed.
+- `number` and xref labels remain flat `§N`; hierarchy changes heading level and flow, not printed cross-reference text. Contents is depth 3 and may span pages; report and xrefs parse the whole contents range.
+
+## Amendment — Bookify v2 numbering and roles (2026-11-14)
+
+Additive `schemaVersion: "1.0"` extension per the owner-approved
+`SPEC-bookify-v2.md` §4. OCR fields (`region`, `machineRead`) belong to the
+separate intake workstream and are not part of this design amendment.
+
+- `$defs.section.role` is an optional enum `chapter|appendix`; absent means
+  `chapter`. It is a level-1 property: a level-2/3 section may not declare it.
+- Validation rules: an appendix may not be the first body section; every
+  level-1 section after the first appendix must also be an appendix (a chapter
+  after an appendix is `SCHEMA_INVALID` at that section). Mixed back matter is
+  refused rather than renumbered.
+- Numbering is structural: level-1 chapters `1`, `2`; level-2 `1.1`; level-3
+  `1.1.1`. Appendices print `Appendix A`, `Appendix B` at level 1 and `A.1`,
+  `A.1.1` below. There is no `numbering` field and no knob.
+- Contents prints the same strings and folios as the page. Cross-reference text
+  is the printed number with a section mark: `§1.2`, `§A.1`, `§A` for a
+  level-1 appendix. `Figure N`, `Table N` and `Photograph N` keep their counters.
+- Front matter (cover, contents) is unnumbered and is generated, so no new
+  mandatory field was added to suppress it. Every level-1 body section is
+  numbered by default; a manuscript without `role` normalises exactly as before
+  except that printed numbering now appears (a rendering change, not a schema
+  change).

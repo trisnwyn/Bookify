@@ -12,10 +12,11 @@ from bookify.manuscript import model
 from bookify.publish import illustrations, normalize, report
 
 ROOT = Path(__file__).resolve().parents[1]
-# Captured from the pre-composition implementation; these manuscripts have no
-# composition field, so their normalized document must not change at all.
-SPECIMEN_NORMALIZED_SHA256 = "c06c4893dc3539988d68bae501b8ad7b0e5452f198f3cb87c4ecc4d31f630c82"
-SYNTHETIC_TRIAL_NORMALIZED_SHA256 = "a5adbb8315f5a8fae62d4d49bc14654ba28c923cfc8d2a838152a96b0bb18447"
+# Bookify v2 D3 rebaseline: the normaliser now also materialises the printed
+# section number, the chapter/appendix role and the resolved cover index. The
+# semantic assertions below (no composition/companion leak) are unchanged.
+SPECIMEN_NORMALIZED_SHA256 = "1e6882085997843b9a19b9865f05ef69290201bae97a7e4150cda798a759abc6"
+SYNTHETIC_TRIAL_NORMALIZED_SHA256 = "42d70b6f0db2fc64efb59c6c291b5159e24fae6c652c4e46391b6a1449696a82"
 
 
 def _manuscript(tmp_path: Path, blocks: list[dict], name: str = "composition") -> model.Manuscript:
@@ -175,7 +176,7 @@ def test_illustration_numbering_is_unchanged_by_a_composition(tmp_path: Path) ->
     assert _entry(document, "b-photo-b")["label"] == "Photograph 2"
 
 
-def test_specimen_and_synthetic_trial_normalized_documents_are_unchanged() -> None:
+def test_specimen_and_synthetic_trial_normalized_documents_carry_resolved_hierarchy() -> None:
     for label, path, expected in (
         ("specimen", ROOT / "content" / "specimen.yaml", SPECIMEN_NORMALIZED_SHA256),
         (
@@ -189,6 +190,9 @@ def test_specimen_and_synthetic_trial_normalized_documents_are_unchanged() -> No
         raw = json.dumps(document.data, sort_keys=True, ensure_ascii=False)
         assert hashlib.sha256(raw.encode()).hexdigest() == expected, label
         assert "composition" not in raw and "companion" not in raw
+        for index, section in enumerate(document.data["sections"]):
+            assert section["level"] == 1
+            assert section["breakBefore"] == ("auto" if index == 0 else "page")
 
 
 def test_composition_entries_record_the_page_and_deferral(tmp_path: Path) -> None:

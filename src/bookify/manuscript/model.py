@@ -15,11 +15,17 @@ from typing import Any, Iterator
 
 import yaml
 
+from bookify.authoring import workspace as workspace_mod
 from bookify.errors import BookifyError
 from bookify.figures import checks as figure_checks
 from bookify.manuscript import schema
 
 REF = re.compile(r"\{ref:([a-z0-9][a-z0-9-]*)\}")
+DIGIT = re.compile(r"\d")
+MACHINE_READ_NOTE = "Reconstructed from an image by OCR"
+MACHINE_READ_TYPES = frozenset(
+    {"paragraph", "lead", "quote", "definition", "example", "case", "assessment", "list", "table"}
+)
 RECORD_FIELDS = (
     "id",
     "path",
@@ -45,6 +51,8 @@ class Manuscript:
     sections: tuple[dict[str, Any], ...]
     block_ids: frozenset[str]
     data: dict[str, Any]
+    engine: Path
+    workspace: Path | None = None
 
 
 def _project_root(path: Path) -> Path:
@@ -62,7 +70,7 @@ def _strings(value: Any) -> Iterator[str]:
             yield from _strings(item)
     elif isinstance(value, dict):
         for key, item in value.items():
-            if key in {"id", "sourceId", "illustrationId", "from", "to"}:
+            if key in {"id", "sourceId", "illustrationId", "from", "to", "machineRead"}:
                 continue
             yield from _strings(item)
 
@@ -86,6 +94,78 @@ def _check_ids(data: dict[str, Any]) -> tuple[frozenset[str], frozenset[str]]:
     return frozenset(section_ids), frozenset(block_ids)
 
 
+def _check_section_hierarchy(data: dict[str, Any]) -> None:
+    """Levels are additive: first section level 1, no skipped/orphan depth.
+
+    `breakBefore` itself is enum-checked by JSON Schema. A break on the first
+    body section is not an error; `normalize` resolves it to `auto` and the
+    template also guards `section-index > 0`, so it can never create a blank page.
+    """
+    titles: set[str] = set()
+    current = 0
+    for index, section in enumerate(data["sections"]):
+        title = section["title"]
+        _require(title not in titles, f"duplicate section title: {title}", f"sections[{index}].title")
+        titles.add(title)
+        level = section.get("level", 1)
+        if index == 0:
+            _require(level == 1, f"the first section must be level 1, not {level}", f"sections[{index}].level")
+        else:
+            _require(
+                level <= current + 1,
+                f"section level skips a parent: {current} -> {level}",
+                f"sections[{index}].level",
+            )
+        current = level
+
+
+def _check_no_plate(data: dict[str, Any]) -> None:
+    """A no-plate decision is authored, non-empty and level-1 only (D4)."""
+    for index, section in enumerate(data["sections"]):
+        if "noPlate" not in section:
+            continue
+        _require(
+            section.get("level", 1) == 1,
+            "noPlate is a chapter-level decision",
+            f"sections[{index}].noPlate",
+        )
+        _require(
+            isinstance(section["noPlate"], str) and bool(section["noPlate"].strip()),
+            "noPlate needs a real reason",
+            f"sections[{index}].noPlate",
+        )
+
+
+def _check_section_roles(data: dict[str, Any]) -> None:
+    """D3: back matter is authored, never inferred; mixed order is refused.
+
+    A level-1 section is a chapter unless it says `role: appendix`. Appendices
+    follow every chapter; a chapter after an appendix is refused rather than
+    silently renumbered. Role is a level-1 property: a level-2/3 section inherits
+    its chapter's role and may not declare one.
+    """
+    appendix = False
+    for index, section in enumerate(data["sections"]):
+        role = section.get("role", "chapter")
+        level = section.get("level", 1)
+        if level != 1:
+            _require(
+                role == "chapter",
+                f"role is a level-1 property; {role} on a level-{level} section",
+                f"sections[{index}].role",
+            )
+            continue
+        if role == "appendix":
+            _require(index > 0, "the first body section cannot be an appendix", f"sections[{index}].role")
+            appendix = True
+        elif appendix:
+            raise BookifyError(
+                "SCHEMA_INVALID",
+                "a chapter cannot follow an appendix; back matter stays last",
+                f"sections[{index}].role",
+            )
+
+
 def _check_xrefs(data: dict[str, Any], targets: frozenset[str]) -> None:
     for index, section in enumerate(data["sections"]):
         for text in _strings(section):
@@ -104,6 +184,77 @@ def _check_chart(block: dict[str, Any], locator: str) -> None:
             value for row in values for value in row if value is not None
         ] if isinstance(values, list) else []
         _require(not numeric, "unreadable values must be null, not guessed", f"{locator}.confidence")
+
+
+
+def _check_machine_read(block: dict[str, Any], locator: str) -> None:
+    """OCR provenance is a mark, never a licence to render unverified fact.
+
+    The no-invention rule is unchanged: machine-read text is `inferred` at
+    best, a table is a reconstruction with its mandatory note, and digits need
+    a recorded cross-check.
+    """
+    machine = block.get("machineRead")
+    anchors = block.get("sourceAnchors", [])
+    for index, anchor in enumerate(anchors):
+        _require(
+            "region" not in anchor or machine is not None,
+            "sourceAnchors[].region is only valid with machineRead provenance",
+            f"{locator}.sourceAnchors[{index}].region",
+        )
+    if machine is None:
+        return
+    kind = block["type"]
+    _require(
+        kind in MACHINE_READ_TYPES,
+        f"machineRead is not valid on a {kind} block; OCR text is prose or a reconstructed table",
+        f"{locator}.machineRead",
+    )
+    _require(
+        block.get("confidence") != "verified",
+        "machine-read text can never be verified",
+        f"{locator}.confidence",
+    )
+    region = machine["region"]
+    _require(isinstance(region, int) and region >= 1, "machineRead.region must be >= 1", f"{locator}.machineRead.region")
+    _require(
+        any(anchor.get("region") == region for anchor in anchors),
+        "a machineRead block needs a source anchor with the same region",
+        f"{locator}.sourceAnchors",
+    )
+    for index, anchor in enumerate(anchors):
+        if "region" in anchor:
+            _require(
+                anchor["region"] == region,
+                "every region anchor must name the machineRead region",
+                f"{locator}.sourceAnchors[{index}].region",
+            )
+    method = machine["method"]
+    if kind == "table":
+        _require(
+            method == "ocr-table-v1",
+            "a machine-read table uses method ocr-table-v1",
+            f"{locator}.machineRead.method",
+        )
+        note = block.get("note") or ""
+        _require(
+            note.startswith(MACHINE_READ_NOTE),
+            f"machine-read tables need a note beginning {MACHINE_READ_NOTE!r}",
+            f"{locator}.note",
+        )
+    else:
+        _require(
+            method == "ocr-line",
+            "machine-read prose uses method ocr-line",
+            f"{locator}.machineRead.method",
+        )
+    content = " ".join(_strings(block))
+    if DIGIT.search(content):
+        _require(
+            bool(machine.get("crossCheckedBy")),
+            "machine-read text containing digits needs crossCheckedBy evidence",
+            f"{locator}.machineRead.crossCheckedBy",
+        )
 
 
 def _check_equation(block: dict[str, Any], locator: str) -> None:
@@ -292,7 +443,26 @@ def _check_illustration(block: dict[str, Any], root: Path, locator: str) -> None
         _require(_sha256(image) == record["sha256"], "illustration file hash mismatch", str(image), "RIGHTS_INCOMPLETE")
 
 
-def load(path: Path, root: Path | None = None) -> Manuscript:
+def engine_root() -> Path:
+    """The read-only engine tree: fonts, templates, vendored packages and pins."""
+    return workspace_mod.engine_root()
+
+
+def load(
+    path: Path,
+    root: Path | None = None,
+    *,
+    workspace: Path | None = None,
+    engine: Path | None = None,
+) -> Manuscript:
+    if root is not None and workspace is not None:
+        raise BookifyError("INPUT_INVALID", "use either root or workspace, not both", str(path))
+    selected: Path | None = None
+    if workspace is not None:
+        selected = workspace_mod.resolve(workspace, engine=engine)
+        if selected is None:
+            raise BookifyError("INPUT_INVALID", f"workspace not found: {workspace}", str(workspace))
+        path = workspace_mod.inside(selected, path, code="INPUT_INVALID", label="manuscript")
     if not path.is_file():
         raise BookifyError("INPUT_INVALID", f"manuscript not found: {path}", str(path))
     try:
@@ -303,8 +473,16 @@ def load(path: Path, root: Path | None = None) -> Manuscript:
         raise BookifyError("SCHEMA_INVALID", "manuscript root must be a mapping", str(path))
 
     schema.validate(data)
-    project_root = root.resolve() if root else _project_root(path)
+    if selected is not None:
+        project_root = selected
+        engine_root_path = (engine or engine_root()).resolve()
+    else:
+        project_root = root.resolve() if root else _project_root(path)
+        engine_root_path = (engine or project_root).resolve()
     section_ids, block_ids = _check_ids(data)
+    _check_section_hierarchy(data)
+    _check_section_roles(data)
+    _check_no_plate(data)
     _check_xrefs(data, section_ids | block_ids)
     _check_compositions(data)
 
@@ -313,11 +491,12 @@ def load(path: Path, root: Path | None = None) -> Manuscript:
             locator = f"sections[{section_index}].blocks[{block_index}]"
             if block.get("confidence") == "unreadable":
                 _check_unreadable(block, locator)
+            _check_machine_read(block, locator)
             kind = block["type"]
             if kind == "chart":
                 _check_chart(block, locator)
             elif kind == "diagram":
-                _check_diagram(block, locator, project_root)
+                _check_diagram(block, locator, engine_root_path)
             elif kind == "table":
                 _check_table(block, locator)
             elif kind == "equation":
@@ -333,4 +512,6 @@ def load(path: Path, root: Path | None = None) -> Manuscript:
         sections=tuple(data["sections"]),
         block_ids=block_ids,
         data=data,
+        engine=engine_root_path,
+        workspace=selected,
     )

@@ -9,13 +9,24 @@ from __future__ import annotations
 LEAF_NAMES: tuple[str, ...] = (
     # type
     "body", "lead", "h1", "h2", "h3", "caption", "small", "credit", "table", "table_head",
+    "note", "quote",
+    # v2 cover and chapter-opener type (D2, D4)
+    "cover_title", "cover_subtitle", "cover_meta", "cover_index", "opener_numeral",
     # spacing
-    "page_margin", "before_heading", "after_heading", "after_block", "after_lead",
+    "page_margin", "before_heading", "before_h2", "before_h3", "after_heading",
+    "heading_clearance",
+    "before_standfirst", "after_block", "between_paragraphs", "after_lead",
     "after_figure", "after_caption", "figure_width", "before_role", "side_gutter",
+    # v2 opener and cover spacing (D2, D4)
+    "opener_rule", "opener_title", "cover_rule", "cover_footer",
     # side composition
     "side_fraction",
+    # measure (v2 plate = body measure, D4; cover block height, D2)
+    "plate", "page_height",
     # rules
     "table_top", "table_head", "table_bottom", "figure_stroke",
+    # v2 cover and opener rules (D2, D4)
+    "cover", "cover_index", "opener",
     # figures
     "caption_align",
     # ink
@@ -88,3 +99,12 @@ SIDE_GUTTER_PT = 16.0
 CHART_WIDTH_FRACTION = 0.72
 ILLUSTRATION_WIDTH_FRACTION = 0.88
 DIAGRAM_WIDTH_PT = 430.0
+# D2: a real chapter index lists at most this many level-1 entries; beyond it
+# the cover uses the documented ledger motif instead of a truncated list.
+COVER_INDEX_LIMIT = 12
+# D2: the cover block must leave at least this much slack above the bottom margin.
+COVER_FOOTER_SLACK_PT = 24.0
+COVER_TITLE_MAX_LINES = 3
+# D4: a plate is one visual at the full text measure, ±1 pt.
+PLATE_PT = BODY_MEASURE_PT
+PLATE_TOLERANCE_PT = 1.0

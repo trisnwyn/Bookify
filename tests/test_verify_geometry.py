@@ -222,4 +222,5 @@ def test_runner_wires_the_geometry_gate_only_for_the_catalogue(monkeypatch) -> N
 
     assert calls == [str(pdf)]
     assert "figure-geometry" in {check["id"] for check in report["checks"]}
+    # Bookify v2 D4: designed cover + chapter opener reflow the specimen to 6.
     assert pages_check.pdf_info(pdf)["Pages"] == "6"

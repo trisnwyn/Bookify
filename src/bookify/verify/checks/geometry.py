@@ -69,24 +69,16 @@ def _page_size(pdf: Path) -> tuple[float, float]:
 
 def _canvas(spec: captions_check.CaptionSpec, page_width: float) -> Canvas:
     margin = captions_check.page_margin(page_width)
-    if spec.kind == "chart":
-        width = tokens.BODY_MEASURE_PT * tokens.CHART_WIDTH_FRACTION
-        expected = page_width / 2
-        left = expected - width / 2
-    elif spec.kind == "diagram":
-        width = tokens.DIAGRAM_WIDTH_PT
-        expected = page_width / 2
-        left = expected - width / 2
-    else:
-        column = captions_check.image_column(spec.preset, page_width)
-        if column is not None:
-            left, right = column
-            width = right - left
-            expected = (left + right) / 2
-            return Canvas(left, right, width, expected, expected)
-        width = tokens.BODY_MEASURE_PT * tokens.ILLUSTRATION_WIDTH_FRACTION
-        expected = page_width / 2
-        left = expected - width / 2
+    column = captions_check.image_column(spec.preset, page_width)
+    if column is not None:
+        left, right = column
+        width = right - left
+        expected = (left + right) / 2
+        return Canvas(left, right, width, expected, expected)
+    # D4: a chart, diagram or full illustration is a plate at the text measure.
+    width = tokens.PLATE_PT
+    expected = page_width / 2
+    left = expected - width / 2
     return Canvas(left, left + width, width, left + width / 2, expected)
 
 
@@ -144,6 +136,14 @@ def _measure_band(
             end = min(band.shape[0], _line_rows(line)[1] - row_lo + 2)
             if end > start:
                 band[start:end, :] = False
+
+    # On a narrower canvas a chapter-opener rule spans the whole measure and is
+    # ornament, not figure ink; remove a full-measure dark row there. A
+    # full-measure figure keeps its own frame and row rules: they are its ink.
+    if canvas.width < tokens.BODY_MEASURE_PT - 2.0:
+        row_dark = band.sum(axis=1)
+        rule_rows = row_dark >= 0.97 * (tokens.BODY_MEASURE_PT * SCALE)
+        band[rule_rows, :] = False
 
     columns = np.where(band.any(axis=0))[0]
     if columns.size == 0:

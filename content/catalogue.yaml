@@ -31,11 +31,11 @@ sections:
       - id: b-about-captions
         type: paragraph
         text: >-
-          Every chart, diagram and full-width photograph description is centred line by
-          line, including wrapped lines. A side illustration's description is centred
-          line by line in its image column, and its credit stays separate and
-          left-aligned in that column. Source notes remain left; table and equation
-          captions are unchanged.
+          Every chart, diagram and full-width photograph description shares one
+          centred caption with its provenance line, set line by line, including
+          wrapped lines. A side illustration's caption is centred line by line in
+          its image column, and its credit stays separate and left-aligned in that
+          column. Table and equation captions keep their own treatment.
       - id: b-about-classes
         type: paragraph
         text: >-

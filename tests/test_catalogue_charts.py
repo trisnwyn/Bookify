@@ -193,10 +193,10 @@ def test_grouped_bar_specimen_is_byte_identical_and_vector(tmp_path: Path) -> No
     )
     assert rendered.gaps == ()
     assert rendered.series_labels == ()
-    # Task 44 intentionally changes the vector bytes: the canvas gains the
-    # measured visible-ink asymmetry as margin; the chart data and labels are
-    # unchanged. The hash is re-pinned for that intended geometry change only.
-    assert rendered.sha256 == "7163f7df27bca02c8053a0af0c5af5338069296cafa5e3bc3a1b9ed04ea39335"
+    # Bookify v2 D4 authors the chart at the full text measure (6.6011 in), so
+    # the vector bytes change once more; the data and labels are unchanged. The
+    # hash is re-pinned for that intended canvas change only.
+    assert rendered.sha256 == "87c859992ca7354c959ece5dbb5e36e773644efae120b6e8f3897498cf6a240e"
     assert "<svg" in _svg(rendered) and "<image" not in _svg(rendered)
 
 

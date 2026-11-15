@@ -90,7 +90,7 @@ artwork is the project owner's work; it is not traced from an external source.
 
 ## Reference PDF
 
-`examples/catalogue.pdf` is the reviewed 19-page catalogue output. It contains
+`examples/catalogue.pdf` is the reviewed 21-page catalogue output. It contains
 the fonts and illustrations above. It is included as a reference example, not
 as an additional licensed asset. Its SHA-256 is recorded in the release
 documentation and checked during packaging.

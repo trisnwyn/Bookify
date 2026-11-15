@@ -90,3 +90,52 @@ def check_illustration_limit(pages: list[PageIllustrations]) -> CheckResult:
 3. The report is machine-readable, reproducible and contains no hand-waved status.
 4. Each intake claim for the first deliverable maps to at least one check above.
 5. Two consecutive spec-approval-stage builds produce the same gate outcome.
+
+## Amendment — Bookify v2 checks and warnings (2026-11-14)
+
+Per the owner-approved `SPEC-bookify-v2.md` §7. Existing check ids and
+conditions are unchanged; the additions are additive.
+
+### New and extended checks
+
+| Check | Pass condition | Severity |
+| --- | --- | --- |
+| `cover` | Title at 34 pt (±1) in ≤3 rendered lines, subtitle/institution/footer when present, at least one full-measure rule, zero chromatic pixels, no image, no folio, ink inside the 60 pt margin, index or ledger matches the document | fail |
+| `definitions` | Each definition renders inline as `Term: definition` at body size; no isolated small term line | fail |
+| `xrefs` (extended) | Contents entries are numbered and match printed folios; body headings print the same number; `§` references match a known printed number; figure/table/photograph numbering is sequential | fail |
+| `rhythm` | Body 15.30 and paragraph 20.70 where sampled; h2 ≥36.0 pt and band ≥8.0 pt; h3 ≥31.0 pt and band ≥5.0 pt; h1 deck ≥32.7; wrapped headings keep 30/16.5/14; below every heading a measured white row between its descenders and the next line's ascenders (≥ one 300-dpi raster row, 0.24 pt; a merged band fails); no adjacent headings. Zero samples are recorded, never invented | fail |
+| `plates` | Every level-1 opener has numeral 40 pt, a full-measure rule and title; a chapter with a visual carries a visual at the measure ±1 pt | fail on opener; warn on a missing plate |
+| `captions` (extended) | For charts, diagrams and full illustrations the description and provenance are one centred caption at `type.caption`; credit separate and left at 7.6 pt; no separate 9.2 pt figure note; table/equation captions unchanged. Coverage requires both single- and multi-line captions across the figure set | fail |
+| `readability` | Four metrics computed from the PDF and manuscript, bands applied, exemptions listed; out-of-band values are warnings with values, bands and pages | warn |
+| `review` (extended) | Contact sheet and reviewer/time, and one recorded decision per warning id in `--review-notes` (JSON object mapping id → decision) | manual; unanswered warning fails |
+
+The physics of the gate is unchanged: `fail` fails the gate, `manual` without
+evidence fails, `warn` does **not** fail by itself. A missing warning decision
+fails `review`, which then fails the gate. `report.schemaVersion` becomes `"1.1"`
+and the report lists every warning with its check, id and evidence. Exit codes
+stay 2 (input/schema) and 3 (build/verification).
+
+### Measured basis
+
+- Caption centring keeps the independent 2.0 pt geometry gate; the caption and
+  provenance lines share one target centre.
+- Geometry canvases are the text measure for charts, diagrams and full
+  illustrations (475.28 pt), and the declared 46 % column for side illustrations.
+  A full-measure dark row is removed as ornament only on narrower canvases, so a
+  figure's own frame remains its ink.
+- The cover title size is derived from the rendered line box divided by the
+  measured 1.5217 em line-box ratio of the pinned faces, never from the declared
+  token.
+- Readability bands: words per page median 140–650, any body page 60–800, tables
+  per page ≤2, paragraph words median ≤150 and any ≤240, dense run ≤3 pages above
+  650 words. Cover, contents, chapter-opener, plate and appendix pages are
+  exempt from the thin-page warning with the reason listed. Calibration basis is
+  the measured public books, not an aspiration.
+
+### Residual limits
+
+Zero-sample rhythm dimensions are reported as zero rather than failed; the
+type-token pitches are independently pinned by rendered measurement tests. The
+plate width for vector charts/diagrams is the declared measure (a vector figure
+has no raster image object) and the template token is pinned by a design test;
+raster illustration plates are measured from the placed image box.

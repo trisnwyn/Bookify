@@ -1,58 +1,158 @@
-# Authoring checklist
+# Authoring self-critique
 
-Use with `skill/bookify/SKILL.md`. Tick only what you verified.
+Use this as your own review pass before you hand the PDF over. It is not a
+developer gate and not a substitute for reading the pages. Tick only what you
+actually verified; write `unresolved` where you could not.
 
-## Before authoring
+Mode: `source-faithful` / `teachable` (from the selected command — do not mix
+contracts in one book).
 
-- [ ] Source path is read-only and outside the repository (or copied deliberately as a fixture).
-- [ ] `bookify intake` ran; `manifest.json` exists and every page has a `textSha256`.
-- [ ] Image-only pages are listed and none has fabricated text.
-- [ ] `bookify author plan` shows only genuinely new or changed pages.
+## Before you author
 
-## Per page
+- [ ] The source was read, not guessed; the source file is unchanged.
+- [ ] The intake/evidence exists and every page has a stable anchor (page text or
+      an honest `unresolved` note).
+- [ ] Image-only or unreadable units are listed and none has fabricated text.
+- [ ] The source's own structure, figures, tables and exercises are inventoried.
+- [ ] Rights for every reused image or external source are known, or explicitly
+      `unconfirmed`.
 
-- [ ] Every block has a `sourceAnchors` entry for that page.
-- [ ] Every number, name and date appears in the extracted page text.
-- [ ] No definition or explanation was added that the source does not contain.
-- [ ] An unreadable label is an `unresolved` block with a note, not a guess.
-- [ ] A chart value that cannot be read is `null` with a note; approximate readings are marked.
-- [ ] A diagram is labelled a reconstruction when it is redrawn from a description.
-- [ ] A decision line records every rewrite, drop or uncertainty.
+## Coverage, order and provenance
 
-## Illustrations
+- [ ] Every source unit is covered, merged or excluded with a reason.
+- [ ] Strict: content follows source page order; merges/reorders are recorded.
+- [ ] Teachable: every reorder, merge, split and omission is recorded with a
+      decision.
+- [ ] Every factual block has a source anchor (and, in teachable mode, every
+      external claim has a permissioned citation).
+- [ ] No invented number, name, date, category, label, quote or citation.
+- [ ] Machine-read blocks are `inferred`, never `verified`; each names its OCR
+      region and (for tables) `ocr-table-v1` and the reconstruction note.
+- [ ] Every machine-read digit has a recorded cross-check; a below-threshold OCR
+      page is excluded with its measured reason, not summarised into a guess.
+- [ ] No OCR number became a chart value, and the `MACHINE_READ_DIGITS` warning
+      is answered in the review notes.
+- [ ] An unreadable label, value or name is `unresolved`/`null` with a note, not
+      a plausible guess.
+- [ ] Approximate or inferred values remain visibly approximate/inferred.
+- [ ] Presentation-only text in strict mode asserts no new fact.
 
-- [ ] Selection has a relevance reason (recognition, evidence, context, concrete example).
-- [ ] No quota or filler selection.
-- [ ] Reused selections were not searched for again.
-- [ ] Record has path, origin URL, creator, licence, credit, caption, alt, kind, `rightsStatus`.
-- [ ] Unknown rights remain `unconfirmed`; only an explicit `--draft` build may contain them.
-- [ ] Contemporary photographs, later depictions and reconstructions are named as such.
-- [ ] Alt text describes the image without interpreting it.
-- [ ] Composition is explicit: `full`, `side-left` or `side-right`; absent means full; charts/diagrams do not carry a composition.
-- [ ] A side illustration's companion is the immediately following prose block in the same section, is used once, and is at most 520 collapsed characters including title/term/note.
-- [ ] The composition is unbreakable: image, caption, credit and companion share one page; the whole unit defers if needed; no split or silent drop.
-- [ ] Side captions are column-centred on every line; credits stay left in the same image column; full/chart/diagram descriptions remain page-centred.
+## Additions and mode boundaries
 
-## Catalogue
+- [ ] Strict: no outside material, no teaching apparatus, no reading list, no
+      glossary, no exercises unless the source supplies them.
+- [ ] Teachable: teaching apparatus is recorded as `explain`/`example`/
+      `assessment`/`glossary` or equivalent, and labelled as framing where it
+      could be mistaken for source fact.
+- [ ] Outside enrichment was explicitly requested and permitted, cited at the
+      point of use, and recorded with a stable locator or local hash.
+- [ ] No outside enrichment arrived by “quick check”, prior permission or “use
+      your judgement”.
+- [ ] Illustrative examples are labelled illustrative; they are not presented as
+      real observations.
+- [ ] Quotations, attribution, uncertainty notes and enrichment citations remain
+      visible.
 
-- [ ] The manuscript is `content/catalogue.yaml`, `id: visual-catalogue`, languages `[en, vi, ja]`, data only, with no per-figure scripts.
-- [ ] Exact inventory: 16 chart figures / 15 families, 10 diagram presets, 4 illustration families.
-- [ ] Pie (`hole: 0`) and donut (`hole > 0`) are both present and counted as one family.
-- [ ] The 29-row coverage table matches the PDF; pie/donut is one row with two figure references.
-- [ ] Every chart is `verification: synthetic` with notes and no source/source anchors; every diagram is `synthetic: true` with a note.
-- [ ] Chart labels are Latin/Vietnamese only; Japanese appears in diagrams, body text and captions.
-- [ ] At least one short and one wrapped caption exists for charts, diagrams and photographs; every description line is centred to its declared measure (page or side column).
-- [ ] Credits and source notes are separate; credits are left at the page margin or inside the side image column; table and equation captions are unchanged.
-- [ ] Four illustrations appear once each, on four distinct pages; no page holds two; the catalogue demonstrates at least one `side-left`, one `side-right` and one `full`.
-- [ ] Side companion prose is honest and explicit; the bilingual side caption wraps without clipping; all text is extractable.
-- [ ] The double offline build is identical and `verify` returns `gate: pass`, including the 30-figure geometry check.
+## Voice (teachable)
+
+- [ ] The chapter states its teaching point directly instead of narrating the
+      input.
+- [ ] The chapter defines terms where needed, works an example, and gives a
+      short check that uses its own vocabulary.
+- [ ] Recurring “the materials/course/slides/provided content say” framing is
+      removed, including paraphrases.
+- [ ] Naming the source survives only where attribution, quotation, uncertainty
+      or enrichment citation is the point.
+- [ ] A semantic read of every chapter finds direct prose, legitimate citations
+      and no upgraded evidence. Exact banned-phrase checks are regression aids,
+      not the review.
+
+## Visual form and composition
+
+- [ ] The visual system is coherent: hierarchy, body measure, margins, serif
+      family and white space are intentional.
+- [ ] Figures do real work; there is no filler and no quota. A book with no
+      illustration is acceptable if the material does not need one.
+- [ ] Composition is explicit data: `full`, `side-left` or `side-right`; absent
+      means full; charts and diagrams carry no composition.
+- [ ] A side illustration's companion is the immediately following prose block in
+      the same section, used once, at most 520 collapsed characters including
+      title/term/note.
+- [ ] The composition is unbreakable: image, caption, credit and companion share
+      one page; the whole unit defers if needed; no split or silent drop.
+- [ ] Side captions are column-centred on every line; credits stay separate and
+      left in the image column; full/chart/diagram descriptions remain
+      page-centred.
+- [ ] Description and provenance share one centred caption at caption size; the
+      credit is a separate left line; no 9.2 pt figure note survives (D5).
+- [ ] Every definition is inline (`Term: definition`) in body type; no grey role
+      label or isolated term line (D1). A glossary, if any, is one authored
+      table.
+- [ ] Every chapter and subsection prints its number (1, 1.1, 1.1.1; appendices
+      Appendix A, A.1); contents and cross-references agree (D3).
+- [ ] The cover is the generated typographic cover: title, rule, real chapter
+      index (or the ledger motif beyond twelve chapters), footer, no folio, no
+      colour, no stock image (D2).
+- [ ] Each chapter opens with numeral, rule, title and the authored standfirst
+      or lead; heading rhythm has a measured blank band before h2/h3 (D4, D6).
+- [ ] Chapters with a visual carry one full-measure plate where the material
+      supports it; a chapter without one records a `no-plate` reason (D4).
+- [ ] One illustration per final page.
+- [ ] Labels fit their boxes; no clipped text, overlapping marks or unreadably
+      small labels.
+- [ ] Captions are attached to their figures; cross-references resolve.
+- [ ] Charts are labelled synthetic where they are; diagrams illustrative where
+      they are; reconstructions labelled as reconstructions.
+
+## Readability judgement (D7)
+
+Density is never a target and never a hard failure. Read the page, not the
+number.
+
+- [ ] The verify report's readability warnings are read with their pages,
+      values and bands.
+- [ ] Each warning has a recorded decision in the review notes file: either the
+      page is deliberate reference matter, or it was fixed.
+- [ ] Every warning id appears in the review notes; an unanswered warning fails
+      the review check even though the density itself never fails the gate.
+- [ ] For every chapter: can a reader follow the argument on the page? Is a long
+      paragraph a wall or a deliberate unit? Is a table or plate doing work?
+      Are the definitions usable inline? Is the density run deliberate?
+- [ ] No page, word, figure or table quota was used to judge the book, and no
+      filler was added to change a metric.
+
+## Page inspection
+
+- [ ] Every rendered page was viewed at a readable resolution, not only checked
+      by text extraction.
+- [ ] Contact sheet or per-page evidence exists and is recorded.
+- [ ] Each page has a result (pass / attention / block) with a reason for
+      anything not passing.
+- [ ] Orphaned headings, split compositions, detached captions, cramped labels,
+      accidental blank space and monotonous page rhythm were fixed or recorded.
 
 ## Build and verify
 
-- [ ] `manuscript check` and `design check` pass.
-- [ ] Build ran with `--offline`; build directory is inside the project.
-- [ ] A second build exists for the layout comparison.
-- [ ] Every page was rendered and inspected; contact sheet saved.
-- [ ] Verify report has `gate: pass`, no failing check, and a review record.
-- [ ] Approximate values and reconstructions are visible in the PDF text.
-- [ ] `uv run python -m pytest -q` passes (`uv run pytest` cannot spawn in this environment).
+- [ ] `manuscript check` and `design check` pass (or the failures are understood
+      and recorded).
+- [ ] The build ran offline with the pinned toolchain.
+- [ ] A second build exists for comparison.
+- [ ] `verify` returns `gate: pass`, or each failing check is recorded as a
+      finding rather than hidden.
+- [ ] The review record is honest: agent inspection, not human sign-off.
+- [ ] `uv run python -m pytest -q` passes (`uv run pytest` cannot spawn the
+      console script in this environment).
+
+## Catalogue regression (only when the catalogue is touched)
+
+The catalogue is a regression fixture, not a required book shape. When a change
+can affect it, confirm:
+
+- [ ] Exact inventory: 16 chart figures / 15 families, 10 diagram presets,
+      4 illustration families.
+- [ ] Pie (`hole: 0`) and donut (`hole > 0`) are both present and counted as one
+      family.
+- [ ] The 29-row coverage table matches the PDF.
+- [ ] Four illustrations appear once each, on four distinct pages; no page holds
+      two; one `side-left`, one `side-right` and one `full` are demonstrated.
+- [ ] The 30-figure geometry check passes within its existing tolerance.

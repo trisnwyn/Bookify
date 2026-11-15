@@ -16,6 +16,19 @@ def _review(sheet: Path) -> dict[str, str]:
     return {"contact_sheet": sheet, "reviewed_by": "agent", "reviewed_at": "2026-11-10T18:00:00"}
 
 
+def _review_notes() -> Path:
+    """Answer every warning the build recorded; warnings never fail silently."""
+    data = json.loads(build_report_path().read_text())
+    ids = [warning["id"] for warning in data.get("readability", {}).get("warnings", [])]
+    # The specimen has no level-2/3 heading, so rhythm reports the two bands as
+    # unmeasured rather than silently passing them.
+    ids.extend(["rhythm:unmeasured:h2", "rhythm:unmeasured:h3"])
+    path = ROOT / ".cache" / "verify-review-notes.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({identifier: "Checked the rendered page; the result is explained." for identifier in ids}))
+    return path
+
+
 def test_gate_passes_with_a_recorded_review() -> None:
     pdf, previous, sheet = specimen_build()
 
@@ -23,15 +36,18 @@ def test_gate_passes_with_a_recorded_review() -> None:
         pdf, SPECIMEN, ROOT / ".cache" / "verify.json",
         previous_pdf=previous, build_report=build_report_path(),
         contact_sheet=sheet, reviewed_by="agent", reviewed_at="2026-11-10T18:00:00",
+        review_notes=_review_notes(),
     )
 
     assert report["gate"] == "pass"
     assert report["pins"] == {"typst": "0.15.1", "python": "3.13.16"}
     assert report["generatedFrom"]["pdfSha256"]
     assert {check["id"] for check in report["checks"]} == {
-        "offline", "determinism", "glyphs", "text", "pages", "captions",
-        "illustration-limit", "rights", "xrefs", "review",
+        "offline", "ocr_free_build", "determinism", "glyphs", "cover", "definitions", "text",
+        "pages", "captions", "illustration-limit", "rights", "xrefs", "rhythm", "plates",
+        "readability", "machine_read", "review",
     }
+    assert report["schemaVersion"] == "1.1"
     assert (ROOT / ".cache" / "verify.json").is_file()
 
 
@@ -46,7 +62,10 @@ def test_cli_exit_codes(capsys) -> None:
     ]
     assert main(base) == 3
     assert json.loads(capsys.readouterr().out)["gate"] == "fail"
-    assert main(base + ["--contact-sheet", str(sheet), "--reviewed-by", "agent", "--reviewed-at", "now"]) == 0
+    assert main(base + [
+        "--contact-sheet", str(sheet), "--reviewed-by", "agent", "--reviewed-at", "now",
+        "--review-notes", str(_review_notes()),
+    ]) == 0
     assert json.loads(capsys.readouterr().out)["gate"] == "pass"
 
 

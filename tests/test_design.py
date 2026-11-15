@@ -54,13 +54,13 @@ def test_figure_caption_uses_the_shared_centred_preset() -> None:
     blocks = (ROOT / "typst" / "blocks.typ").read_text()
 
     assert "caption_align: center" in theme
-    assert "#let preset-figure-caption(caption)" in blocks
+    assert "#let preset-figure-caption(caption, note: none)" in blocks
     assert "align(tokens.figure.caption_align" in blocks
     assert "set par(justify: false)" in blocks
 
     for preset in ("preset-chart", "preset-illustration"):
         body = blocks.split(f"#let {preset}(", 1)[1].split("#let ", 1)[0]
-        assert "preset-figure-caption(caption)" in body, f"{preset} must use the shared centred caption"
+        assert "preset-figure-caption(caption, note: note)" in body, f"{preset} must use the shared centred caption"
 
     diagram_body = blocks.split("#let preset-diagram(", 1)[1].split("#let ", 1)[0]
     assert "preset-chart(figure, caption: caption" in diagram_body, "preset-diagram must delegate to the shared caption path"

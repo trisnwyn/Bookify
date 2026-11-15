@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from bookify.design import tokens
 from bookify.manuscript import model
 from bookify.publish import rights
 
@@ -19,12 +20,63 @@ class Document:
     labels: dict[str, str]
 
 
-def _number_map(manuscript: model.Manuscript) -> tuple[dict[str, str], dict[str, str], dict[str, int]]:
+def appendix_letter(index: int) -> str:
+    """1 -> A, 26 -> Z, 27 -> AA. Mirrors the Typst numbering function."""
+    letters = ""
+    value = index
+    while value > 0:
+        value, remainder = divmod(value - 1, 26)
+        letters = chr(ord("A") + remainder) + letters
+    return letters
+
+
+def section_numbers(manuscript: model.Manuscript) -> list[dict[str, Any]]:
+    """D3: the printed number of every section, in document order.
+
+    Level-1 chapters print `1`, `2`; appendices print `Appendix A`, `Appendix B`
+    while their children print `A.1`, `A.1.1`. The `number` field is the
+    cross-reference form (`1`, `A`, `A.1`); `printed` is what a heading shows.
+    """
+    numbers: list[dict[str, Any]] = []
+    prefix = ""
+    level2 = level3 = 0
+    for section in manuscript.sections:
+        level = section.get("level", 1)
+        role = section.get("role", "chapter") if level == 1 else "chapter"
+        if level == 1:
+            if role == "appendix":
+                count = sum(
+                    1 for item in numbers if item["level"] == 1 and item["role"] == "appendix"
+                ) + 1
+                prefix = appendix_letter(count)
+                printed = f"Appendix {prefix}"
+            else:
+                count = sum(1 for item in numbers if item["level"] == 1 and item["role"] == "chapter") + 1
+                prefix = str(count)
+                printed = prefix
+            level2 = level3 = 0
+            number = prefix
+        elif level == 2:
+            level2 += 1
+            level3 = 0
+            number = f"{prefix}.{level2}"
+            printed = number
+        else:
+            level3 += 1
+            number = f"{prefix}.{level2}.{level3}"
+            printed = number
+        numbers.append({"level": level, "role": role, "number": number, "printed": printed})
+    return numbers
+
+
+def _number_map(
+    manuscript: model.Manuscript, numbers: list[dict[str, Any]]
+) -> tuple[dict[str, str], dict[str, int]]:
     """Assign section, figure, table and photograph labels in document order."""
     labels: dict[str, str] = {}
     kinds: dict[str, int] = {"figure": 0, "table": 0, "photograph": 0}
-    for index, section in enumerate(manuscript.sections, start=1):
-        labels[section["id"]] = f"§{index}"
+    for index, section in enumerate(manuscript.sections):
+        labels[section["id"]] = f"§{numbers[index]['number']}"
         for block in section["blocks"]:
             block_type = block["type"]
             if block_type in {"chart", "diagram"}:
@@ -38,7 +90,7 @@ def _number_map(manuscript: model.Manuscript) -> tuple[dict[str, str], dict[str,
                 labels[block["id"]] = f"Photograph {kinds['photograph']}"
             else:
                 labels[block["id"]] = labels[section["id"]]
-    return labels, {}, kinds
+    return labels, kinds
 
 
 def _resolve(text: str, labels: dict[str, str]) -> str:
@@ -71,24 +123,66 @@ def build(
     figure_paths: dict[str, str],
     draft: bool = False,
 ) -> Document:
-    labels, _, _ = _number_map(manuscript)
+    numbers = section_numbers(manuscript)
+    labels, _ = _number_map(manuscript, numbers)
+    cover_index = [
+        {
+            "number": item["printed"],
+            "title": _resolve(section["title"], labels),
+            "role": item["role"],
+        }
+        for section, item in zip(manuscript.sections, numbers)
+        if item["level"] == 1
+    ]
     data: dict[str, Any] = {
         "schemaVersion": "1.0",
         "revision": manuscript.revision,
         "metadata": manuscript.data["metadata"],
         "sections": [],
         "illustrations": [],
+        "numbering": {
+            "chapters": sum(1 for item in numbers if item["level"] == 1 and item["role"] == "chapter"),
+            "appendices": sum(1 for item in numbers if item["level"] == 1 and item["role"] == "appendix"),
+            "levels": 3,
+        },
+        "cover": {
+            "index": cover_index,
+            "indexMode": "list" if len(cover_index) <= tokens.COVER_INDEX_LIMIT else "ledger",
+        },
     }
 
     for index, section in enumerate(manuscript.sections, start=1):
+        level = section.get("level", 1)
+        if index == 1:
+            # The contents page already ends with a break; a redundant or
+            # explicit first-section break must never create a blank page.
+            break_before = "auto"
+        else:
+            break_before = section.get("breakBefore")
+            if break_before is None:
+                break_before = "page" if level == 1 else "auto"
+        kinds = {block["type"] for block in section["blocks"]}
+        illustrations = [block for block in section["blocks"] if block["type"] == "illustration"]
+        keep_together = (
+            len(illustrations) == 1
+            and kinds <= {"illustration", "unresolved"}
+        )
         out_section: dict[str, Any] = {
             "number": index,
             "label": labels[section["id"]],
+            "level": level,
+            "role": numbers[index - 1]["role"],
+            "printed": numbers[index - 1]["printed"],
+            "breakBefore": break_before,
             "title": _resolve(section["title"], labels),
             "kicker": _resolve(section["kicker"], labels) if section.get("kicker") else None,
             "standfirst": _resolve(section["standfirst"], labels) if section.get("standfirst") else None,
             "blocks": [],
         }
+        if keep_together:
+            out_section["keepTogether"] = True
+        if section.get("noPlate"):
+            out_section["noPlate"] = section["noPlate"]
         consumed: set[str] = set()
         for position, block in enumerate(section["blocks"]):
             if block["id"] in consumed:
@@ -183,6 +277,8 @@ def build(
                 notes = [note for note in dict.fromkeys(notes) if isinstance(note, str) and note.strip()]
                 if notes:
                     entry["note"] = _resolve(" ".join(notes), labels)
+            if "machineRead" in block:
+                entry["machineRead"] = dict(block["machineRead"])
             out_section["blocks"].append(entry)
         data["sections"].append(out_section)
 

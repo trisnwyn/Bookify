@@ -101,3 +101,80 @@ def place_illustrations(doc: ResolvedDocument, pages: PageMap) -> Placement:
 3. Every cross-reference, figure and table number resolves and is stable across two builds.
 4. Every illustration appears with caption, credit and kind-appropriate wording.
 5. A second build from unchanged inputs has the same page count, page text and placement map.
+
+## Amendment — Phase 2 layout correction (2026-11-13)
+
+User authorization, verbatim: “Proceed with the coordinated line-spacing and page-break layout changes.” Additive to the approved publish contract; no new dependency or output format.
+
+### Section flow
+
+- The template renders `heading(level: section.level, ...)` and breaks only when the normalised `breakBefore == "page"` and `section-index > 0`. The first body section never inserts a redundant break; no blank verso or parity page is added.
+- Kickers are a sticky block so a kicker is never left alone at a page foot. A pure plate section (normalised `keepTogether: true`) wraps its heading, note, image, caption and credit in a `block(breakable: false)`; ordinary chapters are never made unbreakable.
+- Contents is `depth: 3` and may paginate. The report and `xrefs` check parse every contents page from the first contents page until the first non-contents page, and exclude all of them from section-page lookup. Section titles are unique; `model.load` rejects duplicates.
+
+### Long tables and oversize units
+
+- `preset-table` uses `table.header(repeat: true, ...)` for the header and `table.footer(repeat: false, ...)` for the caption. A split table therefore repeats its header and keeps its caption exactly once, at the end of the table beside the final rows.
+- `report.require_unit_fit` measures the rendered caption and credit boxes of every chart, diagram and illustration. A caption line, or a credit line, that exceeds `PAGE_HEIGHT − PAGE_MARGIN + 2 pt` fails with `BUILD_FAILED` and the block id; a caption that cannot be followed completely on one page is treated as detached and also fails. The check deliberately ignores unrelated body prose on the same page, which may legitimately reach the bottom margin. It never clips, shrinks below the authored size, or drops a caption/credit. The remaining approximation is named in the fixed report: an image that bleeds into the margin while its caption still sits inside would not be caught by text boxes alone.
+- Side compositions keep their independent column fit check (`require_composition_fit`). The one-illustration-per-page deferral loop is unchanged.
+
+### Cross-references and numbering
+
+- `{ref:<section>}` remains flat `§N`; declaring a level does not change printed cross-reference text. `Figure N`, `Table N` and `Photograph N` numbering is unchanged.
+- `build-report.json` records `level` and `breakBefore` per section and the `contentsPages` range; page counts and hashes change by design because leading changed, and are rebaselined only after the rendered measurements pass.
+
+## Amendment — Bookify v2 composition and report (2026-11-14)
+
+Implements the owner-approved `SPEC-bookify-v2.md` §6. Additive; the offline,
+model-free, OCR-free build invariant and the one-illustration-per-page rule are
+unchanged.
+
+### Cover, numbering and contents
+
+- `normalize` resolves `printed` numbers and `role` per section and emits
+  `numbering` (`chapters`, `appendices`, `levels`) plus `cover` (`index`,
+  `indexMode`). Level-1 chapters print `1`, `2`; appendices print `Appendix A`
+  while their children print `A.1`. The template sets a custom
+  `heading(numbering:)` that mirrors `normalize.appendix_letter`; the outline
+  prints the same strings. Cross-references resolve to `§1.2` / `§A.1` from the
+  same map.
+- The cover renders before the contents and is not in the outline. The cover
+  page uses `page(numbering: none)`; numbering resumes on the contents page. The
+  cover receives `metadata`, `coverIndex` and `coverIndexMode`; it never invents
+  metadata. Back matter is data (`role: appendix`), never inferred.
+- `report.require_cover_fit` fails the build with a metadata locator when the
+  title exceeds three lines or the footer ink loses its ≥ 24 pt slack. The cover
+  is never clipped, shrunk or partially printed.
+
+### Openers, plates and captions
+
+- Chapter openers are a template show rule, not per-book markup: printed number,
+  0.6 pt full-measure rule, title, then the authored standfirst/lead.
+- `full` illustrations, charts and diagrams use `measure.plate` (475.28 pt);
+  charts are authored at that measure so their type is not scaled. Side
+  compositions keep 46 % + 16 pt and stay illustration-only.
+- `preset-chart`, `preset-diagram` and the full illustration preset emit one
+  centred caption carrying description and `note`; a separate figure note is no
+  longer emitted. Credits stay separate and left. Table and equation captions are
+  unchanged. Machine-read table notes (OCR, separate workstream) keep their own
+  below-table treatment.
+- `report.plate_entries` records every plate with `widthPt` and `basis`:
+  `measured` from the placed image box for raster illustrations, `declared` for
+  vector charts/diagrams and vector full illustrations. A chapter with a visual
+  and no plate is a `plateGaps` entry.
+
+### Build report additions
+
+`build-report.json` gains `numbering`, `cover` (`indexMode`, `coverIndex`,
+`entries`, `folio`), `plates`, `plateGaps`, `definitions`
+(`count`, `glossaryTables`), `captions` (`unified`, `separateNotes`), and
+`readability` (metrics, bands, exemptions, warnings). These are evidence for
+verify and review, not a second source of truth. No page or figure target is
+recorded.
+
+### Residual limits
+
+A vector chart or diagram carries no raster image object, so verify reads its
+declared measure from the same template token and the design test pins the
+template; raster illustrations are measured from the placed box. The report is
+therefore honest about the basis of each plate width.
