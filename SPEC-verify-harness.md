@@ -152,8 +152,10 @@ the WeasyPrint study in `docs/weasyprint-report.md`.
   contain fails (the "never invent metadata" rule, applied to the file).
 - A standard the file *claims* is checked structurally: PDF/A needs a valid
   conformance level and an `/OutputIntent`; PDF/UA needs a tagged file. A file
-  that claims no standard is not penalised, so the check does not require
-  `--pdf-standard` to be turned on.
+  that claims no standard is not penalised, so the check never depends on a
+  standard being requested. The build does request one: `_compile` passes
+  `--pdf-standard a-2b`, and the check then proves the claim rather than taking
+  Typst's word for it.
 - The declared document language is evidence, not a gate. Typst sets it through
   `text(lang:)`, which changes line breaking, so requiring it here would move
   every page baseline; the mismatch stays visible in the report until that work

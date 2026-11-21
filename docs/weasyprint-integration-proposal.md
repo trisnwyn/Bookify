@@ -17,6 +17,12 @@ recorded in `SPEC-verify-harness.md`), and **W5** (placement now converges inste
 counting attempts, ceiling eight, `placementPasses` in the build report; amendment
 recorded in `SPEC-publish-engine.md`).
 
+Open question 3 is answered in the affirmative and question 1 is now a requirement: the
+compile passes `--pdf-standard a-2b`, and `docmeta` proves the claim. Specimen and
+catalogue both compile unchanged under it — same page count, identical extracted text —
+so archival conformance costs no layout. Question 2 (equation `alt` text) remains the
+only thing blocking PDF/UA; question 5 (re-baseline) still gates W4.
+
 Open: **W4** (hyphenation and language) waits on the re-baseline question in §7;
 **W3** (alt text and tagged PDF) waits on the equation `alt` schema decision; **W6**
 (print-ready pagination) is a product decision.

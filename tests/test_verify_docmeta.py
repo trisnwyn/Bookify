@@ -84,3 +84,20 @@ def test_untitled_manuscript_still_needs_the_title(manuscript) -> None:
 
     assert check.status == "fail"
     assert "no title" in check.detail
+
+
+def test_a_claimed_standard_is_checked_not_trusted(manuscript) -> None:
+    source = (
+        f'#set document(title: "{TITLE}", author: "{AUTHOR}")\n'
+        '#set page(paper: "a4")\n'
+        "= A chapter\n"
+        "Body text.\n"
+    )
+    claimed = compile_typ(source, "docmeta-pdfa", standards="a-2b")
+
+    check = docmeta.check(claimed, manuscript)
+
+    assert check.status == "pass", check.detail
+    assert check.evidence["standard"]["part"] == "2"
+    assert check.evidence["standard"]["conformance"] == "B"
+    assert "PDF/A-2b" in check.detail

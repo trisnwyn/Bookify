@@ -172,5 +172,5 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
         )
 
     identity = "title and author match the manuscript" if expected_author else "title matches the manuscript"
-    standard = f"; PDF/A-{claimed['part']}{claimed['conformance']} claimed" if claimed["part"] else ""
+    standard = f"; PDF/A-{claimed['part']}{claimed['conformance'].lower()} claimed" if claimed["part"] else ""
     return passed("docmeta", identity + standard, **evidence)

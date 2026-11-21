@@ -32,23 +32,23 @@ def build_report_path() -> Path:
     return ROOT / ".cache" / "verify-base" / "build" / "build-report.json"
 
 
-def compile_typ(source: str, name: str) -> Path:
+def compile_typ(source: str, name: str, standards: str | None = None) -> Path:
     work = ROOT / ".cache" / "verify-snippets"
     work.mkdir(parents=True, exist_ok=True)
     typ = work / f"{name}.typ"
     pdf = work / f"{name}.pdf"
     typ.write_text(source)
-    subprocess.run(
-        [
-            "bwrap", "--unshare-net", "--bind", "/", "/", "--chdir", str(ROOT), "--",
-            str(TYPST), "compile",
-            "--ignore-system-fonts", "--font-path", "assets/fonts",
-            "--package-path", "vendor/typst",
-            "--package-cache-path", ".cache/empty-pkg",
-            "--root", ".", str(typ.relative_to(ROOT)), str(pdf),
-        ],
-        check=True, capture_output=True, text=True, cwd=ROOT,
-    )
+    command = [
+        "bwrap", "--unshare-net", "--bind", "/", "/", "--chdir", str(ROOT), "--",
+        str(TYPST), "compile",
+        "--ignore-system-fonts", "--font-path", "assets/fonts",
+        "--package-path", "vendor/typst",
+        "--package-cache-path", ".cache/empty-pkg",
+    ]
+    if standards is not None:
+        command += ["--pdf-standard", standards]
+    command += ["--root", ".", str(typ.relative_to(ROOT)), str(pdf)]
+    subprocess.run(command, check=True, capture_output=True, text=True, cwd=ROOT)
     return pdf
 
 

@@ -102,6 +102,10 @@ def _compile(
         "--package-path", package_path,
         "--package-cache-path", ".cache/empty-pkg",
         "--creation-timestamp", CREATION_TIMESTAMP,
+        # Archival conformance, claimed and then verified by `docmeta`. Typst
+        # refuses to write a file that breaks the profile, so a future asset
+        # that cannot be archived fails the build instead of silently shipping.
+        "--pdf-standard", "a-2b",
         "--root", ".",
         "--input", f"data={data}",
         "typst/templates/book.typ", str(out_pdf),
