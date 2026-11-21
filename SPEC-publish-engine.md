@@ -178,3 +178,66 @@ A vector chart or diagram carries no raster image object, so verify reads its
 declared measure from the same template token and the design test pins the
 template; raster illustrations are measured from the placed box. The report is
 therefore honest about the basis of each plate width.
+
+## Amendment — production layout integration (2026-11-16)
+
+- The template dispatches the cover to `typst/cover.typ`
+  (`render-cover(metadata, cover)`); the ledger/index cover is removed. The
+  document's `cover` object records `composition`, `selection`
+  (`author`/`engine-fallback`), `artwork` (`present`/`absent`/`not-applicable`),
+  `artworkPath`/`artworkCredit` when present, and `indexPrinted: false`. It no
+  longer carries `index`/`indexMode`.
+- A level-1 chapter heading is one h1 line, `Chapter 1: Title` (`Appendix A:
+  Title`); the counter still numbers the contents with the bare `1`. The 40 pt
+  numeral/rule stack is removed.
+- `require_cover_fit` no longer enforces a footer-slack rule or a printed index.
+  It enforces the title's three-line budget and that every cover line stays
+  inside the 60 pt text block; the raster cover check keeps the ink-accurate
+  gate, plus no folio, no chromatic pixels and no raster image unless an artwork
+  record was selected.
+- `report.plate_entries` returns `(plates, gaps, visuals)`: only full-measure
+  visuals are plates; a centred visual (430 pt) and a side visual (46 % column)
+  are recorded in `visuals` with their measured or declared width. `plates`
+  still drive the per-chapter plate gap and the readability exemption.
+- `report.composition_entries` covers every visual type (chart, diagram,
+  illustration) and records the preset plus `companionIds`.
+- `report.analyse` and `readability.measure` find a section's page through
+  `report.line_is_section`, which accepts the `Chapter n:`/`1.`/`1.1` prefix so
+  a wrapped heading is still located.
+- A chapter with `layout.columns == 2` sets its descendant sections inside the
+  same column flow; a chart, diagram or illustration inside it takes the 229.64
+  pt column measure (`typst/compositions.typ`), and a side composition is
+  refused by the model in such a chapter **and in any descendant** (the layout is
+  inherited). `captions`, `figure-geometry` and `require_unit_fit` read the
+  effective, inherited column count. `rhythm` takes its two-column page set from
+  the authored layout, never from where lines happen to start, and stops before a
+  following chapter that begins on a later page; when a following chapter starts
+  on the same page, only that shared page is declared two-column and the later
+  pages stay single-column.
+- `section_numbers` emits a unique `number` per section: the printed form for
+  body levels (including the level-2 period), the chapter number for a chapter
+  and the bare letter for an appendix. `xrefs` resolves a reference followed by
+  sentence punctuation against the allowed forms.
+- `_workspace_mounts` binds each rights-record image file the manuscript uses at
+  its own relative path, with a book-root containment check; the
+  `assets/illustrations` folder is still mounted whole.
+
+## Amendment — placement convergence (2026-11-21)
+
+Additive to "Illustration placement rule" step 4, and a correction of it. The
+fixed "repeat at most 3 times, a fourth disagreement fails" rule is replaced by a
+convergence test, following WeasyPrint's repagination loop
+(`layout_document()`, up to eight passes, stop when nothing changed):
+
+1. A pass is repeated only while the placement map still reports a conflict.
+   Agreement, not an attempt count, is the stop condition.
+2. Two passes with the same placement map are the same layout. A repeat is a
+   document that oscillates and fails at once with `ILLUSTRATION_LIMIT` and the
+   repeating page map, instead of spending the remaining passes.
+3. The safety ceiling is eight passes; reaching it also fails with
+   `ILLUSTRATION_LIMIT`, now naming the pass count.
+4. `build-report.json` gains `placementPasses`, the number of defer-and-recompile
+   passes actually used, so a converging build is visible as evidence.
+
+The one-illustration-per-page rule, determinism requirement and deferral
+reporting are unchanged. No page or figure target is introduced.

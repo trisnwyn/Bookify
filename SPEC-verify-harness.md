@@ -139,3 +139,24 @@ type-token pitches are independently pinned by rendered measurement tests. The
 plate width for vector charts/diagrams is the declared measure (a vector figure
 has no raster image object) and the template token is pinned by a design test;
 raster illustration plates are measured from the placed image box.
+
+## Amendment — PDF identity check (2026-11-21)
+
+Additive. Implements W1 and W2 of `docs/weasyprint-integration-proposal.md`, after
+the WeasyPrint study in `docs/weasyprint-report.md`.
+
+- New check `docmeta`. It reads the PDF's own `/Info` fields and XMP packet with
+  the already-pinned Poppler (`pdfinfo`, `pdfinfo -meta`) and compares them with
+  the manuscript: the title must be present and equal, a declared author must be
+  present and equal, and a file that names an author the manuscript does not
+  contain fails (the "never invent metadata" rule, applied to the file).
+- A standard the file *claims* is checked structurally: PDF/A needs a valid
+  conformance level and an `/OutputIntent`; PDF/UA needs a tagged file. A file
+  that claims no standard is not penalised, so the check does not require
+  `--pdf-standard` to be turned on.
+- The declared document language is evidence, not a gate. Typst sets it through
+  `text(lang:)`, which changes line breaking, so requiring it here would move
+  every page baseline; the mismatch stays visible in the report until that work
+  lands.
+- `report.schemaVersion` becomes `"1.2"`. Gate physics, exit codes and the
+  warning/review contract are unchanged.

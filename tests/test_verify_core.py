@@ -43,11 +43,11 @@ def test_gate_passes_with_a_recorded_review() -> None:
     assert report["pins"] == {"typst": "0.15.1", "python": "3.13.16"}
     assert report["generatedFrom"]["pdfSha256"]
     assert {check["id"] for check in report["checks"]} == {
-        "offline", "ocr_free_build", "determinism", "glyphs", "cover", "definitions", "text",
+        "offline", "ocr_free_build", "determinism", "glyphs", "docmeta", "cover", "definitions", "text",
         "pages", "captions", "illustration-limit", "rights", "xrefs", "rhythm", "plates",
         "readability", "machine_read", "review",
     }
-    assert report["schemaVersion"] == "1.1"
+    assert report["schemaVersion"] == "1.2"
     assert (ROOT / ".cache" / "verify.json").is_file()
 
 

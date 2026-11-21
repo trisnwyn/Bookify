@@ -6,7 +6,16 @@ from typing import Any
 
 from bookify.errors import BookifyError
 
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 8
+
+
+def signature(placements: list[dict[str, Any]]) -> tuple[tuple[str, int | None], ...]:
+    """The placement map as one comparable value.
+
+    Two passes with the same signature are the same layout, so a repeat is an
+    oscillating document, not a document that needs another try.
+    """
+    return tuple(sorted((placement["illustrationId"], placement.get("page")) for placement in placements))
 
 
 def conflicts(placements: list[dict[str, Any]]) -> dict[int, list[str]]:

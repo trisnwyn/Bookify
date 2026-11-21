@@ -52,6 +52,7 @@ def test_two_side_compositions_defer_exactly_one_and_never_share_a_page(built) -
     assert len(placements) == 2
     assert len({placement["page"] for placement in placements}) == 2
     assert result.report["deferredIllustrations"] == ["photo-b"]
+    assert result.report["placementPasses"] == 1
     entries = result.report["compositions"]
     assert [entry["blockId"] for entry in entries] == ["b-photo-a", "b-photo-b"]
     assert [entry["preset"] for entry in entries] == ["side-left", "side-right"]

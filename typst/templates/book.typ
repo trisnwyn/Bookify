@@ -5,6 +5,18 @@
 #let doc = json(sys.inputs.data)
 #let chapters = doc.sections.filter(section => section.level == 1 and section.role == "chapter").len()
 
+// The PDF carries the book's own identity. It comes from the manuscript and
+// nowhere else: no field is invented, and no date is taken from the clock, so
+// two builds of one manuscript still agree in every metadata field.
+// `languages` is not wired here: Typst declares the document language through
+// `text(lang:)`, which changes line breaking, so it stays with that work.
+#let book-author = doc.metadata.at("author", default: none)
+#let book-metadata = (title: doc.metadata.title)
+// Typst rejects `author: none`, so the field is present only when the
+// manuscript declares one; nothing is substituted.
+#if book-author != none { book-metadata.insert("author", book-author) }
+#set document(..book-metadata)
+
 #set page(numbering: "1")
 #show: body => book_base(body, chapter-count: chapters)
 

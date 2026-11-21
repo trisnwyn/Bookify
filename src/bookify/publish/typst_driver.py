@@ -168,6 +168,7 @@ def build(
 
         attempts = 0
         deferred: list[str] = []
+        seen: set[tuple[tuple[str, int | None], ...]] = set()
         while True:
             data = report.analyse(
                 out_pdf, document.data, figure_assets,
@@ -184,16 +185,34 @@ def build(
             conflicting = illustrations.conflicts(data["placements"])
             if not conflicting:
                 break
+            # The stop condition is agreement, not an attempt count: a pass is
+            # repeated only while the placement map still changes. A map that
+            # comes back to a previous state will never settle, so it fails now
+            # instead of spending the remaining attempts.
+            layout = illustrations.signature(data["placements"])
+            if layout in seen:
+                illustrations.require_limit(conflicting)
+                raise BookifyError(
+                    "ILLUSTRATION_LIMIT",
+                    f"placement oscillates: pass {attempts + 1} repeats an earlier page map",
+                    str(out_pdf),
+                )
+            seen.add(layout)
             attempts += 1
             if attempts > illustrations.MAX_ATTEMPTS:
                 illustrations.require_limit(conflicting)
-                raise BookifyError("ILLUSTRATION_LIMIT", "placement did not stabilise", str(out_pdf))
+                raise BookifyError(
+                    "ILLUSTRATION_LIMIT",
+                    f"placement did not converge after {attempts} passes",
+                    str(out_pdf),
+                )
             deferred.extend(illustrations.defer_later(document.data, conflicting))
             document_path.write_text(json.dumps(document.data, indent=2, sort_keys=True) + "\n")
             _compile(manuscript, compile_root, document_path, out_pdf, lock, mounts)
 
     data["pins"] = {"typst": lock.typst.version, "python": lock.python.version, "fonts": len(lock.fonts)}
     data["deferredIllustrations"] = sorted(set(deferred))
+    data["placementPasses"] = attempts
     data["ocr"] = boundary.evidence()
     report.write(data, build_dir / "build-report.json")
     return BuildResult(pdf=out_pdf, report=data)

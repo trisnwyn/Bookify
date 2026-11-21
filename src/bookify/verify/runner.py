@@ -16,6 +16,7 @@ from bookify.verify.checks import catalogue as catalogue_check
 from bookify.verify.checks import cover as cover_check
 from bookify.verify.checks import definitions as definitions_check
 from bookify.verify.checks import determinism as determinism_check
+from bookify.verify.checks import docmeta as docmeta_check
 from bookify.verify.checks import geometry as geometry_check
 from bookify.verify.checks import glyphs as glyphs_check
 from bookify.verify.checks import illustration_limit as limit_check
@@ -160,6 +161,7 @@ def run(
         ocr_free_check.check(build),
         determinism_check.check(pdf, previous_pdf),
         glyphs_check.check(pdf, manuscript),
+        docmeta_check.check(pdf, manuscript),
         cover_check.check(pdf, manuscript),
         definitions_check.check(pdf, manuscript),
         text_check.check(pdf, manuscript),
@@ -189,7 +191,7 @@ def run(
     lock_path = getattr(manuscript, "engine", manuscript.root) / "toolchain.lock.json"
     lock = pins.load(lock_path) if lock_path.is_file() else None
     report: dict[str, Any] = {
-        "schemaVersion": "1.1",
+        "schemaVersion": "1.2",
         "generatedFrom": {
             "pdf": _portable(pdf, workspace),
             "pdfSha256": _sha256(pdf),

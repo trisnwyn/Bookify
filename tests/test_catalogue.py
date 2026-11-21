@@ -26,6 +26,7 @@ from bookify.verify.checks import (
     cover,
     definitions,
     determinism,
+    docmeta,
     glyphs,
     illustration_limit,
     plates,
@@ -495,6 +496,7 @@ def _stub_runner_checks(monkeypatch: pytest.MonkeyPatch) -> None:
     for module, identifier in (
         (offline, "offline"),
         (determinism, "determinism"),
+        (docmeta, "docmeta"),
         (glyphs, "glyphs"),
         (cover, "cover"),
         (definitions, "definitions"),
