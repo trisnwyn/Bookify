@@ -110,7 +110,7 @@ User authorization, verbatim: “Proceed with the coordinated line-spacing and p
 
 - The template renders `heading(level: section.level, ...)` and breaks only when the normalised `breakBefore == "page"` and `section-index > 0`. The first body section never inserts a redundant break; no blank verso or parity page is added.
 - Kickers are a sticky block so a kicker is never left alone at a page foot. A pure plate section (normalised `keepTogether: true`) wraps its heading, note, image, caption and credit in a `block(breakable: false)`; ordinary chapters are never made unbreakable.
-- Contents is `depth: 3` and may paginate. The report and `xrefs` check parse every contents page from the first contents page until the first non-contents page, and exclude all of them from section-page lookup. Section titles are unique; `model.load` rejects duplicates.
+- Contents is `depth: 5` and may paginate. The report and `xrefs` check parse every contents page from the first contents page until the first non-contents page, and exclude all of them from section-page lookup. Section titles are unique; `model.load` rejects duplicates.
 
 ### Long tables and oversize units
 
@@ -215,9 +215,10 @@ therefore honest about the basis of each plate width.
   on the same page, only that shared page is declared two-column and the later
   pages stay single-column.
 - `section_numbers` emits a unique `number` per section: the printed form for
-  body levels (including the level-2 period), the chapter number for a chapter
-  and the bare letter for an appendix. `xrefs` resolves a reference followed by
-  sentence punctuation against the allowed forms.
+  body levels, the chapter number for a chapter and the bare letter for an
+  appendix (the level-2 period this paragraph originally required is retired by
+  the amendment below). `xrefs` resolves a reference followed by sentence
+  punctuation against the allowed forms.
 - `_workspace_mounts` binds each rights-record image file the manuscript uses at
   its own relative path, with a book-root containment check; the
   `assets/illustrations` folder is still mounted whole.
@@ -241,3 +242,27 @@ convergence test, following WeasyPrint's repagination loop
 
 The one-illustration-per-page rule, determinism requirement and deferral
 reporting are unchanged. No page or figure target is introduced.
+
+## Amendment — hierarchical numbering (2026-11-21)
+
+Corrects the numbering defined in the v2 amendment. The mandated body path put
+the first level-2 section at `1.` and gave a second level-2 sibling its index
+with a trailing period (`1.2.`). That scheme cannot produce a resolvable printed
+reference: at a sentence end a chapter reference `§1` prints the same characters
+as the first section `§1.`, and a subsection `§1.2` prints the same characters as
+the second section `§1.2.`. The verifier could resolve the source reference; a
+reader could not.
+
+- `section_numbers` and `theme.heading-numbering` print the full path to each
+  level: `Chapter 1: Title` → `1.1` → `1.1.1` → `1.1.1.1` → `1.1.1.1.1`, and an
+  appendix child `A.1`. A terminal branch prints its own section number and a
+  letter (`1.1 a)` in section `1.1`).
+- `number` equals `printed` for body levels, is the chapter number for a chapter
+  and the bare appendix letter for an appendix. No number ends with a period, so
+  a reference followed by a full stop is unambiguous by construction: `§1.1.` is
+  section `1.1` plus punctuation because no section is numbered `1.1.`.
+- Contents (depth 5), body headings and `§` references print the same numbers.
+  `xrefs` keeps resolving a trailing full stop, now only as punctuation.
+- Compared with the retired scheme, every level below the chapter gains one
+  component; page counts, contents and the stored text baselines change by
+  design and are rebaselined only after the rendered measurements pass.

@@ -1,0 +1,15 @@
+Notes on Reading a Sample
+A synthetic source for the Bookify agent-skill fixture
+
+A sample arrives
+These notes describe one small synthetic case. They are written for a reading exercise, not as a report
+of an observation.
+A sample is a bounded piece of material selected for inspection. In this case, a sample arrives with two
+labels. One label gives its place in a sequence; the other gives a short name. The names disagree. Read
+alone, either label looks like an error. Read in order, one label was written before the sample moved
+and the other after. The difference is a change of place, not a contradiction.
+
+  Case note. The origin of the sample is not recorded. It remains unknown. These notes do not supply
+  it.
+
+The notes also turn to the record, to three levels of reading, and to the point where the evidence stops.

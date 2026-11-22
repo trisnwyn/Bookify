@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 from bookify.manuscript import model
-from bookify.publish import normalize
+from bookify.publish import normalize, report
 from bookify.publish.report import contents_pages, grouped_page_lines
 from bookify.verify.checks import Check, failed, passed
 from bookify.verify.checks.pages import numbered_labels, page_texts
@@ -14,9 +14,9 @@ from bookify.verify.checks.pages import numbered_labels, page_texts
 CONTENTS_LINE = re.compile(r"^\s*(?P<title>.+?)\s+(?:\.\s*){2,}(?P<page>\d+)\s*$")
 # A printed number at the start of a contents entry or body heading: `1`,
 # `1.1.1`, `A.1` or `Appendix A`.
-PRINTED = re.compile(r"^\s*(?P<number>Appendix [A-Z]+|\d+(?:\.\d+)*|[A-Z]+(?:\.\d+)*)\s+(?P<title>.*)$")
+PRINTED = re.compile(r"^\s*(?P<number>Appendix [A-Z]+|\d+(?:\.\d+)*\.?|[A-Z]+(?:\.\d+)*\.?)\s+(?P<title>.*)$")
 LABEL = re.compile(r"^(Figure|Table|Photograph) (\d+)\.")
-REFERENCE = re.compile(r"§\s*(Appendix [A-Z]+|\d+(?:\.\d+)*|[A-Z]+(?:\.\d+)*)")
+REFERENCE = re.compile(r"§\s*(Appendix [A-Z]+|\d+(?:\.\d+)*\.?|[A-Z]+(?:\.\d+)*\.?)")
 
 
 def _strip_printed(title: str) -> tuple[str | None, str]:
@@ -47,15 +47,20 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
 
     section_pages: dict[str, int] = {}
     for section in manuscript.sections:
-        wanted = {section["title"]}
-        printed = expected[section["title"]]["printed"]
-        wanted.add(f"{printed} {section['title']}")
+        number = expected[section["title"]]
+        document_section = {
+            "printed": number["printed"],
+            "level": number["level"],
+            "role": number["role"],
+            "title": section["title"],
+            "heading": normalize.section_heading(number, section["title"]),
+        }
         section_pages[section["title"]] = next(
             (
                 index
                 for index in range(1, len(texts) + 1)
                 if index != 1 and index not in contents
-                and any(line.strip() in wanted for line in page_grouped(index))
+                and any(report.line_is_section(line, document_section) for line in page_grouped(index))
             ),
             0,
         )
@@ -89,17 +94,38 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
         page = section_pages.get(section["title"], 0)
         if not page:
             continue
-        printed = expected[section["title"]]["printed"]
+        number = expected[section["title"]]
+        printed = number["printed"]
         pages = page_grouped(page)
         stripped = [line.strip() for line in pages]
-        combined = f"{printed} {section['title']}"
-        # A chapter opener prints the number and title on separate rows; a
-        # level-2/3 heading prints them on one. In both cases the number must be
-        # present — a bare title that lost its number is a defect.
-        has_combined = any(line == combined for line in stripped)
+        # A chapter prints `Chapter 1: Title` on one line; a body heading prints
+        # `1.1 Title`. A heading that wraps shows only its number on the first
+        # row, so the printed number prefix is enough there. The bare retired
+        # opener (number alone, then title) also still satisfies the rule, but a
+        # title that lost its number is a defect.
+        heading = normalize.section_heading(number, section["title"])
+        document_section = {
+            "printed": printed,
+            "level": number["level"],
+            "role": number["role"],
+            "title": section["title"],
+            "heading": heading,
+        }
+        prefix = report.section_prefix(document_section)
+        has_combined = any(line == heading for line in stripped) or any(
+            line == f"{printed} {section['title']}" for line in stripped
+        )
+        # A wrapped heading keeps both its number and its full title on the page,
+        # split across rows; the stream comparison ignores the row break.
+        joined = re.sub(r"[\s\u00ad]", "", " ".join(stripped))
+        has_prefix = (
+            bool(prefix)
+            and any(line.startswith(prefix) for line in stripped)
+            and re.sub(r"[\s\u00ad]", "", section["title"]) in joined
+        )
         has_title = any(line == section["title"] for line in stripped)
         has_number = any(line == printed for line in stripped)
-        if not (has_combined or (has_title and has_number)):
+        if not (has_combined or has_prefix or (has_title and has_number)):
             problems.append(f"{section['title']}: printed heading has no number {printed}")
 
     labels = numbered_labels(texts)
@@ -111,8 +137,18 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
     allowed = {item["number"] for item in numbers}
     body_text = "\n".join(texts)
     for reference in REFERENCE.finditer(body_text):
-        if reference.group(1) not in allowed:
-            problems.append(f"cross-reference prints an unknown number: §{reference.group(1)}")
+        raw = reference.group(1)
+        # A reference may be followed by sentence punctuation. Numbers never end
+        # with a period, so the exact form wins when it exists and the stripped
+        # form is the same reference plus a full stop.
+        candidates = [raw]
+        if raw.endswith("."):
+            candidates.append(raw[:-1])
+        else:
+            candidates.append(raw + ".")
+        resolved = next((candidate for candidate in candidates if candidate in allowed), None)
+        if resolved is None:
+            problems.append(f"cross-reference prints an unknown number: §{raw}")
 
     if problems:
         return failed("xrefs", "XREF_MISSING", "; ".join(problems), problems=problems)

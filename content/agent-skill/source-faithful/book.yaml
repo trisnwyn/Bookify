@@ -1,0 +1,235 @@
+schemaVersion: "1.0"
+revision: 2
+id: source-faithful-notes
+metadata:
+  title: "Notes on Reading a Sample"
+  subtitle: "A synthetic source for the Bookify agent-skill fixture"
+  languages: [en]
+sections:
+  - id: sec-sample-arrives
+    title: "A sample arrives"
+    level: 1
+    blocks:
+      - id: b-s1-lead
+        type: lead
+        text: "These notes describe one small synthetic case. They are written for a reading exercise, not as a report of an observation."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 1
+      - id: b-s1-body
+        type: paragraph
+        text: "A sample is a bounded piece of material selected for inspection. In this case, a sample arrives with two labels. One label gives its place in a sequence; the other gives a short name. The names disagree. Read alone, either label looks like an error. Read in order, one label was written before the sample moved and the other after. The difference is a change of place, not a contradiction."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 1
+      - id: b-s1-case
+        type: case
+        title: "Case note"
+        text: "The origin of the sample is not recorded. It remains unknown. These notes do not supply it."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 1
+      - id: b-s1-close
+        type: paragraph
+        text: "The notes also turn to the record, to three levels of reading, and to the point where the evidence stops."
+        confidence: verified
+        note: "Source note: Notes on Reading a Sample, six A4 pages. The source hash and page anchors are recorded in authoring/record.json."
+        sourceAnchors:
+          - sourceId: source
+            page: 1
+  - id: sec-the-record
+    title: "The record"
+    level: 2
+    blocks:
+      - id: b-s2-body
+        type: paragraph
+        text: "A record keeps four fields together: label, time, place, and status. The status says how firm the entry is."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 2
+      - id: b-s2-table
+        type: table
+        caption: "The four fields of a record, with synthetic example entries."
+        header: ["Field", "Question", "Example entry (synthetic)"]
+        rows:
+          - ["label", "What is it called?", "Two labels disagree"]
+          - ["time", "When was it recorded?", "Before the move; after the move"]
+          - ["place", "Where was it recorded?", "Shelf A; shelf B"]
+          - ["status", "How firm is the entry?", "Observed; unresolved origin"]
+        widths: [0.16, 0.34, 0.50]
+        align: [left, left, left]
+        sourceAnchors:
+          - sourceId: source
+            page: 2
+      - id: b-s2-note
+        type: paragraph
+        text: "Every entry in the table is invented for this exercise. The table is a checklist, not a measurement."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 2
+      - id: b-s2-close
+        type: paragraph
+        text: "If a field cannot be filled, write unresolved. An empty field is not a zero and not a guess. The origin in the case stays unresolved because no record supplies it."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 2
+  - id: sec-three-levels
+    title: "Three levels of reading"
+    level: 2
+    blocks:
+      - id: b-s3-lead
+        type: lead
+        text: "Three levels keep a description honest."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 3
+      - id: b-s3-detail
+        type: definition
+        term: "Detail"
+        definition: "What is visible without interpretation."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 3
+      - id: b-s3-setting
+        type: definition
+        term: "Setting"
+        definition: "What the detail means in this place and sequence."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 3
+      - id: b-s3-warrant
+        type: definition
+        term: "Warrant"
+        definition: "The evidence that supports the reading."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 3
+      - id: b-s3-questions
+        type: paragraph
+        text: "The three levels answer different questions: What is here? What does it mean here? Why should the reading be accepted?"
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 3
+      - id: b-s3-body
+        type: paragraph
+        text: "A reading can be correct at one level and unsupported at another. A visible detail is not yet a setting; a setting is not yet a warrant. In the case of the two labels, the labels are details. The order of the labels is part of the setting. The recorded order is the warrant for reading them as a sequence rather than a contradiction."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 3
+      - id: b-s3-close
+        type: paragraph
+        text: "These notes use the three terms throughout."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 3
+  - id: sec-comparing-counts
+    title: "Comparing counts"
+    level: 3
+    blocks:
+      - id: b-s4-body
+        type: paragraph
+        text: "The record can be summarised as counts. The counts below are synthetic: they exist to show a comparison, not to report an observation."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 4
+      - id: b-s4-table
+        type: table
+        caption: "Synthetic counts by category and pass; the totals are not measurements."
+        header: ["Category", "First pass", "Second pass", "Change"]
+        rows:
+          - ["Detail recorded", "12", "15", "+3"]
+          - ["Setting recorded", "7", "7", "0"]
+          - ["Warrant recorded", "4", "6", "+2"]
+        widths: [0.46, 0.18, 0.18, 0.18]
+        align: [left, left, left, left]
+        sourceAnchors:
+          - sourceId: source
+            page: 4
+      - id: b-s4-note
+        type: paragraph
+        text: "The totals are small and invented. They show a relationship the prose can state: a longer list of details does not by itself add warrants. The second pass added details and warrants, but the setting count did not change."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 4
+      - id: b-s4-close
+        type: paragraph
+        text: "Read the table as a question about coverage, not as evidence that the sample is better understood. A count records how many entries were made, not how strong they are."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 4
+  - id: sec-when-evidence-stops
+    title: "When the evidence stops"
+    level: 2
+    blocks:
+      - id: b-s5-body
+        type: paragraph
+        text: "The unlabelled plate that closes these notes is part of the sample set, but its content is not readable in this source. It is an image with no text layer. No label, date, place or warrant is assigned to it. It remains unresolved."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 5
+      - id: b-s5-body2
+        type: paragraph
+        text: "This is not a gap to fill with a plausible name. The record marks the plate unresolved, and these notes do not borrow a label from another page."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 5
+      - id: b-s5-quote
+        type: quote
+        text: "A claim should carry its evidence."
+        attribution: "Synthetic source note"
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 5
+      - id: b-s5-check
+        type: assessment
+        title: "A short check"
+        text: "Which of the three levels can be recorded for the plate, and which cannot? Answer using the vocabulary of the section on three levels."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 5
+      - id: b-s5-close
+        type: paragraph
+        text: "The notes end where they began: keep the visible detail, its setting and its warrant together, and mark the place where the evidence stops."
+        confidence: verified
+        sourceAnchors:
+          - sourceId: source
+            page: 5
+  - id: sec-the-plate
+    title: "The unlabelled plate"
+    level: 3
+    breakBefore: page
+    blocks:
+      - id: b-s6-unresolved
+        type: unresolved
+        confidence: unreadable
+        note: "The plate is unresolved: its content is not readable in this source, and no label, date, place or warrant is assigned to it."
+        sourceAnchors:
+          - sourceId: source
+            page: 6
+      - id: b-s6-plate
+        type: illustration
+        illustrationId: plate-1
+        caption: "The unlabelled plate that closes the source; no label, date, place or warrant is assigned."
+        sourceAnchors:
+          - sourceId: source
+            page: 6

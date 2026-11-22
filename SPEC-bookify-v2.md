@@ -4,6 +4,13 @@ Status: **specification for approval (2026-11-14)**. Not a plan and not an
 implementation. No code, schema, template, fixture, dependency, package or task
 file was changed to produce it.
 
+> **Superseded in part (2026-11-16).** The accepted seven cover compositions
+> (`cover-1` … `cover-7`), the `Chapter n: Title` chapter heading and the
+> one-blank-line heading clearance replace D2's ledger/index cover, D4's opener
+> stack and D6's below-gap. `SPEC-design-system.md`
+> ("Amendment — production layout integration") is authoritative for those
+> values; the v2 text below is kept as the record of what was proposed.
+
 On approval this document amends, in place, six approved v1 contracts:
 `SPEC-source-intake.md`, `SPEC-manuscript-model.md`, `SPEC-design-system.md`,
 `SPEC-publish-engine.md`, `SPEC-verify-harness.md` and `SPEC-agent-skill.md`.

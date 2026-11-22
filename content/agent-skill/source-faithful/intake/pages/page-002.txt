@@ -1,0 +1,12 @@
+The record
+A record keeps four fields together: label, time, place, and status. The status says how firm the entry is.
+
+ Field                 Question                              Example entry (synthetic)
+ label                 What is it called?                    Two labels disagree
+ time                  When was it recorded?                 Before the move; after the move
+ place                 Where was it recorded?                Shelf A; shelf B
+ status                How firm is the entry?                Observed; unresolved origin
+
+Every entry in the table is invented for this exercise. The table is a checklist, not a measurement.
+If a field cannot be filled, write unresolved. An empty field is not a zero and not a guess. The origin in
+the case stays unresolved because no record supplies it.

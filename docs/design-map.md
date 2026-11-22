@@ -45,29 +45,46 @@ Item text is one line by design; detail belongs in `docs/design/`.
 
 | ID | Item | Status | Decisions needed | Handover |
 | --- | --- | --- | --- | --- |
-| A1 | Textbook layout: body page grid, measure, margins, rhythm | `brainstorm` | Measure and characters per line; column count; indent vs space; running head; folio; section starts | Annotated A4 page + filled log in `docs/design/textbook-layout.md` |
+| A1 | Textbook layout: body page grid, measure, margins, rhythm | `encoded+proof` | Measure and characters per line; column count; indent vs space; running head; folio; section starts | Annotated A4 page + filled log in `docs/design/textbook-layout.md` |
 | A2 | Type system: families, cuts, sizes, leading per role | `todo` | Which faces for which roles; size/leading table; fallback and script policy | Spec table + annotated page |
 | A3 | Spacing scale | `todo` | The step scale; what each step is for; which gaps are tied to leading | Spec table |
 | A4 | Ink and greys | `todo` | Black/grey ramp; whether an accent exists at all; contrast floor | Spec table with swatches |
 | A5 | Rules and strokes | `todo` | Hairline weights; where rules appear; table and figure stroke consistency | Spec table |
 
-> **A1 proof note (disposable, not approved):** `build/design/a1/` renders the four reference compositions at the current tokens. It applies the confirmed hierarchy (`Chapter 1: Title`, `1. …`, `1.1 …`, `1.1 a)`, `1.1.1 …`) and the fixed rule that every heading clears following content by at least one visible body blank line. Measured minimum: 15.84 pt against the 15.30 pt body line pitch. A1 remains `brainstorm`; this is not a decision or approval.
+> **A1 integration note.** The user accepted the four A1 compositions, the
+> `Chapter 1: Title` → `1.` → `1.1` → `1.1 a)` / `1.1.1` / `1.1.1.1` hierarchy
+> (levels 2-5, depth-5 contents) and the rule
+> that every heading clears following content by at least one visible body blank
+> line. They are now in the production renderer, not only a proof: measured
+> minimum heading clearance 15.60 pt against the 15.30 pt line pitch. Sources and
+> measurements are tracked in `docs/design/proofs/`. Status is `encoded+proof`:
+> integrated and rendered, awaiting the user's judgement on the open A1 questions
+> (Q1, Q3–Q7) — not `approved` and not `shipped`.
+>
+> **Name clash, disambiguated:** A2 in this table is the *type system*. The
+> two-column flow proof lives in `build/design/a2/` and is tracked at
+> `docs/design/proofs/a2/`; it is an A1 body-layout composition, not the A2 type
+> item.
 
-> **Disposable proof record (no status change).** `build/design/a2/` renders a
-> two-page A4 A2 composition with the live baseline tokens and the user-supplied
-> numerical heading path `Chapter 2 → 2. → 2.1 → 2.1 a–c → 2.1.1 → 2.1.1.1`. It
-> applies the fixed rule that every heading is followed by at least one visibly
-> blank body line (15.30 pt); the measured minimum in the render is 15.60 pt. It
-> changes no product template and does not change any status above.
+> **Two-column flow (accepted, available per section).** The two-page proof at
+> `build/design/a2/` (tracked copy: `docs/design/proofs/a2/`) shows the
+> user-supplied heading path `Chapter 2 → 2. → 2.1 → 2.1 a–c → 2.1.1 →
+> 2.1.1.1` flowing in two columns with the blank-line rule. It is now available
+> as an authored per-section layout (`layout: {columns: 2}`): the chapter's own
+> blocks and every descendant section flow in the same two columns, column
+> visuals take the column measure, and a side composition is refused inside the
+> flow and its descendants. Cross-references keep the level-2 period (`§1.2.`
+> for a section, `§1.2` for a subsection) so no two sections share a reference. It is **not** the default: Q2 (column count) is still open, so single
+> column remains the default and no section switches silently.
 
 ### B. Page templates
 
 | ID | Item | Status | Decisions needed | Handover |
 | --- | --- | --- | --- | --- |
-| B1 | Cover | `todo` | Title block; subtitle/meta; any rule or mark; what is omitted | Annotated A4 page |
+| B1 | Cover | `encoded+proof` | Title block; subtitle/meta; any rule or mark; what is omitted | Annotated A4 page |
 | B2 | Front matter | `todo` | Which pages exist; order; numbering before the body | Annotated page set + spec table |
 | B3 | Contents | `todo` | Depth, numbering, leaders/dot leaders, multi-page behaviour | Annotated page + spec table |
-| B4 | Chapter opener | `todo` | Numeral/title placement; deck; opening rule; whitespace budget | Annotated A4 page |
+| B4 | Chapter opener | `encoded+proof` | Numeral/title placement; deck; opening rule; whitespace budget | Annotated A4 page |
 | B5 | Body page | `todo` | Text block position; running head content and position; folio | Annotated A4 page |
 | B6 | Section within page | `todo` | Heading levels mid-page; clearance; no orphan headings | Annotated page + spec table |
 | B7 | Back matter / appendix | `todo` | Appendix numbering; page numbering; contents treatment | Annotated page set |
@@ -160,6 +177,11 @@ preferences, and the AI enforces them during encoding.
   is proposed by the AI in the meantime.
 - Only correctness fixes apply: build reliability, verification, text extraction,
   overlap prevention, and equal-or-better behaviour against the hard constraints.
-- Nothing is `approved` or `shipped`. A1 is the current focus and is in
-  `brainstorm`; every other item is `todo`.
+- The user accepted the seven cover compositions (`cover-1` … `cover-7`) and the
+  A1/A2 body compositions, and they are integrated into the production renderer
+  (`encoded+proof`). Proof sources and measurements are tracked in
+  `docs/design/proofs/`. No cover variant is a user-selected default, and Q1/Q3–Q7
+  remain open; two columns are authored per section, not the default.
+- Nothing is `approved` or `shipped`: only the user changes those statuses.
+- Every other item is `todo`.
 - Existing rendered output is a baseline to measure against, not an approved design.

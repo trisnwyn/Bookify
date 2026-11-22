@@ -88,15 +88,28 @@ contracts in one book).
 - [ ] Every definition is inline (`Term: definition`) in body type; no grey role
       label or isolated term line (D1). A glossary, if any, is one authored
       table.
-- [ ] Every chapter and subsection prints its number (1, 1.1, 1.1.1; appendices
-      Appendix A, A.1); contents and cross-references agree (D3).
-- [ ] The cover is the generated typographic cover: title, rule, real chapter
-      index (or the ledger motif beyond twelve chapters), footer, no folio, no
-      colour, no stock image (D2).
-- [ ] Each chapter opens with numeral, rule, title and the authored standfirst
-      or lead; heading rhythm has a measured blank band before h2/h3 (D4, D6).
+- [ ] Every chapter and subsection prints its number: the chapter heading reads
+      `Chapter 1: Title` (appendix `Appendix A: Title`), body headings print
+      `1.1` (level 2), `1.1.1` (level 3), `1.1.1.1` (level 4) and `1.1.1.1.1`
+      (level 5), and terminal branches print their section number with a letter
+      (`1.1 a)` in section `1.1`, `1.1.1 a)` in a subsection); depth-5 contents
+      and cross-references print the same number, no two sections share a
+      reference, and no number ends with a period (D3).
+- [ ] One selected cover composition (cover-1 … cover-7) renders; an absent
+      selection is reported as `engine-fallback` (`cover-3`), never claimed as a
+      user choice. An art-bearing composition with no artwork record shows a
+      blank field and `artwork: absent`; nothing is invented. No folio, no
+      colour, no stock image, no chapter index (D2).
+- [ ] Each chapter heading is one `Chapter n: Title` line followed by at least
+      one visible body blank line; every heading keeps that blank line before
+      prose, a figure or a caption (D4, D6).
 - [ ] Chapters with a visual carry one full-measure plate where the material
-      supports it; a chapter without one records a `no-plate` reason (D4).
+      supports it; a centred visual keeps the 430 pt figure width and a side
+      group is not recorded as a plate; a chapter without a plate records a
+      `no-plate` reason (D4).
+- [ ] A two-column chapter, if authored, sets its heading and standfirst at the
+      full measure and its body in two equal columns; no other chapter changes
+      column count silently (A2).
 - [ ] One illustration per final page.
 - [ ] Labels fit their boxes; no clipped text, overlapping marks or unreadably
       small labels.

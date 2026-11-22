@@ -1,0 +1,252 @@
+schemaVersion: "1.0"
+revision: 2
+id: teachable-reading-a-sample
+metadata:
+  title: "Reading a Sample"
+  subtitle: "Detail, setting and warrant in a synthetic case"
+  languages: [en]
+  author: "Bookify agent-skill example"
+sections:
+  - id: sec-reading
+    title: "Reading a sample"
+    level: 1
+    kicker: "CHAPTER ONE"
+    standfirst: "Two labels disagree about one sample. Three levels keep the description honest, a record keeps its limits, and a count shows what the record can and cannot support."
+    blocks:
+      - id: b-open
+        type: lead
+        text: "A description becomes useful when its parts can be checked one at a time. Three levels do that work: the visible detail, the setting that gives it meaning, and the warrant that supports the reading. This chapter applies them to a small case, keeps the result in a record that can carry its own limits, and shows what a count of that record can and cannot support."
+
+  - id: sec-levels
+    title: "Three levels of reading"
+    level: 2
+    blocks:
+      - id: b-why-levels
+        type: paragraph
+        text: "A description can be right at one level and unsupported at another. Keeping the levels apart lets a reader see which part of a claim is a visible detail and which part is a reading built on it."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-def-detail
+        type: definition
+        term: "Detail"
+        definition: "What is visible without interpretation."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-def-setting
+        type: definition
+        term: "Setting"
+        definition: "What the detail means in this place and sequence."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-def-warrant
+        type: definition
+        term: "Warrant"
+        definition: "The evidence that supports the reading."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-three-questions
+        type: paragraph
+        text: "The three levels answer different questions:"
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-three-list
+        type: list
+        items:
+          - "What is here?"
+          - "What does it mean here?"
+          - "Why should the reading be accepted?"
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+
+  - id: sec-case
+    title: "Two labels and a moved sample"
+    level: 2
+    blocks:
+      - id: b-case
+        type: case
+        title: "The case"
+        text: "A sample is a bounded piece of material selected for inspection. One sample arrives with two labels: one gives its place in a sequence, the other gives a short name. The names disagree. Read alone, either label looks like an error. Read in order, one label was written before the sample moved and the other after. The difference is a change of place, not a contradiction."
+        note: "Synthetic case, written for this exercise. The origin of the sample is not recorded and remains unknown."
+        sourceAnchors: [{ sourceId: source, page: 1 }]
+        confidence: verified
+      - id: b-apply
+        type: paragraph
+        text: "A visible detail is not yet a setting, and a setting is not yet a warrant. The two labels are details. Their order is part of the setting. The recorded order is the warrant for reading them as a sequence rather than a contradiction. Those three terms carry the rest of the book: what is here, what it means here, and why the reading should be accepted."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+
+  - id: sec-record
+    title: "The record"
+    level: 2
+    blocks:
+      - id: b-record-lead
+        type: paragraph
+        text: "A record keeps four fields together: label, time, place, and status. The status says how firm the entry is."
+        sourceAnchors: [{ sourceId: source, page: 2 }]
+        confidence: verified
+      - id: b-record-table
+        type: table
+        caption: "The four fields of a record, with synthetic example entries. The table is a checklist, not a measurement."
+        header: [Field, Question, "Example entry (synthetic)"]
+        rows:
+          - [label, "What is it called?", "Two labels disagree"]
+          - [time, "When was it recorded?", "Before the move; after the move"]
+          - [place, "Where was it recorded?", "Shelf A; shelf B"]
+          - [status, "How firm is the entry?", "Observed; unresolved origin"]
+        widths: [0.16, 0.4, 0.44]
+        align: [left, left, left]
+        sourceAnchors: [{ sourceId: source, page: 2 }]
+        confidence: verified
+      - id: b-record-gap
+        type: paragraph
+        text: "If a field cannot be filled, write unresolved. An empty field is not a zero and not a guess. The origin in the case stays unresolved because no record supplies it. The levels test a reading; the record keeps the reading and its limits together. A later reader can see what was observed and what stayed open."
+        sourceAnchors: [{ sourceId: source, page: 2 }]
+        confidence: verified
+      - id: b-check-one
+        type: assessment
+        title: "Check: name the level"
+        text: "For the case of the two labels, name one detail, one setting, and the warrant that supports reading them as a sequence. Then explain why the unknown origin cannot be filled from the labels alone."
+        sourceAnchors: [{ sourceId: source, page: 1 }, { sourceId: source, page: 2 }, { sourceId: source, page: 3 }]
+
+  - id: sec-counts
+    title: "Comparing counts"
+    level: 2
+    blocks:
+      - id: b-count-definition
+        type: definition
+        term: "Count"
+        definition: "A record of how many entries were made, not how strong they are."
+        sourceAnchors: [{ sourceId: source, page: 4 }]
+        confidence: verified
+      - id: b-count-intro
+        type: paragraph
+        text: "The record can be summarised as counts. The counts here are synthetic: they exist to show a comparison, not to report an observation."
+        sourceAnchors: [{ sourceId: source, page: 4 }]
+        confidence: verified
+      - id: b-count-table
+        type: table
+        caption: "Synthetic counts from two passes over the same material. The values are invented for this exercise."
+        header: [Category, First pass, Second pass, Change]
+        rows:
+          - ["Detail recorded", "12", "15", "+3"]
+          - ["Setting recorded", "7", "7", "0"]
+          - ["Warrant recorded", "4", "6", "+2"]
+        widths: [0.4, 0.2, 0.2, 0.2]
+        align: [left, right, right, right]
+        sourceAnchors: [{ sourceId: source, page: 4 }]
+        confidence: verified
+      - id: b-count-read
+        type: paragraph
+        text: "The totals are small and invented. The second pass added details and warrants, but the count of settings did not change. A longer list of details does not by itself add warrants. Read the table as a question about coverage, not as evidence that the sample is better understood."
+        sourceAnchors: [{ sourceId: source, page: 4 }]
+        confidence: verified
+
+  - id: sec-limits
+    title: "When the evidence stops"
+    level: 2
+    blocks:
+      - id: b-plate-intro
+        type: paragraph
+        text: "One item in the sample set cannot be read here: an unlabelled plate with no text layer. No label, date, place or warrant is assigned to it. It remains unresolved."
+        sourceAnchors: [{ sourceId: source, page: 5 }]
+        confidence: verified
+      - id: b-quote
+        type: quote
+        text: "A claim should carry its evidence."
+        attribution: "Synthetic source note"
+        sourceAnchors: [{ sourceId: source, page: 5 }]
+        confidence: verified
+      - id: b-plate-rule
+        type: paragraph
+        text: "This is not a gap to fill with a plausible name. The record marks the plate unresolved, and this book does not borrow a label from another page."
+        sourceAnchors: [{ sourceId: source, page: 5 }]
+        confidence: verified
+      - id: b-plate
+        type: unresolved
+        note: "An image-only plate. No text layer; no label, date, place or warrant is assigned. Marked unresolved."
+        sourceAnchors: [{ sourceId: source, page: 6 }]
+        confidence: unreadable
+      - id: b-plate-check
+        type: assessment
+        title: "Check: what can the plate support?"
+        text: "Using detail, setting and warrant, say what can be recorded for the plate and what cannot. Keep the answer to what the evidence supports."
+        sourceAnchors: [{ sourceId: source, page: 5 }]
+      - id: b-plate-answer
+        type: paragraph
+        text: "One way to answer: the plate is an image with no text layer, and that much can be recorded as a detail. No setting or warrant can be recorded for its content, because none of it can be read. The limit is the answer."
+        note: "Model answer derived from the source's definitions. It claims nothing about what the plate depicts."
+        sourceAnchors: [{ sourceId: source, page: 5 }, { sourceId: source, page: 6 }]
+        confidence: inferred
+
+  - id: sec-summary
+    title: "What the chapter established"
+    level: 2
+    blocks:
+      - id: b-summary
+        type: paragraph
+        text: "You can now separate a visible detail from its setting and from the warrant that supports it, keep all three in a four-field record with a place for unresolved, and read a count as a record of entries rather than a measure of strength. The same discipline decides where the evidence stops."
+
+  - id: sec-key-terms
+    title: "Key terms"
+    level: 2
+    breakBefore: page
+    blocks:
+      - id: b-key-detail
+        type: definition
+        term: "Detail"
+        definition: "What is visible without interpretation."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-key-setting
+        type: definition
+        term: "Setting"
+        definition: "What the detail means in this place and sequence."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-key-warrant
+        type: definition
+        term: "Warrant"
+        definition: "The evidence that supports the reading."
+        sourceAnchors: [{ sourceId: source, page: 3 }]
+        confidence: verified
+      - id: b-key-count
+        type: definition
+        term: "Count"
+        definition: "A record of how many entries were made, not how strong they are."
+        sourceAnchors: [{ sourceId: source, page: 4 }]
+        confidence: verified
+
+  - id: sec-source-note
+    title: "Source note"
+    level: 2
+    blocks:
+      - id: b-source-1
+        type: paragraph
+        text: "This book teaches from the six-page synthetic source Notes on Reading a Sample. Its case, definitions, record checklist, counts and unreadable plate were authored for the exercise. Every count is invented, and none is a measurement. The plate is not reproduced here: it has no text layer, and a copy would add no evidence the record can use."
+        sourceAnchors: [{ sourceId: source, page: 6 }]
+        confidence: verified
+      - id: b-source-2
+        type: paragraph
+        text: "Page 3 is split: its definitions come before the case, and its application to the two labels follows it. The page index below is the book's own, and the anchors, coverage and editorial decisions are held in the book's authoring record."
+        confidence: verified
+      - id: b-source-index
+        type: table
+        caption: "Source index. Page 6 has no text layer and is not interpreted."
+        header: [Page, Source unit, Use in this book]
+        rows:
+          - ["1", "A sample arrives", "The case: two labels, a moved sample, an unknown origin"]
+          - ["2", "The record", "The four-field checklist and the unresolved rule"]
+          - ["3", "Three levels of reading", "Detail, setting and warrant; the application follows the case"]
+          - ["4", "Comparing counts", "The synthetic two-pass counts"]
+          - ["5", "When the evidence stops", "The uncertainty note, the quotation and the short check"]
+          - ["6", "No heading; an image-only plate", "Marked unresolved; not interpreted"]
+        widths: [0.1, 0.36, 0.54]
+        align: [left, left, left]
+        sourceAnchors:
+          - { sourceId: source, page: 1 }
+          - { sourceId: source, page: 2 }
+          - { sourceId: source, page: 3 }
+          - { sourceId: source, page: 4 }
+          - { sourceId: source, page: 5 }
+          - { sourceId: source, page: 6 }
+        confidence: verified

@@ -1,0 +1,391 @@
+{
+  "checks": [
+    {
+      "code": null,
+      "detail": "build ran with networking disabled and no model calls",
+      "evidence": {
+        "draft": false
+      },
+      "id": "offline",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "build ran without an OCR engine or vendored OCR data (measured probe)",
+      "evidence": {
+        "ocr": {
+          "engineInvocations": 0,
+          "invoked": false,
+          "measured": true,
+          "probe": "subprocess.run+io.open",
+          "subprocessCalls": 30,
+          "vendorRead": false
+        }
+      },
+      "id": "ocr_free_build",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "layout facts identical; bytes identical",
+      "evidence": {
+        "bytesEqual": true,
+        "pages": 5
+      },
+      "id": "determinism",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "all faces embedded; 3479 characters covered (0 Japanese)",
+      "evidence": {
+        "characters": 3479,
+        "japanese": 0
+      },
+      "id": "glyphs",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "cover-3 rendered: 1 title line(s), artwork not-applicable",
+      "evidence": {
+        "artwork": "not-applicable",
+        "chapterIndex": "none",
+        "chromaticPixels": 0,
+        "composition": "cover-3",
+        "images": 0,
+        "inkBounds": {
+          "bottomPt": 216.96,
+          "leftPt": 91.68,
+          "rightPt": 503.52,
+          "topPt": 154.08
+        },
+        "overlaps": [],
+        "rotatedTitle": false,
+        "rules": [],
+        "selection": "engine-fallback",
+        "titleLines": 1,
+        "titleSizePt": 34.01
+      },
+      "id": "cover",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "3 definition(s) inline at body size",
+      "evidence": {
+        "count": 3
+      },
+      "id": "definitions",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "7 probes extracted intact (0 machine-read)",
+      "evidence": {
+        "machineReadProbes": 0
+      },
+      "id": "text",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "5 A4 pages, none blank",
+      "evidence": {
+        "pages": 5
+      },
+      "id": "pages",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "1 figure caption(s) centred within \u00b12 pt",
+      "evidence": {
+        "captions": [
+          {
+            "blockId": "b-s6-plate",
+            "kind": "illustration",
+            "label": "Photograph 1",
+            "lines": 1,
+            "maxDeltaPt": 0.784,
+            "page": 5,
+            "preset": "full",
+            "targetCentrePt": 297.638
+          }
+        ],
+        "groups": {
+          "chart": {
+            "single": 0,
+            "wrapped": 0
+          },
+          "diagram": {
+            "single": 0,
+            "wrapped": 0
+          },
+          "illustration": {
+            "single": 1,
+            "wrapped": 0
+          }
+        },
+        "maxCreditDeltaPt": 0.002,
+        "maxDeltaPt": 0.784
+      },
+      "id": "captions",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "1 illustration(s), at most one per page",
+      "evidence": {
+        "pages": {
+          "5": [
+            "Photograph 1"
+          ]
+        }
+      },
+      "id": "illustration-limit",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "1 illustration record(s) complete and credited",
+      "evidence": {
+        "ids": [
+          "plate-1"
+        ]
+      },
+      "id": "rights",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "6 numbered contents entries match pages; numbering sequential",
+      "evidence": {},
+      "id": "xrefs",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "zero h3 sample(s); heading rhythm is unmeasured",
+      "evidence": {
+        "bodyPitchSamples": 15,
+        "clearanceSamples": 6,
+        "columnPages": [],
+        "deckSamples": 1,
+        "h2Samples": 3,
+        "h3Samples": 0,
+        "headingBands": [
+          {
+            "bandPt": 28.56,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "The record"
+          },
+          {
+            "bandPt": 28.32,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "Three levels of reading"
+          },
+          {
+            "bandPt": 28.32,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "When the evidence stops"
+          }
+        ],
+        "headingClearance": [
+          {
+            "clearancePt": 16.08,
+            "column": 0,
+            "level": 1,
+            "page": 3,
+            "section": "A sample arrives"
+          },
+          {
+            "clearancePt": 18.48,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "The record"
+          },
+          {
+            "clearancePt": 15.6,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "Three levels of reading"
+          },
+          {
+            "clearancePt": 15.6,
+            "column": 0,
+            "level": 3,
+            "page": 4,
+            "section": "Comparing counts"
+          },
+          {
+            "clearancePt": 15.84,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "When the evidence stops"
+          },
+          {
+            "clearancePt": 15.84,
+            "column": 0,
+            "level": 3,
+            "page": 5,
+            "section": "The unlabelled plate"
+          }
+        ],
+        "paragraphGapSamples": 6,
+        "warnings": [
+          {
+            "band": null,
+            "detail": "no h3 sample was measured; the h3 band is unproven for this book",
+            "id": "rhythm:unmeasured:h3",
+            "metric": "headingRhythm",
+            "pages": [],
+            "value": 0
+          }
+        ],
+        "wrappedHeadingSamples": 0
+      },
+      "id": "rhythm",
+      "status": "warn"
+    },
+    {
+      "code": null,
+      "detail": "1 plate(s) at the text measure; every opener complete",
+      "evidence": {
+        "gaps": [],
+        "plates": [
+          {
+            "basis": "measured",
+            "blockId": "b-s6-plate",
+            "chapter": "1",
+            "label": "Photograph 1",
+            "leftPt": 60.06,
+            "page": 5,
+            "widthPt": 475.82
+          }
+        ],
+        "visuals": [],
+        "warnings": []
+      },
+      "id": "plates",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "3 body page(s); every density metric in band",
+      "evidence": {
+        "bands": {
+          "denseRunMax": 3,
+          "denseWords": 650.0,
+          "paragraphWordsMax": 240.0,
+          "paragraphWordsMedianMax": 150.0,
+          "tablesPerPageMax": 2,
+          "wordsPerPageCeiling": 800.0,
+          "wordsPerPageFloor": 60.0,
+          "wordsPerPageMedian": [
+            140.0,
+            650.0
+          ]
+        },
+        "consecutiveDensePages": {
+          "longestRun": 0,
+          "pages": []
+        },
+        "exemptions": [
+          {
+            "page": 1,
+            "reason": "cover"
+          },
+          {
+            "page": 2,
+            "reason": "contents"
+          },
+          {
+            "page": 3,
+            "reason": "chapter opener"
+          },
+          {
+            "page": 5,
+            "reason": "plate page"
+          }
+        ],
+        "paragraphWords": {
+          "count": 20,
+          "max": 70,
+          "median": 20.5
+        },
+        "tablesPerPage": {
+          "max": 0,
+          "pages": {}
+        },
+        "warnings": [],
+        "wordsPerPage": {
+          "count": 3,
+          "median": 266.0,
+          "pages": {
+            "3": 406,
+            "4": 266,
+            "5": 54
+          }
+        }
+      },
+      "id": "readability",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "every machineRead block is inferred and well recorded",
+      "evidence": {},
+      "id": "machine_read",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "rendered pages inspected by agent at 2026-11-15T12:00:00",
+      "evidence": {
+        "contactSheet": "evidence/contact-sheet.png",
+        "reviewedAt": "2026-11-15T12:00:00",
+        "reviewedBy": "agent",
+        "warningsAnswered": 1
+      },
+      "id": "review",
+      "status": "manual"
+    }
+  ],
+  "gate": "pass",
+  "generatedFrom": {
+    "manuscript": "book.yaml",
+    "manuscriptRevision": 2,
+    "pdf": "evidence/source-faithful.pdf",
+    "pdfSha256": "76d090235ce6043e40ecb85720b0e42b4005edb945d1155f06b122eafe67fc79",
+    "previousPdf": "evidence/book-2.pdf"
+  },
+  "pins": {
+    "python": "3.13.16",
+    "typst": "0.15.1"
+  },
+  "schemaVersion": "1.1",
+  "warnings": [
+    {
+      "check": "rhythm",
+      "detail": {
+        "band": null,
+        "detail": "no h3 sample was measured; the h3 band is unproven for this book",
+        "id": "rhythm:unmeasured:h3",
+        "metric": "headingRhythm",
+        "pages": [],
+        "value": 0
+      },
+      "id": "rhythm:unmeasured:h3"
+    }
+  ]
+}

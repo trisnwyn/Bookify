@@ -1,0 +1,4 @@
+Kiểm tra dữ liệu tiếng Việt
+Bảng cân đối thử là bản liệt kê số dư của từng tài khoản tại một ngày đã chọn. Nó không phải là báo cáo
+tài chính. Nếu tổng bên Nợ bằng tổng bên Có, người ghi sổ chỉ mới tránh được loại lỗi đơn giản nhất. Con
+số trong bảng là dữ liệu tổng hợp, không phải số liệu của một doanh nghiệp thật.

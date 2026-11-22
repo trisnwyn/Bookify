@@ -97,6 +97,49 @@
         },
         "author": {
           "$ref": "#/$defs/text"
+        },
+        "cover": {
+          "$ref": "#/$defs/coverSelection"
+        }
+      }
+    },
+    "coverSelection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "composition"
+      ],
+      "properties": {
+        "composition": {
+          "type": "string",
+          "enum": [
+            "cover-1",
+            "cover-2",
+            "cover-3",
+            "cover-4",
+            "cover-5",
+            "cover-6",
+            "cover-7"
+          ]
+        },
+        "artwork": {
+          "$ref": "#/$defs/slug"
+        }
+      }
+    },
+    "sectionLayout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "columns"
+      ],
+      "properties": {
+        "columns": {
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
         }
       }
     },
@@ -120,7 +163,9 @@
           "enum": [
             1,
             2,
-            3
+            3,
+            4,
+            5
           ]
         },
         "role": {
@@ -152,6 +197,9 @@
         },
         "noPlate": {
           "$ref": "#/$defs/text"
+        },
+        "layout": {
+          "$ref": "#/$defs/sectionLayout"
         }
       }
     },
@@ -176,6 +224,7 @@
             "chart",
             "diagram",
             "illustration",
+            "branch",
             "unresolved"
           ]
         },
@@ -232,6 +281,9 @@
             },
             {
               "$ref": "#/$defs/illustrationBlock"
+            },
+            {
+              "$ref": "#/$defs/branchBlock"
             },
             {
               "$ref": "#/$defs/unresolvedBlock"
@@ -335,6 +387,7 @@
             "chart",
             "diagram",
             "illustration",
+            "branch",
             "unresolved"
           ]
         },
@@ -1993,8 +2046,17 @@
           "then": {
             "properties": {
               "composition": {
-                "required": [
-                  "companion"
+                "anyOf": [
+                  {
+                    "required": [
+                      "companion"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "companions"
+                    ]
+                  }
                 ]
               }
             }
@@ -2006,7 +2068,10 @@
               "composition": {
                 "properties": {
                   "preset": {
-                    "const": "full"
+                    "enum": [
+                      "full",
+                      "centred"
+                    ]
                   }
                 },
                 "required": [
@@ -2022,10 +2087,104 @@
             "properties": {
               "composition": {
                 "properties": {
-                  "companion": false
+                  "companion": false,
+                  "companions": false
                 }
               }
             }
+          }
+        }
+      ]
+    },
+    "branchBlock": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "branch"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "type",
+        "text"
+      ],
+      "allOf": [
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "term"
+                ]
+              },
+              {
+                "required": [
+                  "definition"
+                ]
+              },
+              {
+                "required": [
+                  "attribution"
+                ]
+              },
+              {
+                "required": [
+                  "title"
+                ]
+              },
+              {
+                "required": [
+                  "items"
+                ]
+              },
+              {
+                "required": [
+                  "ordered"
+                ]
+              },
+              {
+                "required": [
+                  "header"
+                ]
+              },
+              {
+                "required": [
+                  "rows"
+                ]
+              },
+              {
+                "required": [
+                  "widths"
+                ]
+              },
+              {
+                "required": [
+                  "align"
+                ]
+              },
+              {
+                "required": [
+                  "typst"
+                ]
+              },
+              {
+                "required": [
+                  "chart"
+                ]
+              },
+              {
+                "required": [
+                  "diagram"
+                ]
+              },
+              {
+                "required": [
+                  "illustrationId"
+                ]
+              }
+            ]
           }
         }
       ]
@@ -2158,12 +2317,22 @@
         "preset": {
           "enum": [
             "full",
+            "centred",
             "side-left",
             "side-right"
           ]
         },
         "companion": {
           "$ref": "#/$defs/slug"
+        },
+        "companions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/slug"
+          }
         }
       }
     },

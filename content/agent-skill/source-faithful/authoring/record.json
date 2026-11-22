@@ -1,0 +1,255 @@
+{
+  "schemaVersion": "1.0",
+  "bookId": "source-faithful-notes",
+  "mode": "source-faithful",
+  "source": {
+    "id": "source",
+    "sha256": "2c751d32ba89126b996db5045814e6ed2dc03468f0785ba74c3d28077f4ae1be",
+    "pages": 6,
+    "intakeManifest": "intake/manifest.json"
+  },
+  "enrichment": {
+    "requested": false,
+    "permission": null,
+    "sources": []
+  },
+  "coverage": [
+    {
+      "sourceId": "source",
+      "page": 1,
+      "status": "covered",
+      "blockIds": ["b-s1-lead", "b-s1-body", "b-s1-case", "b-s1-close"],
+      "reason": null
+    },
+    {
+      "sourceId": "source",
+      "page": 2,
+      "status": "covered",
+      "blockIds": ["b-s2-body", "b-s2-table", "b-s2-note", "b-s2-close"],
+      "reason": null
+    },
+    {
+      "sourceId": "source",
+      "page": 3,
+      "status": "covered",
+      "blockIds": ["b-s3-lead", "b-s3-detail", "b-s3-setting", "b-s3-warrant", "b-s3-questions", "b-s3-body", "b-s3-close"],
+      "reason": null
+    },
+    {
+      "sourceId": "source",
+      "page": 4,
+      "status": "covered",
+      "blockIds": ["b-s4-body", "b-s4-table", "b-s4-note", "b-s4-close"],
+      "reason": null
+    },
+    {
+      "sourceId": "source",
+      "page": 5,
+      "status": "covered",
+      "blockIds": ["b-s5-body", "b-s5-body2", "b-s5-quote", "b-s5-check", "b-s5-close"],
+      "reason": null
+    },
+    {
+      "sourceId": "source",
+      "page": 6,
+      "status": "covered",
+      "blockIds": ["b-s6-unresolved", "b-s6-plate"],
+      "reason": null
+    }
+  ],
+  "derivations": [
+    {
+      "kind": "heading",
+      "blockIds": ["b-s1-lead"],
+      "anchors": [{"sourceId": "source", "page": 1}],
+      "citation": null,
+      "decision": "Chapter title is the source page heading 'A sample arrives', unchanged; it is the only level-1 chapter and its content flows into the following minor sections."
+    },
+    {
+      "kind": "heading",
+      "blockIds": ["b-s2-body"],
+      "anchors": [{"sourceId": "source", "page": 2}],
+      "citation": null,
+      "decision": "Section title is the source page heading 'The record', unchanged, set at level 2 so it flows after the chapter opening."
+    },
+    {
+      "kind": "heading",
+      "blockIds": ["b-s3-lead"],
+      "anchors": [{"sourceId": "source", "page": 3}],
+      "citation": null,
+      "decision": "Section title is the source page heading 'Three levels of reading', unchanged, set at level 2 so it flows."
+    },
+    {
+      "kind": "heading",
+      "blockIds": ["b-s4-body"],
+      "anchors": [{"sourceId": "source", "page": 4}],
+      "citation": null,
+      "decision": "Section title is the source page heading 'Comparing counts', unchanged, set at level 3 because it applies the three levels named in the preceding section; it flows."
+    },
+    {
+      "kind": "heading",
+      "blockIds": ["b-s5-body"],
+      "anchors": [{"sourceId": "source", "page": 5}],
+      "citation": null,
+      "decision": "Section title is the source page heading 'When the evidence stops', unchanged, set at level 2 so it flows."
+    },
+    {
+      "kind": "heading",
+      "blockIds": ["b-s6-plate"],
+      "anchors": [{"sourceId": "source", "page": 6}],
+      "citation": null,
+      "decision": "The image-only page has no source heading; the presentation heading 'The unlabelled plate' uses the source's own term, is level 3 under 'When the evidence stops', and asserts no new fact."
+    },
+    {
+      "kind": "caption",
+      "blockIds": ["b-s2-table"],
+      "anchors": [{"sourceId": "source", "page": 2}],
+      "citation": null,
+      "decision": "Table caption names the source's four record fields and its synthetic example entries; it asserts no new fact."
+    },
+    {
+      "kind": "caption",
+      "blockIds": ["b-s4-table"],
+      "anchors": [{"sourceId": "source", "page": 4}],
+      "citation": null,
+      "decision": "Table caption identifies the source's counts as synthetic and not measurements, as the source states."
+    },
+    {
+      "kind": "caption",
+      "blockIds": ["b-s6-plate"],
+      "anchors": [{"sourceId": "source", "page": 6}],
+      "citation": null,
+      "decision": "Plate caption repeats the source's unresolved status and does not name, read or interpret the plate."
+    },
+    {
+      "kind": "merge",
+      "blockIds": ["b-s1-body"],
+      "anchors": [{"sourceId": "source", "page": 1}],
+      "citation": null,
+      "decision": "Presentation only: the source sentence 'A sample is a bounded piece of material selected for inspection.' stays at the start of its own source paragraph rather than being split into a definition, because the source does not mark it as a labelled definition. Wording and sentence order are unchanged."
+    },
+    {
+      "kind": "split",
+      "blockIds": ["b-s1-lead", "b-s1-body", "b-s1-case", "b-s1-close"],
+      "anchors": [{"sourceId": "source", "page": 1}],
+      "citation": null,
+      "decision": "Presentation only: source page 1's own paragraphs and case note are set as these separate manuscript blocks at their source paragraph boundaries; no source sentence was combined, reordered or changed."
+    },
+    {
+      "kind": "split",
+      "blockIds": ["b-s2-body", "b-s2-table", "b-s2-note", "b-s2-close"],
+      "anchors": [{"sourceId": "source", "page": 2}],
+      "citation": null,
+      "decision": "Presentation only: source page 2's prose and checklist table are set as these separate manuscript blocks at their source boundaries; table cells and wording are unchanged."
+    },
+    {
+      "kind": "split",
+      "blockIds": ["b-s3-lead", "b-s3-detail", "b-s3-setting", "b-s3-warrant", "b-s3-questions", "b-s3-body", "b-s3-close"],
+      "anchors": [{"sourceId": "source", "page": 3}],
+      "citation": null,
+      "decision": "Presentation only: source page 3 is set as these blocks at its own paragraph and labelled-definition boundaries; the source marks Detail, Setting and Warrant as definitions, so they stay definition blocks."
+    },
+    {
+      "kind": "split",
+      "blockIds": ["b-s4-body", "b-s4-table", "b-s4-note", "b-s4-close"],
+      "anchors": [{"sourceId": "source", "page": 4}],
+      "citation": null,
+      "decision": "Presentation only: source page 4's prose and counts table are set as these separate manuscript blocks at their source boundaries; all values are unchanged."
+    },
+    {
+      "kind": "split",
+      "blockIds": ["b-s5-body", "b-s5-body2", "b-s5-quote", "b-s5-check", "b-s5-close"],
+      "anchors": [{"sourceId": "source", "page": 5}],
+      "citation": null,
+      "decision": "Presentation only: source page 5 is set as these blocks at its source paragraph, quotation and labelled-check boundaries; the source's own 'A short check' is retained as an assessment."
+    },
+    {
+      "kind": "split",
+      "blockIds": ["b-s6-unresolved", "b-s6-plate"],
+      "anchors": [{"sourceId": "source", "page": 6}],
+      "citation": null,
+      "decision": "Presentation only: the image-only page is set as an unresolved note plus the extracted plate; no label, text or interpretation is added to the unreadable page."
+    },
+    {
+      "kind": "glossary",
+      "blockIds": ["b-s3-detail", "b-s3-setting", "b-s3-warrant"],
+      "anchors": [{"sourceId": "source", "page": 3}],
+      "citation": null,
+      "decision": "The source marks Detail, Setting and Warrant as definitions; they are retained as definition blocks with their wording unchanged, and the source's own unlabelled sample sentence is not turned into a definition.",
+      "retained": true
+    },
+    {
+      "kind": "explain",
+      "blockIds": ["b-s1-case"],
+      "anchors": [{"sourceId": "source", "page": 1}],
+      "citation": null,
+      "decision": "The source's own 'Case note' about the unknown origin is retained as a case block; no explanation or fact is added.",
+      "retained": true
+    },
+    {
+      "kind": "assessment",
+      "blockIds": ["b-s5-check"],
+      "anchors": [{"sourceId": "source", "page": 5}],
+      "citation": null,
+      "decision": "The source's own 'A short check' is retained as an assessment block; only its label is presented as a title.",
+      "retained": true
+    }
+  ],
+  "uncertainty": [
+    {
+      "sourceId": "source",
+      "page": 6,
+      "blockId": "b-s6-unresolved",
+      "note": "Page 6 is an image-only plate with no text layer. Its content is not readable in the source; no OCR was performed and no label, date, place or warrant is assigned. It remains unresolved."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "d-001",
+      "kind": "reorder",
+      "decision": "Structural regroup only: the six source-page units keep their source order and internal order, but are no longer one chapter per source page. They are grouped under one level-1 chapter with the source page headings as level-2/3 minor sections that flow; no content block was reordered."
+    },
+    {
+      "id": "d-002",
+      "kind": "other",
+      "decision": "The non-source 'SOURCE PAGE n' kickers are removed. One short source note on the opening section's closing paragraph names the source, its six A4 pages and the durable record; all further provenance stays in authoring/record.json."
+    },
+    {
+      "id": "d-003",
+      "kind": "merge",
+      "decision": "The source's sentence 'A sample is a bounded piece of material selected for inspection.' is kept inside its own source paragraph instead of being split into a definition, because the source does not mark it as a labelled definition. Meaning, wording and order are unchanged."
+    },
+    {
+      "id": "d-004",
+      "kind": "unresolved",
+      "decision": "The page-6 plate remains unresolved; no OCR, label, date, place, warrant or plausible name was added."
+    },
+    {
+      "id": "d-005",
+      "kind": "other",
+      "decision": "The source's labelled definitions, case note, quotation and 'A short check' are retained as definition, case, quote and assessment blocks with their wording preserved; no other teaching apparatus is present."
+    },
+    {
+      "id": "d-006",
+      "kind": "other",
+      "decision": "The source's two tables carry the source's values and are retained as tables. No chart, diagram, summary, glossary list, exercise, reading list or outside enrichment was added."
+    },
+    {
+      "id": "d-007",
+      "kind": "rights",
+      "decision": "The plate is the public-safe synthetic raster extracted unchanged from page 6 of the supplied fixture; its rights record names the fixture, marks it verified and carries the extracted file hash."
+    },
+    {
+      "id": "d-008",
+      "kind": "other",
+      "decision": "No source page or readable passage was excluded; every page is covered and every block is named in coverage or a derivation."
+    },
+    {
+      "id": "d-009",
+      "kind": "other",
+      "decision": "Only the full plate unit is given an explicit breakBefore: page, so heading, unresolved note, image, caption and credit stay on one deliberate page. No other source heading forces a page break and there is no page quota."
+    }
+  ],
+  "manuscriptSha256": "15ea936af749784528bf13fed135be4b9be3154c42a7c534870674e771eaf889",
+  "manuscriptRevision": 2
+}

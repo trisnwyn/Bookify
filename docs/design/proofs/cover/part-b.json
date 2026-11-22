@@ -1,0 +1,655 @@
+{
+  "artifact": "bookify-cover-layout-proof-part-b",
+  "status": "disposable proof; not a product template, not an approved design",
+  "source_reference": "parsed Cover.pdf pages 5-7 at /tmp/opencode/cover-ref/ref-5.png .. ref-7.png",
+  "product_files_modified": [],
+  "offline": true,
+  "toolchain": {
+    "typst": "0.15.1 (vendored tools/typst/typst)",
+    "fonts": [
+      "assets/fonts/Spectral-Regular.ttf",
+      "assets/fonts/Spectral-Italic.ttf",
+      "assets/fonts/Spectral-Medium.ttf"
+    ],
+    "font_policy": "Spectral only; no reference font and no system font"
+  },
+  "geometry_pt": {
+    "page": [
+      595.2756,
+      841.8898
+    ],
+    "page_mm": [
+      210,
+      297
+    ],
+    "margin": 60.0,
+    "content_box": [
+      60.0,
+      60.0,
+      535.2756,
+      781.8898
+    ],
+    "content_size": [
+      475.27560000000005,
+      721.8898
+    ]
+  },
+  "tokens_used": {
+    "type.cover_title": "34pt / weight 500 / total pitch 41pt",
+    "type.cover_subtitle": "12.6pt / italic / grey_1",
+    "type.cover_meta": "8.4pt / grey_1 / 12pt pitch",
+    "ink.text": "#000000",
+    "ink.grey_1": "#4d4d4d",
+    "ink.pale": "#e6e6e6",
+    "rule.cover": "not used (the cover proof carries no rule ornament)",
+    "space.page_margin": "60pt",
+    "illustration": "native vector burst; fill ink.text; label ink.pale; no raster"
+  },
+  "pages": [
+    {
+      "page": 1,
+      "reference": "Cover.pdf page 5",
+      "composition": "asymmetric diagonal field; upright title/support stepped along the edge; illustration lower-left",
+      "rotation": "none (diagonal expressed only as the field edge and the title/support left-edge progression)",
+      "searchable_text": "Additional information\n\nCover\n\nAdditional information\n\nIllustration\n\nDecorative illustration\n\nAdditional information",
+      "nominal_boxes_pt": {
+        "field_polygon": [
+          [
+            60.0,
+            600.0
+          ],
+          [
+            534.2756,
+            440.0
+          ],
+          [
+            534.2756,
+            780.8898
+          ],
+          [
+            60.0,
+            780.8898
+          ]
+        ],
+        "field_bbox": [
+          60.0,
+          440.0,
+          534.2756,
+          780.8898
+        ],
+        "illustration_bbox": [
+          65.0,
+          510.6,
+          295.0,
+          729.4
+        ],
+        "illustration_centre": [
+          180.0,
+          620.0
+        ]
+      },
+      "measured_boxes_pt": {
+        "full_ink": [
+          60.0,
+          66.96,
+          534.24,
+          780.96
+        ],
+        "black_ink": [
+          65.52,
+          454.56,
+          353.76,
+          729.12
+        ],
+        "pale_ink": [
+          60.04,
+          440.28,
+          534.28,
+          780.84
+        ],
+        "illustration": [
+          65.52,
+          510.96,
+          294.48,
+          729.12
+        ],
+        "text_all": [
+          158.96,
+          64.65,
+          453.9,
+          773.32
+        ],
+        "title": [
+          265.0,
+          441.43,
+          354.56,
+          493.18
+        ],
+        "support": [
+          305.0,
+          484.97,
+          424.94,
+          504.15
+        ],
+        "top_info": [
+          254.48,
+          64.65,
+          340.79,
+          77.43
+        ],
+        "bottom_info": [
+          254.48,
+          760.54,
+          340.79,
+          773.32
+        ],
+        "illustration_label": [
+          158.96,
+          611.65,
+          201.04,
+          624.43
+        ],
+        "decorative_label": [
+          370.0,
+          701.65,
+          453.9,
+          714.43
+        ]
+      },
+      "text_lines": [
+        {
+          "text": "Additional information",
+          "bbox": [
+            254.48,
+            64.65,
+            340.79,
+            77.43
+          ]
+        },
+        {
+          "text": "Cover",
+          "bbox": [
+            265.0,
+            441.43,
+            354.56,
+            493.18
+          ]
+        },
+        {
+          "text": "Additional information",
+          "bbox": [
+            305.0,
+            484.97,
+            424.94,
+            504.15
+          ]
+        },
+        {
+          "text": "Illustration",
+          "bbox": [
+            158.96,
+            611.65,
+            201.04,
+            624.43
+          ]
+        },
+        {
+          "text": "Decorative illustration",
+          "bbox": [
+            370.0,
+            701.65,
+            453.9,
+            714.43
+          ]
+        },
+        {
+          "text": "Additional information",
+          "bbox": [
+            254.48,
+            760.54,
+            340.79,
+            773.32
+          ]
+        }
+      ],
+      "clearances_pt": {
+        "title_support_ink_gap_pt": 11.04
+      },
+      "margins": {
+        "ink_inside_60pt": true,
+        "text_inside_60pt": true,
+        "page_ink_outside_trim": false
+      }
+    },
+    {
+      "page": 2,
+      "reference": "Cover.pdf page 6",
+      "composition": "large lower-left illustration block; strongly off-centre right vertical title/meta",
+      "rotation": "title 90deg clockwise, meta 90deg clockwise; both remain readable top-to-bottom",
+      "searchable_text": "Additional information\n\nCover\n\nAdditional information\n\nIllustration\n\nDecorative illustration\n\nAdditional information",
+      "nominal_boxes_pt": {
+        "field_bbox": [
+          60.0,
+          170.0,
+          295.0,
+          760.0
+        ],
+        "illustration_bbox": [
+          81.0,
+          428.0,
+          275.0,
+          622.0
+        ],
+        "illustration_centre": [
+          178.0,
+          525.0
+        ]
+      },
+      "measured_boxes_pt": {
+        "full_ink": [
+          60.0,
+          66.96,
+          534.0,
+          760.08
+        ],
+        "black_ink": [
+          81.6,
+          217.2,
+          515.28,
+          621.84
+        ],
+        "pale_ink": [
+          60.04,
+          169.8,
+          295.0,
+          759.96
+        ],
+        "illustration": [
+          81.6,
+          428.16,
+          274.56,
+          621.84
+        ],
+        "text_all": [
+          75.57,
+          64.65,
+          534.28,
+          744.43
+        ],
+        "title": [
+          476.82,
+          215.0,
+          528.57,
+          304.56
+        ],
+        "support": [
+          445.85,
+          215.0,
+          465.03,
+          334.94
+        ],
+        "top_info": [
+          254.48,
+          64.65,
+          340.79,
+          77.43
+        ],
+        "bottom_info": [
+          447.97,
+          731.65,
+          534.28,
+          744.43
+        ],
+        "illustration_label": [
+          156.96,
+          516.65,
+          199.04,
+          529.43
+        ],
+        "decorative_label": [
+          75.57,
+          650.0,
+          88.35,
+          733.9
+        ]
+      },
+      "text_lines": [
+        {
+          "text": "Additional information",
+          "bbox": [
+            254.48,
+            64.65,
+            340.79,
+            77.43
+          ]
+        },
+        {
+          "text": "Additional Cover",
+          "bbox": [
+            445.85,
+            215.0,
+            528.57,
+            304.56
+          ]
+        },
+        {
+          "text": "information",
+          "bbox": [
+            445.85,
+            273.3,
+            465.03,
+            334.94
+          ]
+        },
+        {
+          "text": "Illustration",
+          "bbox": [
+            156.96,
+            516.65,
+            199.04,
+            529.43
+          ]
+        },
+        {
+          "text": "Decorative",
+          "bbox": [
+            75.57,
+            650.0,
+            88.35,
+            690.36
+          ]
+        },
+        {
+          "text": "illustration",
+          "bbox": [
+            75.57,
+            692.46,
+            88.35,
+            733.9
+          ]
+        },
+        {
+          "text": "Additional information",
+          "bbox": [
+            447.97,
+            731.65,
+            534.28,
+            744.43
+          ]
+        }
+      ],
+      "clearances_pt": {},
+      "margins": {
+        "ink_inside_60pt": true,
+        "text_inside_60pt": true,
+        "page_ink_outside_trim": false
+      },
+      "title_meta_horizontal_gap_pt": 11.79
+    },
+    {
+      "page": 3,
+      "reference": "Cover.pdf page 7",
+      "composition": "sparse: compact upper line, central title/support, separate illustration lower-left",
+      "rotation": "none",
+      "searchable_text": "Additional information\n\nCover\n\nAdditional information\n\nIllustration\n\nAdditional information",
+      "nominal_boxes_pt": {
+        "illustration_bbox": [
+          68.0,
+          425.0,
+          348.0,
+          705.0
+        ],
+        "illustration_centre": [
+          208.0,
+          565.0
+        ]
+      },
+      "measured_boxes_pt": {
+        "full_ink": [
+          67.92,
+          66.96,
+          379.68,
+          769.44
+        ],
+        "black_ink": [
+          68.64,
+          209.52,
+          347.28,
+          704.64
+        ],
+        "pale_ink": null,
+        "illustration": [
+          68.64,
+          425.52,
+          347.28,
+          704.64
+        ],
+        "text_all": [
+          186.96,
+          64.65,
+          379.94,
+          773.32
+        ],
+        "title": [
+          250.0,
+          196.43,
+          339.56,
+          248.18
+        ],
+        "support": [
+          260.0,
+          244.97,
+          379.94,
+          264.15
+        ],
+        "top_info": [
+          254.48,
+          64.65,
+          340.79,
+          77.43
+        ],
+        "bottom_info": [
+          254.48,
+          760.54,
+          340.79,
+          773.32
+        ],
+        "illustration_label": [
+          186.96,
+          556.65,
+          229.04,
+          569.43
+        ],
+        "decorative_label": null
+      },
+      "text_lines": [
+        {
+          "text": "Additional information",
+          "bbox": [
+            254.48,
+            64.65,
+            340.79,
+            77.43
+          ]
+        },
+        {
+          "text": "Cover",
+          "bbox": [
+            250.0,
+            196.43,
+            339.56,
+            248.18
+          ]
+        },
+        {
+          "text": "Additional information",
+          "bbox": [
+            260.0,
+            244.97,
+            379.94,
+            264.15
+          ]
+        },
+        {
+          "text": "Illustration",
+          "bbox": [
+            186.96,
+            556.65,
+            229.04,
+            569.43
+          ]
+        },
+        {
+          "text": "Additional information",
+          "bbox": [
+            254.48,
+            760.54,
+            340.79,
+            773.32
+          ]
+        }
+      ],
+      "clearances_pt": {
+        "title_support_ink_gap_pt": 16.08
+      },
+      "margins": {
+        "ink_inside_60pt": true,
+        "text_inside_60pt": true,
+        "page_ink_outside_trim": false
+      }
+    }
+  ],
+  "checks": {
+    "pages": 3,
+    "all_pages_a4": true,
+    "all_ink_inside_60pt_margin": true,
+    "all_text_inside_60pt_margin": true,
+    "no_page_ink_outside_trim": true,
+    "searchable_placeholder_counts": {
+      "Cover": 3,
+      "Additional information": 9,
+      "Illustration": 3,
+      "Decorative illustration": 2
+    },
+    "searchable_text_clean": true,
+    "embedded_fonts": [
+      {
+        "name": "GJSAZC+Spectral-Regular",
+        "type": "CID",
+        "encoding": "Identity-H",
+        "embedded": true,
+        "subset": true
+      },
+      {
+        "name": "UZCILU+Spectral-Medium",
+        "type": "CID",
+        "encoding": "Identity-H",
+        "embedded": true,
+        "subset": true
+      },
+      {
+        "name": "ABMYEB+Spectral-Italic",
+        "type": "CID",
+        "encoding": "Identity-H",
+        "embedded": true,
+        "subset": true
+      }
+    ],
+    "all_fonts_embedded_and_subset": true,
+    "raster_images": 0,
+    "no_raster_images": true,
+    "field_measured_vs_nominal_pt": {
+      "page_1_field": {
+        "nominal": [
+          60.0,
+          440.0,
+          534.28,
+          780.89
+        ],
+        "measured": [
+          60.04,
+          440.28,
+          534.28,
+          780.84
+        ]
+      },
+      "page_2_field": {
+        "nominal": [
+          60.0,
+          170.0,
+          295.0,
+          760.0
+        ],
+        "measured": [
+          60.04,
+          169.8,
+          295.0,
+          759.96
+        ]
+      }
+    },
+    "illustration_measured_vs_nominal_pt": {
+      "page_1": {
+        "nominal": [
+          65.0,
+          510.6,
+          295.0,
+          729.4
+        ],
+        "measured": [
+          65.52,
+          510.96,
+          294.48,
+          729.12
+        ]
+      },
+      "page_2": {
+        "nominal": [
+          81.0,
+          428.0,
+          275.0,
+          622.0
+        ],
+        "measured": [
+          81.6,
+          428.16,
+          274.56,
+          621.84
+        ]
+      },
+      "page_3": {
+        "nominal": [
+          68.0,
+          425.0,
+          348.0,
+          705.0
+        ],
+        "measured": [
+          68.64,
+          425.52,
+          347.28,
+          704.64
+        ]
+      }
+    }
+  },
+  "hashes": {
+    "pdf_sha256": "644807862d128b2578ac4eed07b634da6117fcd2ed4cf16f3c143844feca11c3",
+    "source_sha256": "c666e9b9b5cf06c3fcf2f53b81135b4ec4caa16cc1b1ddc492c95157cdd4ff6f",
+    "measure_sha256": "4f694c98ddacff708932f56615af741a2748315c16c4579770d6624e65239686",
+    "contact_sha256": "65eb35c4553f0f39e1bb00aa456d9e599ce0b714548b5a0fb53ccc433cd04e2b",
+    "page_png_sha256": {
+      "page-1.png": "2392cab01353250b94fd7b9706d92b2942dd02a286b977f788987b4057ab6b26",
+      "page-2.png": "68ec0764b0e99aedb647da32c400f69fb2ed4d28b996588a0aee28904de1ebbf",
+      "page-3.png": "03b73cc279c358667e63f785e58142ce128efb030fdd98eff74f617387e15462"
+    }
+  },
+  "observations": [
+    "Page 1: the pale field edge runs from the content-left at y=600 pt to content-right at y=440 pt; the upright title and support step right with it. The title's ink stays clear of the diagonal field and the support crosses only its last word, where black remains legible on pale. The field right and bottom edges stop 1 pt inside the content box so raster antialiasing cannot enter the 60 pt margin.",
+    "Page 1: the illustration is a 10-spoke vector burst centred lower-left; its measured box is recorded against the nominal 230 x 218.8 pt box. The label sits in the solid centre, white on black.",
+    "Page 2: the pale block occupies the lower-left and the 34 pt title is rotated 90deg clockwise at the right edge. Title ink ends 6.7 pt inside the 475.276 pt measure; the meta column is 11.8 pt to its left.",
+    "Page 2: the decorative label is rotated 90deg inside the block; the illustration burst is centred in the block and does not cross the block edge.",
+    "Page 3: sparse composition; the horizontal title/support pair sits near the content centre, the separate burst occupies the lower-left, and the upper and lower information lines remain isolated. No rotated text.",
+    "All three pages use only the four supplied placeholders. No title, edition, year, institution, city, or ISBN was invented. All text is selectable and extracted in reading order; no raster image is present."
+  ]
+}

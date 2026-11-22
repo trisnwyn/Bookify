@@ -1,0 +1,156 @@
+{
+  "bookId": "image-ledgers",
+  "coverage": [
+    {
+      "basis": "ocr",
+      "blockIds": [
+        "d-trial",
+        "p-trial",
+        "t-trial"
+      ],
+      "ocrRegions": [
+        1
+      ],
+      "ocrStatus": "applied",
+      "page": 1,
+      "reason": null,
+      "sourceId": "fixture",
+      "status": "covered"
+    },
+    {
+      "basis": "ocr",
+      "blockIds": [
+        "p-receipts",
+        "t-receipts",
+        "fig-receipts",
+        "p-bridge"
+      ],
+      "ocrRegions": [
+        1
+      ],
+      "ocrStatus": "applied",
+      "page": 2,
+      "reason": null,
+      "sourceId": "fixture",
+      "status": "covered"
+    },
+    {
+      "basis": "ocr",
+      "blockIds": [],
+      "ocrRegions": [
+        1
+      ],
+      "ocrStatus": "below_threshold",
+      "page": 3,
+      "reason": "OCR below threshold; the image is unresolved and no text is used.",
+      "sourceId": "fixture",
+      "status": "excluded"
+    },
+    {
+      "basis": "text",
+      "blockIds": [],
+      "page": 4,
+      "reason": "Vietnamese text layer is not used in this English book; OCR was not required.",
+      "sourceId": "fixture",
+      "status": "excluded"
+    }
+  ],
+  "derivations": [
+    {
+      "anchors": [
+        {
+          "page": 1,
+          "region": 1,
+          "sourceId": "fixture"
+        }
+      ],
+      "blockIds": [
+        "t-trial"
+      ],
+      "crossCheck": "second read at 450 dpi agrees; page 1 region 1 crop intake/ocr/page-001-region-01.png",
+      "decision": "Reconstructed the table from the page-1 image region.",
+      "kind": "ocr",
+      "method": "ocr-table-v1",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 2,
+          "region": 1,
+          "sourceId": "fixture"
+        }
+      ],
+      "blockIds": [
+        "t-receipts"
+      ],
+      "crossCheck": "arithmetic: receipt amounts sum to the printed total 15,281.50",
+      "decision": "Reconstructed the table from the image-only page and checked its arithmetic.",
+      "kind": "ocr",
+      "method": "ocr-table-v1",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 1,
+          "sourceId": "fixture"
+        }
+      ],
+      "blockIds": [
+        "d-trial"
+      ],
+      "decision": "Defined the trial balance term in one inline body paragraph from the page-1 evidence; the definition carries no new value.",
+      "kind": "glossary",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 2,
+          "sourceId": "fixture"
+        }
+      ],
+      "blockIds": [
+        "fig-receipts"
+      ],
+      "decision": "Authored an illustrative diagram of the dual-read reconstruction process; it is labelled synthetic and traces no source figure.",
+      "kind": "explain",
+      "retained": true
+    }
+  ],
+  "enrichment": {
+    "permission": null,
+    "requested": false,
+    "sources": []
+  },
+  "manuscriptRevision": 1,
+  "manuscriptSha256": "e88eefc8b6db0f8f3ec310db1c374181ee14d1dcc658e37afd9021b43b987fb2",
+  "mode": "source-faithful",
+  "schemaVersion": "1.0",
+  "source": {
+    "id": "fixture",
+    "intakeManifest": "intake/manifest.json",
+    "pages": 4,
+    "sha256": "c3c09d6f57b57f04dd3eefc6724a5b51dcb8466fbaa42ff0ca6333941ba3481d"
+  },
+  "uncertainty": [
+    {
+      "note": "Degraded 45 dpi image: below_threshold with agreement 0.6667; unresolved.",
+      "page": 3,
+      "sourceId": "fixture"
+    },
+    {
+      "blockId": "u-degraded",
+      "note": "The unresolved note names the measured reason; no text is used.",
+      "page": 3,
+      "sourceId": "fixture"
+    },
+    {
+      "blockId": "u-omitted",
+      "note": "The page-1 image's Owner's capital line measured mean 77.58 (second pass 80.34), below the eligible band; the line is omitted and the table is not a complete balance.",
+      "page": 1,
+      "sourceId": "fixture"
+    }
+  ]
+}

@@ -289,20 +289,22 @@ def test_level1_deck_gap_is_clear_and_levels_2_3_keep_their_hierarchy() -> None:
     h2_heading, h2_line = _heading_and_next(result.pdf, 5)
     h3_heading, h3_line = _heading_and_next(result.pdf, 6)
 
-    # Level 1 opens a real deck gap: baseline delta clears the 30 pt h1 pitch
-    # and the 3 pt full-width white band at 300 dpi.
+    # Level 1 opens a real deck gap: the heading clears the 30 pt h1 pitch and
+    # the house rule of one visibly blank body line below it.
     for page, heading, following in ((3, standfirst_heading, standfirst_line), (4, lead_heading, lead_line)):
         delta = following[0] - heading[0]
         assert delta >= 31.25, f"page {page} h1→deck delta {delta} is still cramped"
-        assert _ink_gap_pt(result.pdf, page, heading, following) >= 3.0
+        assert _ink_gap_pt(result.pdf, page, heading, following) >= 15.30, page
     assert abs((standfirst_line[0] - standfirst_heading[0]) - (lead_line[0] - lead_heading[0])) <= 0.15
 
-    # Level 2/3 standfirsts keep their pre-existing spacing and stay ordered.
-    assert abs((h2_line[0] - h2_heading[0]) - 13.61) <= 0.15
-    assert abs((h3_line[0] - h3_heading[0]) - 11.18) <= 0.15
-    # The type hierarchy is compared by measured heading height (the opener now
-    # prints a numeral above the title, so absolute page position is not the
-    # hierarchy any more).
+    # Level 2/3 decks get the same blank line; their own hierarchy stays ordered.
+    h2_gap = _ink_gap_pt(result.pdf, 5, h2_heading, h2_line)
+    h3_gap = _ink_gap_pt(result.pdf, 6, h3_heading, h3_line)
+    assert h2_gap >= 15.30, h2_gap
+    assert h3_gap >= 15.30, h3_gap
+    # The type hierarchy is compared by measured heading height (the level-1
+    # heading prints the `Chapter n:` sentence form, so absolute page position is
+    # not the hierarchy any more).
     heights = [
         block[1] - block[0]
         for block in (standfirst_heading, h2_heading, h3_heading)
@@ -310,14 +312,15 @@ def test_level1_deck_gap_is_clear_and_levels_2_3_keep_their_hierarchy() -> None:
     assert heights[0] > heights[1] > heights[2], heights
     assert (standfirst_line[0] - standfirst_heading[0]) > (h2_line[0] - h2_heading[0]) > (h3_line[0] - h3_heading[0])
 
-    # The deck gap stays close to the contents page's own h1→entry rhythm.
+    # The deck gap stays close to the contents page's own h1→entry rhythm, and
+    # both keep their exact measured value under the blank-line rule.
     contents_heading, contents_entry = _heading_and_next(result.pdf, 2)
     contents_delta = contents_entry[0] - contents_heading[0]
-    assert abs(contents_delta - 31.08) <= 0.15
+    assert abs(contents_delta - 45.2) <= 0.15, contents_delta
+    assert abs((standfirst_line[0] - standfirst_heading[0]) - 45.0) <= 0.15
     assert abs((standfirst_line[0] - standfirst_heading[0]) - contents_delta) <= 2.0
 
     # The lead pitch and lead→body gap are unchanged.
-    assert abs((standfirst_line[0] - standfirst_heading[0]) - 32.75) <= 0.2
     body_lines = sorted(_page_lines(result.pdf, 3), key=lambda line: line.y_min)
     body_index = next(
         index for index, line in enumerate(body_lines) if line.text.startswith("A sample can be read")

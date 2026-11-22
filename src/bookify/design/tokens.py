@@ -10,23 +10,19 @@ LEAF_NAMES: tuple[str, ...] = (
     # type
     "body", "lead", "h1", "h2", "h3", "caption", "small", "credit", "table", "table_head",
     "note", "quote",
-    # v2 cover and chapter-opener type (D2, D4)
-    "cover_title", "cover_subtitle", "cover_meta", "cover_index", "opener_numeral",
+    # accepted cover compositions (cover-1 .. cover-7)
+    "cover_title", "cover_subtitle", "cover_meta",
     # spacing
     "page_margin", "before_heading", "before_h2", "before_h3", "after_heading",
     "heading_clearance",
     "before_standfirst", "after_block", "between_paragraphs", "after_lead",
     "after_figure", "after_caption", "figure_width", "before_role", "side_gutter",
-    # v2 opener and cover spacing (D2, D4)
-    "opener_rule", "opener_title", "cover_rule", "cover_footer",
     # side composition
     "side_fraction",
     # measure (v2 plate = body measure, D4; cover block height, D2)
     "plate", "page_height",
     # rules
     "table_top", "table_head", "table_bottom", "figure_stroke",
-    # v2 cover and opener rules (D2, D4)
-    "cover", "cover_index", "opener",
     # figures
     "caption_align",
     # ink
@@ -77,6 +73,7 @@ BLOCK_TYPES: tuple[str, ...] = (
     "chart",
     "diagram",
     "illustration",
+    "branch",
     "unresolved",
 )
 
@@ -92,19 +89,39 @@ ACCENT_TINT_3_HEX = "#7c8aa2"
 # Numeric mirrors used by the rendered-geometry checks. The single source is
 # typst/theme.typ; these names let verification derive a declared centre instead
 # of rediscovering it from rendered output or repeating a magic number.
+#
+# Type, leading and ink metrics (theme.typ `ink_metrics`, `leading_extra`,
+# `type`). The blank-line rule is derived, never restated: one body line pitch
+# is the minimum white band below any heading.
+INK_LINE_BOX_EM = 0.660
+INK_ASCENT_EM = 0.750
+INK_DESCENT_EM = 0.240
+BODY_SIZE_PT = 10.1
+LEAD_SIZE_PT = 10.6
+H1_SIZE_PT = 25.0
+H2_SIZE_PT = 12.6
+H3_SIZE_PT = 10.3
+BODY_LEADING_PT = 8.63
+HEADING_CLEARANCE_PT = 0.5
+BLANK_LINE_PT = round(INK_LINE_BOX_EM * BODY_SIZE_PT + BODY_LEADING_PT, 2)
 PAGE_MARGIN_PT = 60.0
 BODY_MEASURE_PT = 475.28
 SIDE_FRACTION = 0.46
 SIDE_GUTTER_PT = 16.0
+# A2: one of two equal columns, (475.28 - 16) / 2.
+COLUMN_WIDTH_PT = round((BODY_MEASURE_PT - SIDE_GUTTER_PT) / 2, 2)
 CHART_WIDTH_FRACTION = 0.72
 ILLUSTRATION_WIDTH_FRACTION = 0.88
 DIAGRAM_WIDTH_PT = 430.0
-# D2: a real chapter index lists at most this many level-1 entries; beyond it
-# the cover uses the documented ledger motif instead of a truncated list.
-COVER_INDEX_LIMIT = 12
-# D2: the cover block must leave at least this much slack above the bottom margin.
-COVER_FOOTER_SLACK_PT = 24.0
+# The centred body visual keeps `measure.figure_width`; a side visual takes
+# `measure.side_fraction` of the measure.
+FIGURE_WIDTH_PT = 430.0
+# The selected cover never prints a chapter index; the title may wrap, but no
+# cover composition carries more than this many title lines.
 COVER_TITLE_MAX_LINES = 3
+# Poppler's line box for a 34 pt title rises up to 4.65 pt above its glyph ink.
+# The cover fit guard allows that box only; the raster gate checks real ink.
+COVER_LINE_BOX_TOP_ALLOWANCE_PT = 8.0
 # D4: a plate is one visual at the full text measure, ±1 pt.
 PLATE_PT = BODY_MEASURE_PT
 PLATE_TOLERANCE_PT = 1.0

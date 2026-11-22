@@ -39,6 +39,8 @@ def _scan(path: Path) -> list[LintIssue]:
 def lint(root: Path) -> list[LintIssue]:
     targets = [
         root / "typst" / "blocks.typ",
+        root / "typst" / "cover.typ",
+        root / "typst" / "compositions.typ",
         *sorted((root / "typst" / "templates").glob("*.typ")),
         *sorted((root / "typst" / "cetz").glob("*.typ")),
     ]

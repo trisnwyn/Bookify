@@ -1,0 +1,12 @@
+Trial balance as at 31 March 2026
+Account Debit Credit
+Cash at bank 12,480.00
+Accounts receivable 8,215.50
+Office equipment 24,000.00
+Accounts payable 9,340.25
+Owner's capital 31,205.75
+Loan payable 6,000.00
+Revenue 18,939.50
+Rent expense 4,120.00
+Wages expense 16,670.00
+Totals 65,485.50 65,485.50

@@ -1,0 +1,15 @@
+Trial balance and the ledger
+An opening trial balance lists every ledger account and its balance at a chosen date. It is not a financial
+statement. It is a checking device, and a modest one: equal debit and credit columns show that the clerk
+has avoided the simplest class of posting error. Equality does not prove that each entry reached the correct
+account, that no entry was posted twice on the same side, or that an omission was not balanced by a second
+mistake somewhere else.
+The table below was supplied as a page image. Read it as evidence rather than as a statement of position.
+The figures come from a practice set, not from a real business, and the account names are deliberately
+plain so that a reader can follow the arithmetic without a chart of accounts. A clerk who copies a figure
+from this image is making a new record, not recovering the original one.
+
+
+
+
+                                Figure 1. Trial balance supplied as a page image.

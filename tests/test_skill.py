@@ -195,3 +195,53 @@ def test_packaged_entry_keeps_setup_and_visual_vocabulary_contract() -> None:
     text = PAYLOAD.read_text(encoding="utf-8")
     for phrase in ("BOOKIFY_ENGINE", "side-left", "side-right", "full", "references/checklist.md"):
         assert phrase in text
+
+
+# --- Production design integration guidance (cover, headings, layouts) ---
+
+DESIGN_GUIDANCE_TERMS = (
+    "cover-1",
+    "cover-7",
+    "engine-fallback",
+    "artwork: absent",
+    "Chapter 1: Title",
+    "1.1 a)",
+    "blank line",
+    "centred",
+    "companions",
+    "layout: {columns: 2}",
+)
+
+
+def test_entries_and_guides_teach_the_integrated_design() -> None:
+    """Both entries and the visual guide must describe the shipped renderer."""
+    entry = " ".join(SKILL.read_text(encoding="utf-8").split())
+    packaged = " ".join(PAYLOAD.read_text(encoding="utf-8").split())
+    guide = " ".join((REFERENCES / "visual-design.md").read_text(encoding="utf-8").split())
+
+    for term in ("cover-1", "cover-7", "engine-fallback", "Chapter 1: Title", "1.1 a)", "centred"):
+        assert term in entry, f"canonical entry lacks {term!r}"
+        assert term in packaged, f"packaged entry lacks {term!r}"
+        assert term in guide, f"visual guide lacks {term!r}"
+
+
+def test_no_entry_still_teaches_the_retired_cover_or_opener() -> None:
+    entry = " ".join(SKILL.read_text(encoding="utf-8").split())
+    packaged = " ".join(PAYLOAD.read_text(encoding="utf-8").split())
+    guide = " ".join((REFERENCES / "visual-design.md").read_text(encoding="utf-8").split())
+
+    for text in (entry, packaged, guide):
+        assert "ledger motif" not in text
+        assert "Opener" not in text and "openers" not in text
+        assert "40 pt" not in text
+    assert "chapter index" not in entry
+
+
+def test_checklist_covers_the_new_heading_rule_and_cover_state() -> None:
+    checklist = CHECKLIST.read_text(encoding="utf-8")
+
+    assert "Chapter n: Title" in checklist
+    assert "blank line" in checklist
+    assert "engine-fallback" in checklist
+    assert "artwork: absent" in checklist
+    assert "1.1 a)" in checklist

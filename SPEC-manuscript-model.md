@@ -159,3 +159,38 @@ separate intake workstream and are not part of this design amendment.
   numbered by default; a manuscript without `role` normalises exactly as before
   except that printed numbering now appears (a rendering change, not a schema
   change).
+
+## Amendment — production layout integration (2026-11-16)
+
+Additive to `schemaVersion: "1.0"`; no migration and no version bump. Every
+existing manuscript still validates, and absent fields keep their previous
+meaning.
+
+- `metadata.cover` (optional object): `composition` (enum `cover-1` … `cover-7`,
+  required) and `artwork` (optional illustration record slug). `cover-3` is
+  typographic only and refuses `artwork` (`SCHEMA_INVALID` at
+  `metadata.cover.artwork`). An absent `metadata.cover` is not a default
+  composition: `normalize` records `selection: engine-fallback` with `cover-3`.
+- `section.layout` (optional object): `columns` enum `[1, 2]`. A column count is
+  a chapter-level property; declaring it below level 1 is `SCHEMA_INVALID` at
+  `sections[i].layout`. Absent means the single-column default.
+- `section.level` (enum `[1, 2, 3, 4, 5]`): the body path is `1.` (level 2),
+  `1.1` (level 3), `1.1.1` (level 4) and `1.1.1.1` (level 5); levels 4-5 keep the
+  h3 type role. The additive-parent rule is unchanged. A second level-2 section
+  keeps the level marker with its index (`1.2.`), and `number` (the cross-
+  reference form) keeps that period so no two sections share a reference.
+- A chapter's `layout` is inherited by every descendant for validation: a
+  `side-left`/`side-right` composition is refused anywhere inside a two-column
+  chapter, not only in the chapter's own blocks.
+- `branch` block (`type: branch`, required `text`): one terminal branch of its
+  section. `normalize` generates the run-in marker from the section number and
+  the block's order (`1.1 a)`, `1.1 b)`); the block carries no authored number.
+- `composition.preset` gains `centred` (a 430 pt figure-width visual). A side
+  preset accepts the legacy single `companion` or an ordered `companions` array
+  (1–3 slugs); the blocks must be the immediately following blocks in order,
+  each a prose type, each ≤ 520 collapsed characters and the group ≤ 900. `full`
+  and `centred` forbid both companion fields.
+- `normalize` emits a `heading` string per section (`Chapter 1: Title`,
+  `Appendix A: Title`, `1.1 Title`) so the report, cross-reference and opener
+  checks compare against the line the page really shows, and `numbering.levels`
+  becomes 4.

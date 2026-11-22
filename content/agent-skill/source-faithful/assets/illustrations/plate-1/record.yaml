@@ -1,0 +1,16 @@
+schemaVersion: "1.0"
+id: plate-1
+path: assets/illustrations/plate-1/plate.png
+originUrl: "local:fixtures/agent-skill/source.pdf#page=6"
+creator: "Bookify agent-skill fixture (Task 64)"
+licence: "Authored synthetic fixture; public-safe, no external imagery"
+licenceUrl: "local:fixtures/agent-skill/source.pdf#page=6"
+credit: "Plate: synthetic fixture image extracted from the supplied source."
+caption: "The unlabelled plate that closes the source; no label, date, place or warrant is assigned."
+alt: "A light rectangular field inside a dark border, with a small square outline at the lower left, a grey circle at the centre and a thin diagonal line rising to the upper right. The source assigns no label to the plate."
+kind: conceptual_artwork
+rightsStatus: verified
+sha256: "1fb8053506707629824ba13541fd6e7dec090a9796a849c78b8b4100a7f40a8b"
+evidence:
+  method: "The 72x48 raster plate was extracted unchanged from page 6 of the public fixture PDF with pdfimages; no redraw, OCR, relabel or external image was used."
+  source: "fixtures/agent-skill/source.pdf page 6, the fixture's deliberately unreadable image-only plate."

@@ -1,0 +1,653 @@
+{
+  "bookId": "teachable-reading-a-sample",
+  "coverage": [
+    {
+      "blockIds": [
+        "b-case",
+        "b-check-one"
+      ],
+      "page": 1,
+      "reason": null,
+      "sourceId": "source",
+      "status": "covered"
+    },
+    {
+      "blockIds": [
+        "b-record-lead",
+        "b-record-table",
+        "b-record-gap",
+        "b-check-one",
+        "b-summary"
+      ],
+      "page": 2,
+      "reason": null,
+      "sourceId": "source",
+      "status": "covered"
+    },
+    {
+      "blockIds": [
+        "b-why-levels",
+        "b-def-detail",
+        "b-def-setting",
+        "b-def-warrant",
+        "b-three-questions",
+        "b-three-list",
+        "b-apply",
+        "b-check-one",
+        "b-summary",
+        "b-key-detail",
+        "b-key-setting",
+        "b-key-warrant"
+      ],
+      "page": 3,
+      "reason": null,
+      "sourceId": "source",
+      "status": "covered"
+    },
+    {
+      "blockIds": [
+        "b-count-definition",
+        "b-count-intro",
+        "b-count-table",
+        "b-count-read",
+        "b-summary",
+        "b-key-count"
+      ],
+      "page": 4,
+      "reason": null,
+      "sourceId": "source",
+      "status": "covered"
+    },
+    {
+      "blockIds": [
+        "b-plate-intro",
+        "b-quote",
+        "b-plate-rule",
+        "b-plate-check",
+        "b-plate-answer",
+        "b-summary"
+      ],
+      "page": 5,
+      "reason": null,
+      "sourceId": "source",
+      "status": "covered"
+    },
+    {
+      "blockIds": [
+        "b-plate",
+        "b-plate-answer",
+        "b-source-1"
+      ],
+      "page": 6,
+      "reason": null,
+      "sourceId": "source",
+      "status": "covered"
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "The book is one level-1 chapter with level-2 sections that flow (Three levels, the case, the record, the counts, the limits, the summary, Key terms, Source note). A heading no longer forces a page; the source's teaching units read as sections, not as reproduced pages.",
+      "id": "d-hierarchy",
+      "kind": "other"
+    },
+    {
+      "decision": "The source order 1-6 is changed to 3,1,2,4,5,6 so the three levels are taught before the case and the record follows the reading.",
+      "id": "d-reorder",
+      "kind": "reorder"
+    },
+    {
+      "decision": "Page 3 is split at its application paragraph: the definitions, the three questions and their list precede the case; the application follows it.",
+      "id": "d-split",
+      "kind": "split"
+    },
+    {
+      "decision": "One-sentence fragments are merged into full paragraphs without changing meaning: the application absorbs the source's closing terms sentence; the unresolved rule absorbs the record bridge; the counts reading absorbs the coverage caution; the source note absorbs the plate-reproduction decision.",
+      "id": "d-merge",
+      "kind": "merge"
+    },
+    {
+      "decision": "Key terms recaps the three levels and the Count definition as a learning aid, kept whole on page 5 so the recap and the source note close the book as one reference unit rather than an accidental near-empty page.",
+      "id": "d-reference",
+      "kind": "other"
+    },
+    {
+      "decision": "The counts table is labelled synthetic in its caption and introduced as invented; no count is presented as a measurement.",
+      "id": "d-synthetic",
+      "kind": "other"
+    },
+    {
+      "decision": "Page 6's image-only plate is represented by an unresolved block and named in uncertainty. No OCR, label, date, place or warrant is assigned, and the plate is not reproduced.",
+      "id": "d-plate",
+      "kind": "unresolved"
+    },
+    {
+      "decision": "Coursebook voice: direct subject-facing prose, terms defined in place, one worked case, two checks and a labelled model answer; the source note carries attribution.",
+      "id": "d-voice",
+      "kind": "other"
+    },
+    {
+      "decision": "The source note and index give the reader the page use and synthetic status; the durable page index and anchors live in this record.",
+      "id": "d-source-index",
+      "kind": "other"
+    },
+    {
+      "decision": "No external enrichment was requested or used; enrichment.requested is false and no external derivation exists.",
+      "id": "d-no-enrichment",
+      "kind": "other"
+    },
+    {
+      "decision": "No source image, font or new asset is reused or added. The plate is described as unresolved rather than reproduced; the book uses only the engine's existing faces and vector tables.",
+      "id": "d-rights",
+      "kind": "rights"
+    },
+    {
+      "decision": "The first check is written for this chapter and uses the levels plus the unresolved rule; the second retains the source's short check and adds a labelled model answer derived from the source's definitions.",
+      "id": "d-checks",
+      "kind": "assessment"
+    },
+    {
+      "decision": "Table captions and the source index are the book's own presentation; they assert no new fact about the source.",
+      "id": "d-captions",
+      "kind": "other"
+    }
+  ],
+  "derivations": [
+    {
+      "anchors": [
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-open"
+      ],
+      "citation": null,
+      "decision": "Chapter title and opening lead name the chapter's job: three levels, a case, a record and a count.",
+      "kind": "heading",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-open"
+      ],
+      "citation": null,
+      "decision": "Opening framing introduces detail, setting and warrant as the chapter's working vocabulary; it states no source fact.",
+      "kind": "explain",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-def-detail",
+        "b-def-setting",
+        "b-def-warrant",
+        "b-key-detail",
+        "b-key-setting",
+        "b-key-warrant"
+      ],
+      "citation": null,
+      "decision": "The source's three definitions are retained in place and recapped in Key terms; no definition is invented.",
+      "kind": "glossary",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-why-levels"
+      ],
+      "citation": null,
+      "decision": "The source's claim that a reading can be right at one level and unsupported at another is retained as the section's explanation.",
+      "kind": "explain",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-three-questions",
+        "b-three-list",
+        "b-apply"
+      ],
+      "citation": null,
+      "decision": "Page 3 is split: the definitions and their three questions precede the case; the application to the two labels follows it.",
+      "kind": "split",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 3,
+          "sourceId": "source"
+        },
+        {
+          "page": 1,
+          "sourceId": "source"
+        },
+        {
+          "page": 2,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-three-questions",
+        "b-three-list",
+        "b-case",
+        "b-record-lead"
+      ],
+      "citation": null,
+      "decision": "Source order 1-6 is changed to 3,1,2,4,5,6: the three levels are taught before the case, and the record follows the reading.",
+      "kind": "reorder",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 1,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-case"
+      ],
+      "citation": null,
+      "decision": "The source's synthetic case is retained as the worked case and rewritten in coursebook voice; no facts about the sample are added.",
+      "kind": "example",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-apply"
+      ],
+      "citation": null,
+      "decision": "The application paragraph absorbs the source's closing sentence about the three terms, forming one paragraph with unchanged meaning.",
+      "kind": "merge",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 2,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-record-lead"
+      ],
+      "citation": null,
+      "decision": "The source's four-field record and its status field are retained and introduced before the table.",
+      "kind": "explain",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 2,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-record-table"
+      ],
+      "citation": null,
+      "decision": "The table keeps the source's four fields and synthetic example entries; the caption states that it is a checklist, not a measurement.",
+      "kind": "caption",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 2,
+          "sourceId": "source"
+        },
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-record-gap"
+      ],
+      "citation": null,
+      "decision": "The unresolved-field rule is merged with the source's closing bridge into one paragraph; no rule is changed.",
+      "kind": "merge",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 1,
+          "sourceId": "source"
+        },
+        {
+          "page": 2,
+          "sourceId": "source"
+        },
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-check-one"
+      ],
+      "citation": null,
+      "decision": "Check written for this chapter; it uses the case, the three levels and the unresolved rule and requires no external fact.",
+      "kind": "assessment",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 4,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-count-intro"
+      ],
+      "citation": null,
+      "decision": "The source's statement that the record can be summarised as counts, with synthetic values, is retained as the section introduction.",
+      "kind": "explain",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 4,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-count-definition",
+        "b-key-count"
+      ],
+      "citation": null,
+      "decision": "The source's statement about what a count records is introduced as a definition and recapped in Key terms.",
+      "kind": "glossary",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 4,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-count-table"
+      ],
+      "citation": null,
+      "decision": "The source's synthetic two-pass counts are retained; the caption repeats that the values are invented.",
+      "kind": "caption",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 4,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-count-read"
+      ],
+      "citation": null,
+      "decision": "The reading of the table is merged with the coverage caution into one paragraph; no claim is added.",
+      "kind": "merge",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 5,
+          "sourceId": "source"
+        },
+        {
+          "page": 6,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-plate-intro"
+      ],
+      "citation": null,
+      "decision": "The plate's unreadable, image-only status is stated directly before the plate block; no content is attributed to it.",
+      "kind": "explain",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 5,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-quote"
+      ],
+      "citation": null,
+      "decision": "The source's quotation is retained verbatim with its synthetic attribution.",
+      "kind": "explain",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 5,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-plate-rule"
+      ],
+      "citation": null,
+      "decision": "The source's rule against filling the gap with a plausible name is retained in coursebook voice.",
+      "kind": "explain",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 5,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-plate-check"
+      ],
+      "citation": null,
+      "decision": "The source's short check is retained and rephrased as a direct task using the chapter's three terms.",
+      "kind": "assessment",
+      "retained": true
+    },
+    {
+      "anchors": [
+        {
+          "page": 5,
+          "sourceId": "source"
+        },
+        {
+          "page": 6,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-plate-answer"
+      ],
+      "citation": null,
+      "decision": "Model answer applies the source's definitions to the plate; the block is marked inferred and claims nothing about what the plate depicts.",
+      "kind": "explain",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 2,
+          "sourceId": "source"
+        },
+        {
+          "page": 3,
+          "sourceId": "source"
+        },
+        {
+          "page": 4,
+          "sourceId": "source"
+        },
+        {
+          "page": 5,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-summary"
+      ],
+      "citation": null,
+      "decision": "Chapter summary compresses the argument rather than the source's table of contents; it states no new fact.",
+      "kind": "explain",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 1,
+          "sourceId": "source"
+        },
+        {
+          "page": 2,
+          "sourceId": "source"
+        },
+        {
+          "page": 3,
+          "sourceId": "source"
+        },
+        {
+          "page": 4,
+          "sourceId": "source"
+        },
+        {
+          "page": 5,
+          "sourceId": "source"
+        },
+        {
+          "page": 6,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-source-1"
+      ],
+      "citation": null,
+      "decision": "Source note merges the source's scope and synthetic status with the plate-reproduction decision into one attribution paragraph.",
+      "kind": "merge",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 1,
+          "sourceId": "source"
+        },
+        {
+          "page": 2,
+          "sourceId": "source"
+        },
+        {
+          "page": 3,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-source-2"
+      ],
+      "citation": null,
+      "decision": "Source note states the page-3 split and points to the page index and authoring record.",
+      "kind": "reorder",
+      "retained": false
+    },
+    {
+      "anchors": [
+        {
+          "page": 1,
+          "sourceId": "source"
+        },
+        {
+          "page": 2,
+          "sourceId": "source"
+        },
+        {
+          "page": 3,
+          "sourceId": "source"
+        },
+        {
+          "page": 4,
+          "sourceId": "source"
+        },
+        {
+          "page": 5,
+          "sourceId": "source"
+        },
+        {
+          "page": 6,
+          "sourceId": "source"
+        }
+      ],
+      "blockIds": [
+        "b-source-index"
+      ],
+      "citation": null,
+      "decision": "Source index table is the book's own reference aid over the six source pages; it adds no interpretive claim.",
+      "kind": "condense",
+      "retained": false
+    }
+  ],
+  "enrichment": {
+    "permission": null,
+    "requested": false,
+    "sources": []
+  },
+  "manuscriptRevision": 2,
+  "manuscriptSha256": "cfdd084660f6f24935ce1b700b7e90c451c336acf1e10444228432d8c3ef0b5a",
+  "mode": "teachable",
+  "schemaVersion": "1.0",
+  "source": {
+    "id": "source",
+    "intakeManifest": "intake/manifest.json",
+    "pages": 6,
+    "sha256": "2c751d32ba89126b996db5045814e6ed2dc03468f0785ba74c3d28077f4ae1be"
+  },
+  "uncertainty": [
+    {
+      "blockId": "b-plate",
+      "note": "Page 6 is an image-only plate with no text layer. No label, date, place or warrant is assigned; the plate is not interpreted and no OCR was run.",
+      "page": 6,
+      "sourceId": "source"
+    }
+  ]
+}

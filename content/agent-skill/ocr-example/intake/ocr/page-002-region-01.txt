@@ -1,0 +1,9 @@
+Cash receipts journal — April 2026
+Date Received from Receipt no. Amount
+02 Apr R. Okafor CR-1001 2,450.00
+05 Apr L. Nguyen CR-1002 1,980.50
+09 Apr M. Silva CR-1003 3,215.75
+14 Apr A. Haddad CR-1004 875.00
+21 Apr S. Weber CR-1005 4,120.25
+28 Apr T. Ito CR-1006 2,640.00
+Total 15,281.50

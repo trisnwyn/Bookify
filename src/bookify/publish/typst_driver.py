@@ -12,7 +12,7 @@ from bookify.authoring import workspace as workspace_mod
 from bookify.errors import BookifyError
 from bookify.figures import charts, diagrams
 from bookify.manuscript import model
-from bookify.publish import illustrations, normalize, report
+from bookify.publish import illustrations, normalize, report, rights
 from bookify.toolchain import audit
 from bookify.toolchain import doctor, guard, pins
 
@@ -54,23 +54,81 @@ def _render_figures(
     return paths, assets
 
 
+def _book_assets(manuscript: model.Manuscript) -> list[Path]:
+    """Every image file the manuscript's rights records point at.
+
+    A record is the only way an image reaches a page, so this is the exact set the
+    compile needs. Each path must resolve inside the book root; a record that
+    escapes it is refused rather than staged.
+    """
+    root = manuscript.root.resolve()
+    paths: set[Path] = set()
+    for section in manuscript.sections:
+        for block in section["blocks"]:
+            if block["type"] == "illustration":
+                record = rights.load(manuscript.root, block["illustrationId"])
+                paths.add(root / record.path)
+    selection = manuscript.data["metadata"].get("cover") or {}
+    artwork = selection.get("artwork")
+    if artwork:
+        record = rights.load(manuscript.root, artwork)
+        paths.add(root / record.path)
+    resolved: list[Path] = []
+    for path in sorted(paths):
+        try:
+            candidate = path.resolve()
+            candidate.relative_to(root)
+        except (ValueError, OSError) as error:
+            raise BookifyError(
+                "BUILD_FAILED",
+                f"book asset resolves outside the book root: {path}",
+                str(path),
+            ) from error
+        if not candidate.is_file():
+            raise BookifyError("BUILD_FAILED", f"book asset is not a file: {path}", str(candidate))
+        resolved.append(candidate)
+    return resolved
+
+
 def _workspace_mounts(manuscript: model.Manuscript, stage: Path) -> tuple[tuple[Path, Path], ...]:
-    """Stage the read-only engine beside the book inside the disposable build dir."""
+    """Stage the read-only engine beside the book inside the disposable build dir.
+
+    The illustration folder is mounted whole. A rights record may point outside it
+    (the catalogue's artwork lives under `assets/catalogue/artwork`), so each such
+    file is bound individually at its own relative path. Nothing else under the
+    book root is exposed to the compile.
+    """
     engine = manuscript.engine
-    mounts: list[tuple[Path, Path]] = [
+    directories: list[tuple[Path, Path]] = [
         (engine / "typst", stage / "typst"),
         (engine / "assets" / "fonts", stage / "engine-assets" / "fonts"),
         (engine / "vendor" / "typst", stage / "engine-vendor" / "typst"),
     ]
-    illustrations = manuscript.root / "assets" / "illustrations"
+    illustrations = (manuscript.root / "assets" / "illustrations").resolve()
     if illustrations.is_dir():
-        mounts.append((illustrations, stage / "assets" / "illustrations"))
-    for source, target in mounts:
+        directories.append((illustrations, stage / "assets" / "illustrations"))
+    files: list[tuple[Path, Path]] = []
+    for asset in _book_assets(manuscript):
+        try:
+            asset.relative_to(illustrations)
+            continue  # already covered by the folder mount
+        except ValueError:
+            pass
+        if asset.is_relative_to(manuscript.engine.resolve()):
+            raise BookifyError(
+                "BUILD_FAILED",
+                f"book asset is inside the engine tree: {asset}",
+                str(asset),
+            )
+        target = stage / asset.relative_to(manuscript.root.resolve())
+        target.parent.mkdir(parents=True, exist_ok=True)
+        files.append((asset, target))
+    for source, target in directories:
         if not source.is_dir():
             raise BookifyError("BUILD_FAILED", f"engine asset missing: {source}", str(source))
         target.mkdir(parents=True, exist_ok=True)
     (stage / ".cache" / "empty-pkg").mkdir(parents=True, exist_ok=True)
-    return tuple(mounts)
+    return tuple(directories + files)
 
 
 def _compile(

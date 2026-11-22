@@ -101,22 +101,19 @@ def measure(pdf: Path, document: dict[str, Any]) -> dict[str, Any]:
     texts = page_texts(pdf)
     numbered = numbered_labels(texts)
     contents = report.contents_pages(texts)
-    plates, _gaps = report.plate_entries(pdf, document, numbered)
+    plates, _gaps, _visuals = report.plate_entries(pdf, document, numbered)
 
     # The page map comes from the build report when available; here recompute it
     # from the rendered headings so verify and build agree without a sidecar.
     for section in document["sections"]:
-        printed = section.get("printed")
-        wanted = {section["title"]}
-        if printed:
-            wanted.add(f"{printed} {section['title']}")
+        wanted = report.section_forms(section)
         page = next(
             (
                 index
                 for index in range(1, len(texts) + 1)
                 if index != 1
                 and index not in contents
-                and any(line.strip() in wanted for line in report.grouped_page_lines(pdf, index))
+                and any(report.line_is_section(line, section) for line in report.grouped_page_lines(pdf, index))
             ),
             None,
         )

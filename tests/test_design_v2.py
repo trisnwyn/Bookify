@@ -42,43 +42,36 @@ def test_heading_spacing_tokens_sit_above_the_paragraph_gap() -> None:
 
     assert _token(theme, "before_h2", 32.0)
     assert _token(theme, "before_h3", 25.0)
-    assert _token(theme, "before_heading", 17.0)
-    assert 32.0 > 25.0 > paragraph_gap > 17.0
+    assert _token(theme, "before_heading", 30.0)
+    assert 32.0 > 30.0 > 25.0 > paragraph_gap
 
 
-def test_v2_cover_and_opener_tokens_exist() -> None:
+def test_cover_composition_tokens_exist() -> None:
     theme = _theme_text()
 
     assert _token(theme, "cover_title", 34.0)
     assert _token(theme, "cover_subtitle", 12.6)
     assert _token(theme, "cover_meta", 8.4)
-    assert _token(theme, "cover_index", 8.6)
-    assert _token(theme, "opener_numeral", 40.0)
-    assert _token(theme, "opener_rule", 12.0)
-    assert _token(theme, "opener_title", 14.0)
-    assert _token(theme, "cover_rule", 12.0)
-    assert _token(theme, "cover_footer", 24.0)
     assert _token(theme, "plate", tokens.BODY_MEASURE_PT)
-    assert _token(theme, "cover", 0.6)
-    assert _token(theme, "opener", 0.6)
+    # The seven accepted compositions are token data, one group each.
+    for index in range(1, 8):
+        assert f"comp{index}:" in theme, index
+    # The retired ledger and numeral-stack tokens must not linger.
+    for retired in ("cover_index", "opener_numeral", "opener_rule", "opener_title",
+                    "cover_rule", "cover_footer"):
+        assert f"{retired}:" not in theme, retired
 
 
-def test_v2_token_leaves_are_named_for_the_linter() -> None:
+def test_cover_token_leaves_are_named_for_the_linter() -> None:
     for name in (
         "cover_title",
         "cover_subtitle",
         "cover_meta",
-        "cover_index",
-        "opener_numeral",
         "before_h2",
         "before_h3",
-        "opener_rule",
-        "opener_title",
-        "cover_rule",
-        "cover_footer",
         "plate",
-        "cover",
-        "opener",
+        "figure_width",
+        "side_fraction",
     ):
         assert name in tokens.LEAF_NAMES, name
 
@@ -175,6 +168,294 @@ def test_h2_and_h3_open_a_measured_white_band_above_the_paragraph_gap() -> None:
     assert h3_delta >= 31.0, f"h3 baseline delta {h3_delta}"
     assert h3_band >= 5.0, f"h3 white band {h3_band}"
     assert h2_delta > h3_delta
+
+
+def _clearance_below_heading(pdf: Path, page: int, heading_marker: str) -> float:
+    """White raster band between a heading's descender ink and the next line."""
+    lines = sorted(_page_lines(pdf, page), key=lambda line: line.y_min)
+    index = next(i for i, line in enumerate(lines) if heading_marker in line.text)
+    assert index + 1 < len(lines), f"{heading_marker} has no following line on page {page}"
+    heading, following = lines[index], lines[index + 1]
+    bands = _bands(pdf, page, heading.y_min - 0.5, following.y_min + 8)
+    assert len(bands) >= 2, "heading ink touches the following line; no blank line below it"
+    return bands[1][0] - bands[0][1]
+
+
+def test_every_heading_reserves_one_visible_body_blank_line_below() -> None:
+    """User rule: at least one clearly visible body blank line after every heading.
+
+    The measured white band must reach the 15.30 pt body line pitch, not merely
+    a single raster row (the old 7.454 / 4.5 pt gaps measured 9.36 and 3.60 pt).
+    """
+    source = (
+        '#import "/typst/theme.typ": book_base\n'
+        '#import "/typst/blocks.typ": *\n'
+        "#show: book_base\n"
+        "#heading(level: 1)[H1-MARKER Chapter title]\n"
+        f"#preset-paragraph({_q('AFTER-H1 ' + LATIN)})\n"
+        "#heading(level: 2)[H2-MARKER Section]\n"
+        f"#preset-paragraph({_q('AFTER-H2 ' + LATIN)})\n"
+        "#pagebreak()\n"
+        "#heading(level: 3)[H3-MARKER Subsection]\n"
+        f"#preset-paragraph({_q('AFTER-H3 ' + LATIN)})\n"
+        "#heading(level: 4)[H4-MARKER Deeper subsection]\n"
+        f"#preset-paragraph({_q('AFTER-H4 ' + LATIN)})\n"
+    )
+    pdf = compile_typ(source, "design-v2-blank-line")
+
+    for page, marker in ((1, "H1-MARKER"), (1, "H2-MARKER"), (2, "H3-MARKER"), (2, "H4-MARKER")):
+        clearance = _clearance_below_heading(pdf, page, marker)
+        assert clearance >= 15.30, f"{marker}: {clearance:.2f} pt is below one body blank line"
+
+
+def test_heading_clearance_formula_would_fail_the_old_gaps() -> None:
+    """Guard the formula, not only the render: the old 4.5/7.454 gaps are excluded."""
+    from bookify.design import tokens as design_tokens
+
+    descent = design_tokens.INK_DESCENT_EM * design_tokens.H1_SIZE_PT
+    overhang = (design_tokens.INK_ASCENT_EM - design_tokens.INK_LINE_BOX_EM) * design_tokens.LEAD_SIZE_PT
+    blank_line = design_tokens.INK_LINE_BOX_EM * design_tokens.BODY_SIZE_PT + design_tokens.BODY_LEADING_PT
+    old_gap = descent + overhang + design_tokens.HEADING_CLEARANCE_PT
+    new_gap = old_gap + blank_line
+
+    assert blank_line == pytest.approx(15.30, abs=0.01)
+    assert old_gap == pytest.approx(7.454, abs=0.01)
+    assert old_gap < blank_line, "the retired heading gap cannot satisfy the blank-line rule"
+    assert new_gap >= 15.30
+    assert "blank_line" in THEME.read_text()
+
+
+# --- Production integration: cover selection, layout, branches, compositions ---
+
+
+def _normalized(tmp_path: Path, name: str, sections: list[dict], metadata: dict | None = None) -> dict:
+    from bookify.manuscript import model
+    from bookify.publish import normalize
+
+    path = _write_manuscript(tmp_path, name, sections, metadata=metadata)
+    figure_paths = {
+        block["id"]: "unused.svg"
+        for section in sections
+        for block in section["blocks"]
+        if block["type"] == "chart"
+    }
+    return normalize.build(model.load(path, root=ROOT), figure_paths, draft=True).data
+
+
+def test_cover_selection_is_recorded_honestly_when_none_is_authored(tmp_path: Path) -> None:
+    document = _normalized(tmp_path, "cover-state-default", TWO_CHAPTERS)
+
+    assert document["cover"]["composition"] == "cover-3"
+    assert document["cover"]["selection"] == "engine-fallback"
+    assert document["cover"]["artwork"] == "not-applicable"
+    assert document["cover"]["indexPrinted"] is False
+
+
+def test_author_selected_cover_records_absent_artwork(tmp_path: Path) -> None:
+    metadata = {"title": "Selected cover", "languages": ["en"], "cover": {"composition": "cover-1"}}
+    document = _normalized(tmp_path, "cover-state-author", TWO_CHAPTERS, metadata)
+
+    assert document["cover"]["composition"] == "cover-1"
+    assert document["cover"]["selection"] == "author"
+    assert document["cover"]["artwork"] == "absent"
+    assert "artworkPath" not in document["cover"]
+
+
+def test_author_selected_cover_artwork_is_rights_checked_and_resolved(tmp_path: Path) -> None:
+    metadata = {
+        "title": "Selected cover",
+        "languages": ["en"],
+        "cover": {"composition": "cover-1", "artwork": "art-1"},
+    }
+    document = _normalized(tmp_path, "cover-state-art", TWO_CHAPTERS, metadata)
+
+    assert document["cover"]["artwork"] == "present"
+    assert document["cover"]["artworkPath"] == "/assets/catalogue/artwork/art-1.svg"
+    assert document["cover"]["artworkCredit"].startswith("Artwork: original vector drawing")
+
+
+def test_typographic_cover_refuses_artwork(tmp_path: Path) -> None:
+    from bookify.errors import BookifyError
+    from bookify.manuscript import model
+
+    metadata = {
+        "title": "Typographic cover",
+        "languages": ["en"],
+        "cover": {"composition": "cover-3", "artwork": "art-1"},
+    }
+    path = _write_manuscript(tmp_path, "cover-typographic-art", TWO_CHAPTERS, metadata)
+    with pytest.raises(BookifyError) as error:
+        model.load(path, root=ROOT)
+
+    assert error.value.code == "SCHEMA_INVALID"
+    assert error.value.locator == "metadata.cover.artwork"
+
+
+def test_unknown_cover_composition_is_refused(tmp_path: Path) -> None:
+    from bookify.errors import BookifyError
+    from bookify.manuscript import model
+
+    metadata = {"title": "Bad cover", "languages": ["en"], "cover": {"composition": "cover-9"}}
+    path = _write_manuscript(tmp_path, "cover-unknown", TWO_CHAPTERS, metadata)
+    with pytest.raises(BookifyError):
+        model.load(path, root=ROOT)
+
+
+def test_section_layout_two_columns_is_authored_per_section(tmp_path: Path) -> None:
+    sections = [
+        {
+            "id": "sec-one",
+            "title": "First chapter",
+            "level": 1,
+            "layout": {"columns": 2},
+            "blocks": [_small("b-one")],
+        },
+        {"id": "sec-two", "title": "Second chapter", "level": 1, "blocks": [_small("b-two")]},
+    ]
+    document = _normalized(tmp_path, "section-layout", sections)
+
+    assert document["sections"][0]["layout"] == {"columns": 2}
+    assert "layout" not in document["sections"][1]
+    assert document["sections"][0]["heading"] == "Chapter 1: First chapter"
+
+
+def test_two_columns_are_refused_below_chapter_level(tmp_path: Path) -> None:
+    from bookify.errors import BookifyError
+    from bookify.manuscript import model
+
+    sections = [
+        {"id": "sec-one", "title": "First chapter", "level": 1, "blocks": [_small("b-one")]},
+        {
+            "id": "sec-one-one",
+            "title": "Subsection",
+            "level": 2,
+            "layout": {"columns": 2},
+            "blocks": [_small("b-two")],
+        },
+    ]
+    path = _write_manuscript(tmp_path, "section-layout-nested", sections)
+    with pytest.raises(BookifyError) as error:
+        model.load(path, root=ROOT)
+
+    assert error.value.code == "SCHEMA_INVALID"
+    assert error.value.locator == "sections[1].layout"
+
+
+def test_centred_and_multi_companion_compositions_round_trip(tmp_path: Path) -> None:
+    sections = [
+        {
+            "id": "sec-a",
+            "title": "Compositions",
+            "level": 1,
+            "blocks": [
+                {
+                    "id": "b-centred",
+                    "type": "illustration",
+                    "illustrationId": "photo-1",
+                    "caption": "A centred visual at the figure width.",
+                    "composition": {"preset": "centred"},
+                },
+                {
+                    "id": "b-side",
+                    "type": "illustration",
+                    "illustrationId": "art-1",
+                    "caption": "A side visual beside a prose group.",
+                    "composition": {
+                        "preset": "side-right",
+                        "companions": ["b-text-a", "b-text-b"],
+                    },
+                },
+                {"id": "b-text-a", "type": "paragraph", "text": "First companion paragraph."},
+                {
+                    "id": "b-text-b",
+                    "type": "definition",
+                    "term": "Term",
+                    "definition": "Second companion block.",
+                },
+            ],
+        }
+    ]
+    document = _normalized(tmp_path, "layout-compositions", sections)
+    blocks = {block["id"]: block for block in document["sections"][0]["blocks"]}
+
+    assert blocks["b-centred"]["composition"] == "centred"
+    assert blocks["b-side"]["composition"] == "side-right"
+    assert [entry["id"] for entry in blocks["b-side"]["companions"]] == ["b-text-a", "b-text-b"]
+    assert "companion" not in blocks["b-side"]
+    assert set(blocks) == {"b-centred", "b-side"}
+
+
+def test_companion_group_must_be_immediate_and_inside_the_budget(tmp_path: Path) -> None:
+    from bookify.errors import BookifyError
+    from bookify.manuscript import model
+
+    sections = [
+        {
+            "id": "sec-a",
+            "title": "Compositions",
+            "level": 1,
+            "blocks": [
+                {
+                    "id": "b-side",
+                    "type": "illustration",
+                    "illustrationId": "art-1",
+                    "caption": "A side visual.",
+                    "composition": {"preset": "side-left", "companions": ["b-far"]},
+                },
+                {"id": "b-near", "type": "paragraph", "text": "The immediately following block."},
+                {"id": "b-far", "type": "paragraph", "text": "Not adjacent to the visual."},
+            ],
+        }
+    ]
+    path = _write_manuscript(tmp_path, "companion-adjacency", sections)
+    with pytest.raises(BookifyError) as error:
+        model.load(path, root=ROOT)
+
+    assert error.value.code == "SCHEMA_INVALID"
+    assert "immediately following" in str(error.value)
+
+
+def test_branch_blocks_and_four_deep_sections_are_numbered(tmp_path: Path) -> None:
+    sections = [
+        {
+            "id": "sec-one",
+            "title": "First chapter",
+            "level": 1,
+            "blocks": [_small("b-one")],
+        },
+        {
+            "id": "sec-one-one",
+            "title": "First section",
+            "level": 2,
+            "blocks": [
+                _small("b-two"),
+                {"id": "b-branch-a", "type": "branch", "text": "The first terminal branch."},
+                {"id": "b-branch-b", "type": "branch", "text": "The second terminal branch."},
+            ],
+        },
+        {
+            "id": "sec-three",
+            "title": "Third level",
+            "level": 3,
+            "blocks": [_small("b-three")],
+        },
+        {
+            "id": "sec-deep",
+            "title": "Deep subheading",
+            "level": 4,
+            "blocks": [_small("b-deep")],
+        },
+    ]
+    document = _normalized(tmp_path, "branch-numbering", sections)
+
+    assert document["numbering"]["levels"] == 5
+    blocks = {block["id"]: block for block in document["sections"][1]["blocks"]}
+    assert blocks["b-branch-a"]["marker"] == "1.1 a)"
+    assert blocks["b-branch-b"]["marker"] == "1.1 b)"
+    assert document["sections"][1]["printed"] == "1.1"
+    assert document["sections"][2]["printed"] == "1.1.1"
+    assert document["sections"][3]["printed"] == "1.1.1.1"
+    assert document["sections"][3]["heading"] == "1.1.1.1 Deep subheading"
 
 
 def test_body_pitch_and_paragraph_gap_keep_their_measured_values() -> None:
@@ -371,26 +652,26 @@ def test_section_numbers_follow_chapters_and_appendices(tmp_path: Path) -> None:
     assert [item["number"] for item in numbers] == ["1", "1.1", "1.1.1", "2", "A", "A.1"]
 
     document = normalize.build(manuscript, {}).data
-    assert document["numbering"] == {"chapters": 2, "appendices": 1, "levels": 3}
-    assert [entry["number"] for entry in document["cover"]["index"]] == ["1", "2", "Appendix A"]
-    assert document["cover"]["indexMode"] == "list"
+    assert document["numbering"] == {"chapters": 2, "appendices": 1, "levels": 5}
+    # The selected cover prints no chapter index; the decision is recorded, not
+    # claimed as a list the page does not carry.
+    assert document["cover"]["composition"] == "cover-3"
+    assert document["cover"]["selection"] == "engine-fallback"
+    assert document["cover"]["indexPrinted"] is False
     body = document["sections"][0]["blocks"][0]["text"]
-    assert "§1.1" in body and "§A.1" in body
+    assert "§1" in body and "§A" in body
 
 
-def test_cover_index_switches_to_the_ledger_motif_beyond_twelve_chapters(tmp_path: Path) -> None:
-    from bookify.manuscript import model
-    from bookify.publish import normalize
-
+def test_a_long_book_keeps_the_same_cover_and_prints_no_index(tmp_path: Path) -> None:
     sections = [
         {"id": f"sec-{index}", "title": f"Chapter {index}", "level": 1, "blocks": [_small(f"b-{index}")]}
         for index in range(1, 14)
     ]
-    path = _write_manuscript(tmp_path, "ledger-cover", sections)
-    document = normalize.build(model.load(path, root=ROOT), {}).data
+    document = _normalized(tmp_path, "long-cover", sections)
 
-    assert len(document["cover"]["index"]) == 13
-    assert document["cover"]["indexMode"] == "ledger"
+    assert document["cover"]["composition"] == "cover-3"
+    assert document["cover"]["indexPrinted"] is False
+    assert "indexMode" not in document["cover"]
 
 
 @pytest.mark.parametrize(
@@ -451,9 +732,9 @@ def test_numbered_book_renders_numbers_in_contents_and_headings(tmp_path: Path) 
     assert "Contents" in contents_text
 
     body = text.split("\f")
-    assert any("Appendix A Data tables" in page for page in body)
+    assert any("Appendix A: Data tables" in page for page in body)
     assert any("A.1 Source values" in page for page in body)
-    assert any("§1.1" in page and "§A.1" in page for page in body)
+    assert any("§1" in page and "§A" in page for page in body)
 
     manuscript = model.load(path, root=ROOT)
     check = xrefs_check.check(result.pdf, manuscript)
@@ -488,7 +769,7 @@ TWO_CHAPTERS = [
 ]
 
 
-def test_cover_renders_the_house_typographic_defaults() -> None:
+def test_default_cover_is_the_typographic_fallback_and_records_it() -> None:
     from bookify.design import tokens as design_tokens
     from bookify.manuscript import model
     from bookify.verify.checks import cover as cover_check
@@ -502,41 +783,98 @@ def test_cover_renders_the_house_typographic_defaults() -> None:
     assert check.evidence["titleLines"] <= design_tokens.COVER_TITLE_MAX_LINES
     assert check.evidence["chromaticPixels"] == 0
     assert check.evidence["images"] == 0
-    assert check.evidence["indexMode"] == "list"
-    assert check.evidence["entries"] == 2
-    assert len(check.evidence["rules"]) >= 2
+    assert check.evidence["composition"] == "cover-3"
+    assert check.evidence["selection"] == "engine-fallback"
+    assert check.evidence["artwork"] == "not-applicable"
+    assert check.evidence["chapterIndex"] == "none"
     assert result.report["cover"]["folio"] is False
-    assert result.report["cover"]["coverIndex"] == "listed"
+    assert result.report["cover"]["chapterIndex"] == "omitted"
+    # The retired ledger cover printed full-measure rules and a chapter list; the
+    # selected composition prints neither.
+    assert [] == check.evidence["rules"]
 
     text = subprocess.run(["pdftotext", "-layout", "-f", "1", "-l", "1", str(result.pdf), "-"], capture_output=True, text=True, check=True).stdout
-    for expected in ("Example Institute", "Reading a Sample", "Bookify specimen", "Specimen Methods", "First chapter", "Second chapter"):
+    for expected in ("Example Institute", "Reading a Sample", "Bookify specimen", "Specimen Methods"):
         assert expected in " ".join(text.split()), expected
+    assert "First chapter" not in text and "Second chapter" not in text
     # The institution appears once; the footer never repeats it.
     assert " ".join(text.split()).count("Example Institute") == 1
     # The cover carries no folio of its own.
     assert not any(line.strip().isdigit() for line in text.splitlines()[-3:])
 
 
-def test_cover_index_beyond_twelve_chapters_uses_the_ledger_motif() -> None:
+@pytest.mark.parametrize("composition", [f"cover-{index}" for index in range(1, 8)])
+def test_each_cover_composition_renders_through_the_production_path(composition: str) -> None:
     from bookify.manuscript import model
     from bookify.verify.checks import cover as cover_check
 
-    sections = [
-        {"id": f"sec-{index}", "title": f"Chapter {index}", "level": 1, "blocks": [_small(f"b-{index}")]}
-        for index in range(1, 14)
-    ]
-    result = _build_book("cover-ledger", sections, {"title": "Ledger Cover", "languages": ["en"]})
-
-    assert result.report["cover"]["indexMode"] == "ledger"
-    assert result.report["cover"]["coverIndex"] == "omitted"
-    assert result.report["cover"]["entries"] == 13
-
-    page = subprocess.run(["pdftotext", "-layout", "-f", "1", "-l", "1", str(result.pdf), "-"], capture_output=True, text=True, check=True).stdout
-    assert "Chapter 1" not in page and "Chapter 13" not in page
+    metadata = {**SPECIMEN_METADATA, "cover": {"composition": composition}}
+    result = _build_book(f"cover-{composition}", TWO_CHAPTERS, metadata)
     manuscript = model.load(Path(result.report["manuscript"]["path"]), root=ROOT)
     check = cover_check.check(result.pdf, manuscript)
+
     assert check.status == "pass", check.detail
-    assert check.evidence["ledger"] is True
+    assert check.evidence["composition"] == composition
+    assert check.evidence["selection"] == "author"
+    assert check.evidence["chromaticPixels"] == 0
+    assert check.evidence["images"] == 0
+    expected_artwork = "not-applicable" if composition == "cover-3" else "absent"
+    assert check.evidence["artwork"] == expected_artwork
+    # The rotated composition measures its title on the axis it was set on.
+    assert check.evidence["titleSizePt"] == pytest.approx(34.0, abs=1.0)
+    assert check.evidence["rotatedTitle"] is (composition == "cover-6")
+
+    page = subprocess.run(["pdftotext", "-layout", "-f", "1", "-l", "1", str(result.pdf), "-"], capture_output=True, text=True, check=True).stdout
+    normalised = " ".join(page.split())
+    assert "Reading a Sample" in normalised
+    # An absent artwork field is blank paper, never an invented label or burst.
+    for invented in ("Illustration", "Decorative illustration", "Figure", "Plate"):
+        assert invented not in normalised, (composition, invented)
+
+
+def test_cover_overlap_guard_measures_ink_not_line_boxes() -> None:
+    """Wrapped title lines do not overlap; a subtitle through one does."""
+    from bookify.publish import report
+
+    title_line_1 = ("Evidence and Interpretation", 60.0, 400.0, 100.0, 151.75)
+    title_line_2 = ("in Modern History", 60.0, 330.0, 141.0, 192.75)
+    subtitle = ("A short book of method", 200.0, 340.0, 161.0, 177.1)
+
+    assert report.cover_overlaps([title_line_1, title_line_2]) == []
+    assert report.cover_overlaps([title_line_1, subtitle]) == []
+    assert report.cover_overlaps([title_line_2, subtitle])
+
+    # The rotated composition: two vertical title lines side by side, and a
+    # support line that is pushed into the second line.
+    rotated_1 = ("Evidence", 476.8, 528.6, 155.0, 500.0)
+    rotated_2 = ("and Interpretation", 517.8, 569.6, 155.0, 520.0)
+    support = ("A short book", 520.0, 540.0, 215.0, 400.0)
+    assert report.cover_overlaps([rotated_1, rotated_2]) == []
+    assert report.cover_overlaps([rotated_2, support])
+
+
+@pytest.mark.parametrize("composition", ["cover-1", "cover-4"])
+def test_cover_artwork_is_a_rights_check_and_is_shown(composition: str) -> None:
+    from bookify.manuscript import model
+    from bookify.verify.checks import cover as cover_check
+
+    metadata = {
+        **SPECIMEN_METADATA,
+        "cover": {"composition": composition, "artwork": "hist-1"},
+    }
+    result = _build_book(f"cover-art-{composition}", TWO_CHAPTERS, metadata)
+    manuscript = model.load(Path(result.report["manuscript"]["path"]), root=ROOT)
+    check = cover_check.check(result.pdf, manuscript)
+
+    assert check.status == "pass", check.detail
+    assert check.evidence["artwork"] == "present"
+    assert check.evidence["chromaticPixels"] == 0
+    assert check.evidence["images"] >= 1
+    # A photographic field is not a cover rule, even at the full measure.
+    assert check.evidence["rules"] == []
+    assert result.report["cover"]["artwork"] == "present"
+    page = subprocess.run(["pdftotext", "-layout", "-f", "1", "-l", "1", str(result.pdf), "-"], capture_output=True, text=True, check=True).stdout
+    assert "Photograph" not in page, "the cover never prints an artwork caption"
 
 
 def test_cover_title_overflow_fails_with_the_metadata_locator() -> None:
@@ -556,18 +894,21 @@ def test_absent_cover_metadata_is_omitted_cleanly() -> None:
     page = subprocess.run(["pdftotext", "-layout", "-f", "1", "-l", "1", str(result.pdf), "-"], capture_output=True, text=True, check=True).stdout
     normalised = " ".join(page.split())
     assert "Minimal Cover" in normalised
-    assert "First chapter" in normalised
-    for absent in ("None", "none", "Example Institute", "Specimen Methods"):
+    for absent in ("None", "none", "Example Institute", "Specimen Methods", "First chapter"):
         assert absent not in normalised
     assert result.report["cover"]["folio"] is False
+    assert result.report["cover"]["composition"] == "cover-3"
+    assert result.report["cover"]["selection"] == "engine-fallback"
 
 
 # --- D4: openers and plates ------------------------------------------------
 
 
-def test_chapter_opener_prints_numeral_rule_and_title() -> None:
+def test_chapter_heading_prints_chapter_number_title_and_a_blank_line() -> None:
+    """The explicit rule `Chapter n: Title` supersedes the numeral-rule opener."""
     from bookify.verify.checks import cover as cover_check
     from bookify.verify.checks import plates as plates_check
+    from bookify.verify.checks import rhythm as rhythm_check
     from bookify.manuscript import model
 
     result = _build_book("opener", TWO_CHAPTERS, SPECIMEN_METADATA)
@@ -576,31 +917,34 @@ def test_chapter_opener_prints_numeral_rule_and_title() -> None:
     assert first["page"] == 3
 
     lines = [line for line in _lines(result.pdf) if line.page == first["page"]]
-    numeral = next(line for line in lines if line.text.strip() == "1")
-    size = (numeral.y_max - numeral.y_min) / cover_check.LINE_BOX_EM
-    assert size == pytest.approx(40.0, abs=1.0)
+    heading = next(line for line in lines if line.text.strip().startswith("Chapter 1:"))
+    assert heading.text.strip().startswith("Chapter 1: First chapter")
+    size = (heading.y_max - heading.y_min) / cover_check.LINE_BOX_EM
+    assert size == pytest.approx(25.0, abs=1.0)
 
-    # Poppler groups the opener title into one line ("First chapter") or, for a
-    # tighter following gap, two word-lines; both are the same 25 pt title row.
-    title = next(line for line in lines if line.text.strip().startswith("First"))
-    title_size = (title.y_max - title.y_min) / cover_check.LINE_BOX_EM
-    assert title_size == pytest.approx(25.0, abs=1.0)
-
+    # The retired stack is gone: no bare 40 pt numeral row and no opener rule.
+    assert not any(line.text.strip() == "1" for line in lines)
     image = cover_check.raster(result.pdf, first["page"], 300)
     dark = (image.mean(axis=2) < cover_check.RULE_DARK).sum(axis=1)
     measure_px = int(475.28 * 300 / 72)
-    band = range(int(numeral.y_max * 300 / 72), int(title.y_min * 300 / 72))
-    assert any(dark[row] >= measure_px * cover_check.RULE_MIN_FRACTION for row in band), "no opener rule"
+    assert not any(dark[row] >= measure_px * cover_check.RULE_MIN_FRACTION for row in range(image.shape[0]))
 
-    check = plates_check.check(result.pdf, manuscript)
-    assert check.status == "pass", check.detail
+    # One visible body blank line below the chapter heading.
+    check = rhythm_check.check(result.pdf, manuscript)
+    entries = {entry["section"]: entry for entry in check.evidence["headingClearance"]}
+    assert entries["First chapter"]["clearancePt"] >= 15.30
+    assert plates_check.check(result.pdf, manuscript).status == "pass"
 
 
 def test_visuals_are_placed_at_the_plate_measure() -> None:
     template = TEMPLATE.read_text()
+    compositions = (ROOT / "typst" / "compositions.typ").read_text()
 
     assert 'image(block.path, width: 100%)' in template
-    assert "tokens.measure.plate" in template
+    assert "block-width(column: column)" in template
+    assert "illustration-width(composition, column: column)" in template
+    assert "tokens.measure.plate" in compositions
+    assert "tokens.measure.column" in compositions
     assert "88%" not in template and "72%" not in template
 
     from bookify.manuscript import model
@@ -938,15 +1282,15 @@ def test_heading_clearance_below_every_level_is_derived_from_font_metrics() -> N
     assert "below: tokens.space.after_heading" not in template
 
 
-def test_h1_keeps_clearance_below_and_the_old_below_gap_fails_the_check() -> None:
-    """F1 page 4: a lead-less h1 must not strike its first body line."""
+def test_h1_keeps_a_blank_line_and_the_old_below_gap_fails_the_check() -> None:
+    """The mutating snippet restores the retired 7.454 pt gap; the gate must fail."""
     from bookify.manuscript import model
     from bookify.publish import typst_driver
     from bookify.verify.checks import rhythm as rhythm_check
 
     work = ROOT / ".cache" / "design-v2-h1-clearance"
     work.mkdir(parents=True, exist_ok=True)
-    path = _write_manuscript(work, "h1-clearance", [
+    manuscript_data = [
         {
             "id": "sec-image",
             "title": "A page that is only an image",
@@ -970,7 +1314,8 @@ def test_h1_keeps_clearance_below_and_the_old_below_gap_fails_the_check() -> Non
             "level": 3,
             "blocks": [_small("b-cell", "A cell is used only when its line reaches the eligible band.")],
         },
-    ])
+    ]
+    path = _write_manuscript(work, "h1-clearance", manuscript_data)
     result = typst_driver.build(path, work / "book.pdf", work / "build", offline=True)
     manuscript = model.load(path, root=ROOT)
     check = rhythm_check.check(result.pdf, manuscript)
@@ -978,24 +1323,27 @@ def test_h1_keeps_clearance_below_and_the_old_below_gap_fails_the_check() -> Non
     assert check.status == "pass", check.detail
     entries = {entry["section"]: entry for entry in check.evidence["headingClearance"]}
     assert set(entries) == {"A page that is only an image", "How the reconstruction was checked", "Reading a cell"}
-    h1 = entries["A page that is only an image"]["clearancePt"]
-    assert h1 is not None and h1 >= 0.4, f"h1 clearance {h1}"
+    for entry in entries.values():
+        assert entry["clearancePt"] is not None and entry["clearancePt"] >= 15.30, entry
 
-    # The pre-fix gap (the plain after_heading below a 25 pt title) is a
-    # rendered collision: the same check must fail it.
+    # The pre-fix gap (descent + overhang + a raster row, no blank line) is a
+    # rendered failure: the same check must reject it.
     collapsed = compile_typ(
-        '#import "/typst/theme.typ": book_base\n'
+        '#import "/typst/theme.typ": book_base, heading-below\n'
         '#import "/typst/blocks.typ": *\n'
         "#show: book_base\n"
-        "#show heading.where(level: 1): set block(below: 4.5pt)\n"
+        "#show heading.where(level: 1): set block(below: 7.454pt)\n"
         "#heading(level: 1)[A page that is only an image]\n"
         + f"#preset-paragraph({_q('The second page has no text layer at all. Adequate OCR makes it extracted-with-uncertainty: the page is not treated as verified.')})\n",
         "design-v2-h1-clearance-collapsed",
     )
     failed = rhythm_check.check(collapsed, manuscript)
     assert failed.status == "fail"
-    assert any("touches the heading" in problem for problem in failed.evidence["problems"])
-    assert [entry["clearancePt"] for entry in failed.evidence["headingClearance"]] == [None]
+    assert any("blank line" in problem or "touches the heading" in problem for problem in failed.evidence["problems"])
+    assert all(
+        entry["clearancePt"] is None or entry["clearancePt"] < 15.30
+        for entry in failed.evidence["headingClearance"]
+    )
 
 
 def test_xrefs_rejects_a_body_heading_that_lost_its_number(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1061,7 +1409,7 @@ def test_readability_median_warning_names_pages_and_exempts_the_whole_appendix(
     monkeypatch.setattr(readability, "page_texts", lambda _pdf: texts)
     monkeypatch.setattr(readability, "numbered_labels", lambda _texts: {})
     monkeypatch.setattr(readability.report, "contents_pages", lambda _texts: {2})
-    monkeypatch.setattr(readability.report, "plate_entries", lambda *_args: ([], []))
+    monkeypatch.setattr(readability.report, "plate_entries", lambda *_args: ([], [], []))
     monkeypatch.setattr(readability.report, "grouped_page_lines", lambda _pdf, _page: [])
     metrics = readability.measure(Path("unused.pdf"), {"sections": []})
     median = next(

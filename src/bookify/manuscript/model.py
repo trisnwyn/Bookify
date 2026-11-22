@@ -136,6 +136,42 @@ def _check_no_plate(data: dict[str, Any]) -> None:
         )
 
 
+COVER_COMPOSITIONS = ("cover-1", "cover-2", "cover-3", "cover-4", "cover-5", "cover-6", "cover-7")
+# The typographic composition has no illustration field, so artwork is refused
+# rather than silently ignored.
+COVER_TYPOGRAPHIC = "cover-3"
+COVER_DEFAULT = COVER_TYPOGRAPHIC
+
+
+def _check_cover_selection(data: dict[str, Any]) -> None:
+    """The cover is an authored selection; artwork is an illustration record.
+
+    No composition is a user default: an absent `metadata.cover` is recorded as
+    the engine fallback by `normalize`, never printed as if it were a choice.
+    """
+    selection = data["metadata"].get("cover")
+    if selection is None:
+        return
+    if selection["composition"] == COVER_TYPOGRAPHIC:
+        _require(
+            "artwork" not in selection,
+            "the typographic cover has no artwork field",
+            "metadata.cover.artwork",
+        )
+
+
+def _check_section_layout(data: dict[str, Any]) -> None:
+    """A column count is a chapter-level property and never a runtime choice."""
+    for index, section in enumerate(data["sections"]):
+        if "layout" not in section:
+            continue
+        _require(
+            section.get("level", 1) == 1,
+            "layout is a chapter-level property",
+            f"sections[{index}].layout",
+        )
+
+
 def _check_section_roles(data: dict[str, Any]) -> None:
     """D3: back matter is authored, never inferred; mixed order is refused.
 
@@ -327,6 +363,11 @@ COMPANION_TYPES = frozenset(
     {"paragraph", "lead", "definition", "example", "case", "assessment", "quote", "list"}
 )
 COMPANION_CAP = 520
+COMPANION_MAX = 3
+# A side column is ~218.63 pt wide, about 33 body characters a line. 900
+# collapsed characters is ~27 lines, ~414 pt at the 15.30 pt pitch: the height
+# the accepted A1 side composition measured. The per-block 520 cap still holds.
+COMPANION_GROUP_CAP = 900
 COMPANION_LABEL = re.compile(r"^(?:Figure|Table|Photograph) \d+\.")
 
 
@@ -363,9 +404,58 @@ def _companion_leading_text(block: dict[str, Any]) -> str:
     return str(block.get("text", ""))
 
 
+def _check_companion(
+    companion: dict[str, Any],
+    companion_id: str,
+    block_id: str,
+    used: dict[str, str],
+    locator: str,
+) -> None:
+    _require(
+        companion_id not in used,
+        f"companion already used by {used.get(companion_id)}: {companion_id}",
+        f"{locator}.companion",
+    )
+    used[companion_id] = block_id
+    _require(
+        companion["type"] in COMPANION_TYPES,
+        f"companion must be a prose block, not {companion['type']}: {companion_id}",
+        f"{locator}.companion",
+    )
+    printable = _collapsed(" ".join(_companion_strings(companion)))
+    _require(
+        len(printable) <= COMPANION_CAP,
+        f"companion exceeds {COMPANION_CAP} characters: {len(printable)}",
+        f"{locator}.companion",
+    )
+    leading = _collapsed(_companion_leading_text(companion))
+    _require(
+        COMPANION_LABEL.match(leading) is None,
+        f"companion must not begin with a figure, table or photograph label: {companion_id}",
+        f"{locator}.companion",
+    )
+
+
+def effective_columns(sections: Any) -> list[int]:
+    """The column count in force for each section (a child inherits its chapter)."""
+    columns = 1
+    resolved: list[int] = []
+    for section in sections:
+        if section.get("level", 1) == 1:
+            columns = (section.get("layout") or {}).get("columns", 1)
+        resolved.append(columns)
+    return resolved
+
+
 def _check_compositions(data: dict[str, Any]) -> None:
-    """Optional illustration composition: adjacency, prose type, one use, cap, label."""
+    """Optional illustration composition: adjacency, prose type, one use, caps.
+
+    A side composition takes either the legacy single `companion` or an ordered
+    `companions` group of up to three prose blocks. Both require the blocks to be
+    the immediately following blocks, in order, and every block is consumed once.
+    """
     used: dict[str, str] = {}
+    columns_by_section = effective_columns(data["sections"])
     for section_index, section in enumerate(data["sections"]):
         blocks = section["blocks"]
         for block_index, block in enumerate(blocks):
@@ -373,49 +463,46 @@ def _check_compositions(data: dict[str, Any]) -> None:
             if block["type"] != "illustration" or not composition:
                 continue
             preset = composition["preset"]
-            if preset == "full":
+            if preset in {"full", "centred"}:
                 continue
             locator = f"sections[{section_index}].blocks[{block_index}].composition"
-            companion_id = composition.get("companion")
             _require(
-                isinstance(companion_id, str),
-                f"side composition requires a companion: {preset}",
-                f"{locator}.companion",
+                columns_by_section[section_index] != 2,
+                "a side composition is not available inside a two-column chapter "
+                "(including its descendant sections); a column visual takes the "
+                "column measure",
+                locator,
             )
+            ids = composition["companions"] if "companions" in composition else [composition["companion"]]
             _require(
-                companion_id not in used,
-                f"companion already used by {used.get(companion_id)}: {companion_id}",
-                f"{locator}.companion",
+                len(ids) <= COMPANION_MAX,
+                f"a side composition takes at most {COMPANION_MAX} companions",
+                f"{locator}.companions",
             )
-            used[companion_id] = block["id"]
-            if block_index + 1 >= len(blocks):
-                raise BookifyError(
-                    "SCHEMA_INVALID",
+            companions: list[dict[str, Any]] = []
+            for offset, companion_id in enumerate(ids):
+                position = block_index + 1 + offset
+                if position >= len(blocks):
+                    raise BookifyError(
+                        "SCHEMA_INVALID",
+                        f"companion is not the immediately following block: {companion_id}",
+                        f"{locator}.companion",
+                    )
+                companion = blocks[position]
+                _require(
+                    companion["id"] == companion_id,
                     f"companion is not the immediately following block: {companion_id}",
                     f"{locator}.companion",
                 )
-            companion = blocks[block_index + 1]
-            _require(
-                companion["id"] == companion_id,
-                f"companion is not the immediately following block: {companion_id}",
-                f"{locator}.companion",
+                _check_companion(companion, companion_id, block["id"], used, locator)
+                companions.append(companion)
+            printable = _collapsed(
+                " ".join(" ".join(_companion_strings(companion)) for companion in companions)
             )
             _require(
-                companion["type"] in COMPANION_TYPES,
-                f"companion must be a prose block, not {companion['type']}: {companion_id}",
-                f"{locator}.companion",
-            )
-            printable = _collapsed(" ".join(_companion_strings(companion)))
-            _require(
-                len(printable) <= COMPANION_CAP,
-                f"companion exceeds {COMPANION_CAP} characters: {len(printable)}",
-                f"{locator}.companion",
-            )
-            leading = _collapsed(_companion_leading_text(companion))
-            _require(
-                COMPANION_LABEL.match(leading) is None,
-                f"companion must not begin with a figure, table or photograph label: {companion_id}",
-                f"{locator}.companion",
+                len(printable) <= COMPANION_GROUP_CAP,
+                f"companion group exceeds {COMPANION_GROUP_CAP} characters: {len(printable)}",
+                f"{locator}.companions",
             )
 
 
@@ -483,6 +570,8 @@ def load(
     _check_section_hierarchy(data)
     _check_section_roles(data)
     _check_no_plate(data)
+    _check_section_layout(data)
+    _check_cover_selection(data)
     _check_xrefs(data, section_ids | block_ids)
     _check_compositions(data)
 

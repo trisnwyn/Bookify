@@ -111,33 +111,54 @@ sequence, an illustration for evidence, recognition or context. There is no
 quota. A book with zero illustrations is valid when the material does not need
 one; never add a figure to fill a page.
 
-Composition is authored data: `full`, `side-left` or `side-right`. A side preset
-requires the immediately following prose companion in the same section, at most
-520 collapsed characters, consumed once, with no auto-pairing or runtime
-layout choice. The unit is unbreakable; side captions centre line by line in the
-image column and credits stay separate and left in that column. Charts, diagrams
-and full illustrations are page-centred. A chart, diagram or full illustration
-is a plate at the full text measure; each chapter with a visual should carry one
-where the material supports it, and a chapter without one records a `no-plate`
-reason. Detail: `references/visual-design.md`.
+Composition is authored data: `full`, `centred`, `side-left` or `side-right`. A
+side preset requires the immediately following prose companion in the same
+section — one block (at most 520 collapsed
+characters), or an ordered group of up to three (`companions`, 900 collapsed
+characters in total), consumed once, with no auto-pairing or runtime
+layout choice. The unit is unbreakable: it never splits and no companion is
+dropped. A `centred` visual keeps the 430 pt figure width; `full` takes the
+full measure. Side captions centre line by line in the image column and credits
+stay separate and left in that column. Charts, diagrams and full illustrations
+are page-centred. A chart, diagram or full illustration is a plate at the full
+text measure; each chapter with a visual should carry one where the material
+supports it, and a chapter without one records a `no-plate` reason. A two-column
+chapter is authored per section (`layout: {columns: 2}`); single column remains
+the default and no section is switched silently. Detail:
+`references/visual-design.md`.
 
 The engine generates the house defaults; do not hand-write them:
 
-- **Cover.** A typographic cover from metadata and the real chapter index —
-  oversized left-aligned title, thin rules, footer — with no folio, colour or
-  stock image, and no invented edition/year/ISBN. Beyond twelve chapters the
-  index becomes the ledger motif and the build report records why.
-- **Numbering.** Chapters and subsections print `1`, `1.1`, `1.1.1`; appendices
-  print `Appendix A`, `A.1`; contents and `§` cross-references agree. Never type
-  numbers into titles. Author back matter with `role: appendix`.
+- **Cover.** Seven accepted compositions, selected by `metadata.cover.composition`
+  (`cover-1` … `cover-7`). No composition is a house default: an absent selection
+  renders `cover-3` and the build report records `selection: engine-fallback`,
+  never a user choice. `cover-3` is typographic only; the other six reserve an
+  illustration field and take an optional rights-checked `metadata.cover.artwork`
+  record. With no artwork the field stays blank and the report says
+  `artwork: absent`; never invent art, a burst or a label to fill it. Every
+  composition is monochrome, A4, folio-free, index-free, and prints only
+  metadata the manuscript supplies. A title that will not fit three lines fails
+  the build with the `metadata.title` locator; it is never shrunk.
+- **Numbering.** A chapter heading prints `Chapter 1: Title`; appendices print
+  `Appendix A: Title`. Every body level carries its full path: `1.1 Heading`
+  (level 2), `1.1.1 Subheading` (level 3), `1.1.1.1` (level 4) and `1.1.1.1.1`
+  (level 5). A terminal branch is a run-in block that prints its own section
+  number and a letter, so `1.1 a)` in section `1.1` and `1.1.1 a)` in a
+  subsection. Contents (depth 5) and `§` cross-references print the same number,
+  and no two sections share a reference: a chapter is `§1`, a section `§1.1`, a
+  subsection `§1.1.1`, an appendix `§A`. No number ends with a period, so `§1.1.`
+  is section `1.1` followed by a full stop. Never type numbers into titles.
+  Author back matter with `role: appendix`.
 - **Definitions.** One body paragraph: bold term, colon, definition. No grey
   label, no isolated term line. A glossary is a deliberate collated table.
-- **Chapter openers.** Number at 40 pt, a thin full-measure rule, the title, then
-  the authored standfirst or lead.
+- **Chapter headings.** One h1 line per chapter, `Chapter n: Title`, followed by
+  at least one visible body blank line before the standfirst, lead or first
+  paragraph. The retired numeral-and-rule stack is gone.
 - **Captions.** Description and provenance share one centred caption; credits
   stay a separate left line; table and equation captions keep their own form.
-- **Rhythm.** Level-2/3 headings open a measured blank band above the paragraph
-  gap. Do not add manual spacing.
+- **Rhythm.** Level-2/3/4 headings open a measured blank band above the paragraph
+  gap, and every heading reserves one body blank line below it. Do not add manual
+  spacing.
 
 ## Readability and warnings
 
@@ -181,7 +202,7 @@ it is not a claim of human sign-off.
 | `references/modes-and-playbooks.md` | Mode selection, strict/teachable playbooks, enrichment permission, mode leakage. |
 | `references/source-and-provenance.md` | Intake, anchors, coverage/order, source index, unreadable material, citations, rights. |
 | `references/editorial.md` | Chapter architecture, explanation, examples, checks, natural coursebook voice, no fake facts. |
-| `references/visual-design.md` | House style, cover, numbering, definitions, openers, plates, captions, heading rhythm, readability, composition, page inspection. |
+| `references/visual-design.md` | House style, cover compositions, numbering, definitions, chapter headings, plates, captions, heading rhythm, readability, composition, page inspection. |
 | `references/limits.md` | Verified formats, OCR scope, platform/tool limits, determinism and byte-identity boundaries. |
 | `references/checklist.md` | The self-critique pass before delivery. |
 

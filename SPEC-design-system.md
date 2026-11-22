@@ -148,6 +148,11 @@ with a caption; there is no transform from definitions to rows.
 
 ### D2 — designed typographic cover
 
+> **Superseded (2026-11-16).** The seven accepted cover compositions and the
+> selection/artwork state replace this single ledger/index cover. See
+> *Amendment — production layout integration* below; the token list here is kept
+> only as the historical record.
+
 Cover tokens: `type.cover_title` 34 pt (total pitch 41 pt),
 `type.cover_subtitle` 12.6 pt, `type.cover_meta` 8.4 pt,
 `type.cover_index` 8.6 pt (total 11.6 pt), `space.cover_rule` 12 pt,
@@ -163,6 +168,11 @@ the footer ink to keep ≥ 24 pt of slack above the bottom margin; a miss is
 truncated silently.
 
 ### D4 — chapter openers and plates
+
+> **Partly superseded (2026-11-16).** The numeral-and-rule opener is retired in
+> favour of one `Chapter n: Title` heading; the plate definition and the 46 %
+> side column still hold, and a centred visual at 430 pt is added. See the
+> amendment below.
 
 `type.opener_numeral` 40 pt (total 48 pt), `space.opener_rule` 12 pt,
 `space.opener_title` 14 pt, `rule.opener` 0.6 pt. Every level-1 section renders
@@ -188,12 +198,19 @@ treatment. The caption+provenance block is one keep unit with its figure.
 
 ### D6 — heading rhythm
 
+> **Extended (2026-11-16).** Every heading now reserves one visible body blank
+> line below it, and a fourth level is numbered. The bands above still apply.
+> See the amendment below.
+
 `space.before_h2` 32 pt and `space.before_h3` 25 pt replace the single
-`before_heading` 17 pt for levels 2 and 3. Level 2/3 gaps therefore exceed the
-20.70 pt paragraph gap and Typst's `max()` yields a real blank band:
-level-1 17 pt (flowed chapters only), level-2 32 pt, level-3 25 pt. Body 15.30,
-paragraph 20.70, h1/h2/h3 pitches 30/16.5/14 and the 32.7 pt deck gap are
-unchanged. Measured bands (300 dpi): h2 baseline delta ≥ 36.0 pt and white band
+`before_heading` token for levels 2 and 3. `before_heading` is 30 pt (not the
+original 17 pt): a level-1 chapter heading that follows content on the same page
+must also keep a visible body blank line above it, and 30 pt yields a measured
+15.3 pt line-box gap. At a page top Typst drops the gap. Level 2/3 gaps
+therefore exceed the 20.70 pt paragraph gap and Typst's `max()` yields a real
+blank band: level-1 30 pt (mid-page chapters), level-2 32 pt, level-3+ 25 pt.
+Body 15.30, paragraph 20.70, h1/h2/h3 pitches 30/16.5/14 and the 32.7 pt deck
+gap are unchanged. Measured bands (300 dpi): h2 baseline delta ≥ 36.0 pt and white band
 ≥ 8.0 pt; h3 ≥ 31.0 pt and band ≥ 5.0 pt; no heading immediately followed by
 another heading with no content between.
 
@@ -214,3 +231,120 @@ defaults without migration. Residual limits: the precedent-slack guard measures
 inked text, so a full-bleed image outside its declared box is still caught by the
 composition/unit checks rather than by the cover guard; the cover index is capped
 at twelve entries by design, not by available space.
+
+## Amendment — production layout integration (2026-11-16)
+
+This amendment records the accepted A1/A2 compositions, the seven cover
+compositions and the owner's heading rules as the *production* renderer. It
+supersedes the D2 cover, the D4 opener stack and the D6 below-gap; the D4 plate
+definition, the side column and the D5/D7 rules still hold. Sources and
+measurements: `docs/design/proofs/README.md` and
+`docs/design/textbook-layout.md`.
+
+### Cover compositions (supersedes D2)
+
+`metadata.cover.composition` selects one of seven accepted compositions,
+`cover-1` … `cover-7`, in the order of the reviewed proofs (refs 1–7). The
+composition geometry is token data in `tokens.cover` (per-composition offsets);
+`typst/cover.typ` draws it and `typst/templates/book.typ` dispatches to it.
+
+- `cover-1` right-offset illustration above a lower-left title block.
+- `cover-2` centred illustration, title and support, centred foot.
+- `cover-3` typographic only: title in the upper-middle, support under it, one
+  quiet metadata line. **No illustration field.**
+- `cover-4` title and support near the top, then a wide landscape field.
+- `cover-5` asymmetric diagonal field, title and support stepped right along the
+  edge, illustration field opposite. Its title box is 400 pt wide so a realistic
+  57-character title still sets in three lines without reducing the 34 pt type.
+- `cover-6` tall pale field lower-left, 90° clockwise (vertical) title and
+  support, illustration field inside the field. The rotated title run is 470 pt
+  so a realistic title sets in two vertical lines inside the three-line cap.
+- `cover-7` sparse: upper metadata line, centred title and support, separate
+  illustration field lower-left.
+
+Every composition prints the supplied metadata only, at 34/12.6/8.4 pt, on A4
+with 60 pt margins, in monochrome, with no folio and no chapter index. The cover
+block is the A4 text block; the foot is pinned inside it.
+
+**No composition is a house default.** An absent `metadata.cover` renders
+`cover-3` and the build report records `composition: cover-3`,
+`selection: engine-fallback`, `artwork: not-applicable`. That is the engine
+fallback, not a user choice.
+
+**Artwork is a rights record.** The six art-bearing compositions accept
+`metadata.cover.artwork`, an illustration record id. The record is loaded and
+rights-checked like any illustration, and the page places the image in the
+reserved field. With no artwork the field stays blank and the report says
+`artwork: absent`; no burst, panel label or placeholder word is drawn. The
+typographic `cover-3` refuses artwork.
+
+The fit guard requires the title to fit three lines and every cover line to stay
+inside the 60 pt text block. The Poppler line box of a 34 pt title rises up to
+4.65 pt above its ink, so the guard allows 8 pt of line-box rise at the top while
+the raster cover check measures real ink. A miss is `BUILD_FAILED` with the
+metadata locator; nothing is shrunk.
+
+### Chapter heading (supersedes the D4 opener stack)
+
+A level-1 section renders one h1 line, `Chapter 1: Title`; an appendix renders
+`Appendix A: Title`. The counter still numbers the contents list with the bare
+`1`, so the printed sentence form is added by the template only. The 40 pt
+numeral, the opener rule and the stacked title are retired, and their tokens
+(`type.opener_numeral`, `space.opener_rule`, `space.opener_title`, `rule.opener`,
+`type.cover_index`, `space.cover_rule`, `space.cover_footer`, `rule.cover`,
+`rule.cover_index`) are removed.
+
+### Heading clearance (extends D6)
+
+`heading-below(size)` is
+
+```
+descent_em·size + (ascent_em − line_box_em)·lead + blank_line + heading_clearance
+blank_line = line_box_em·body + leading_extra.body = 0.660·10.1 + 8.63 = 15.30 pt
+```
+
+so every heading reserves the real ink separation **plus one visible body blank
+line**. Applied to h1, h2, h3 and h4. Measured on the integrated renderer:
+h1 16.08 pt, h2 18.48 pt, h3 15.60 pt minimum — all at or above the 15.30 pt
+line pitch. `verify/checks/rhythm.py` fails any heading whose measured white band
+is below 15.30 pt, whatever follows it (prose, a figure, a caption), and the
+mutation test restores the retired 7.454 pt gap to prove the check fails it.
+
+The body hierarchy is `1.1` at section level 2, `1.1.1` at level 3, `1.1.1.1` at
+level 4 and `1.1.1.1.1` at level 5, all with the h3 type role from level 4 (no new
+size is invented); `numbering.levels` is 5. Every level carries the path to
+itself, so siblings and their children never collide and no number ends with a
+period. Contents run to depth 5. A cross-reference prints exactly the number the
+heading prints (`§1`, `§1.1`, `§1.1.1`, `§A.1`), so `§1.1.` is section `1.1`
+followed by a full stop and never a different section.
+
+### Branch blocks
+
+A terminal branch is a `branch` block: one body paragraph whose bold run-in
+marker is generated from the section number and the block's order (`1.1 a)`,
+`1.1 b)`). It is body-size prose, not a heading role. Continuing branches are
+ordinary level-3/4 sections (`1.1.1`, `1.1.1.1`).
+
+### Body compositions (extends D4)
+
+- `full` — plate at `measure.plate` 475.28 pt.
+- `centred` — illustration at `measure.figure_width` 430 pt, page-centred
+  caption, credit left at the margin.
+- `side-left` / `side-right` — 46 % image column with the 16 pt gutter; the prose
+  side may be one companion or an ordered `companions` group of up to three
+  blocks, each ≤ 520 and the group ≤ 900 collapsed characters.
+- A level-1 section may author `layout: {columns: 2}`: the heading and standfirst
+  stay at the full measure and the block flow — the chapter's own blocks **and
+  every descendant section** — runs in two 229.64 pt columns with the 16 pt
+  gutter, continuing across pages. A chart, diagram or illustration inside the
+  flow takes the column measure and its caption centres in that column; a
+  `side-left`/`side-right` composition is refused there, including in any
+  descendant section (the model inherits the chapter's layout). Single column is
+  the default; no section switches silently. Q2 in
+  `docs/design/textbook-layout.md` remains open, so two columns are an authored
+  capability, not a universal default.
+
+`report.plate_entries` records only full-measure visuals as plates; centred and
+column visuals are recorded in `report.visuals` with the width they really
+occupy. `report.composition_entries` covers charts, diagrams and illustrations
+alike.

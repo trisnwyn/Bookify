@@ -84,24 +84,38 @@ column, restrained hierarchy, generous white space. Choose a visual only when it
 does real work; there is no quota, and a book with zero illustrations is valid.
 Never add a figure to fill a page.
 
-Composition is authored data: `full`, `side-left` or `side-right`. A side preset
-requires the immediately following prose companion in the same section, at most
-520 collapsed characters, consumed once, with no auto-pairing or runtime layout
-choice. The unit is unbreakable; side captions centre line by line in the image
-column and credits stay separate and left in that column. Charts, diagrams and
-full illustrations are page-centred.
+Composition is authored data: `full`, `centred`, `side-left` or `side-right`. A
+side preset requires the immediately following prose blocks in the same section:
+one companion, or an ordered group of up to three (`companions`, 900 collapsed
+characters in total), consumed once, with no auto-pairing or runtime layout
+choice. A `centred` visual keeps the 430 pt figure width. The unit is
+unbreakable; side captions centre line by line in the image column and credits
+stay separate and left in that column. Charts, diagrams and full illustrations
+are page-centred. A two-column chapter is authored per section
+(`layout: {columns: 2}`): its blocks and every descendant section flow in the
+same columns, a visual inside them takes the column measure, and a side
+composition is refused there and in every descendant section. Single column stays the default.
 
-The engine generates the design defaults; do not hand-write them. The cover is
-typographic (oversized title, thin rules, real chapter index or ledger motif,
-footer; no folio, colour or stock image). Chapters and subsections are numbered
-(`1`, `1.1`, `1.1.1`; appendices `Appendix A`, `A.1`) in headings, contents and
-`§` cross-references. A definition is one inline body paragraph (`Term:
-definition`), never a grey label; a glossary is an authored table. Each chapter
-opens with its number, rule and title, and each chapter with a visual carries a
-full-measure plate where the material supports it, or records a `no-plate`
-reason. Description and provenance share one centred caption; credits stay
-separate and left. Level-2/3 headings keep a measured blank band above the
-paragraph gap.
+The engine generates the design defaults; do not hand-write them. There are
+seven accepted cover compositions (`cover-1` … `cover-7`) selected by
+`metadata.cover.composition`; none is a house default, so an absent selection
+renders `cover-3` and the report says `selection: engine-fallback`. Art-bearing
+compositions take an optional rights-checked `metadata.cover.artwork` record;
+without one the field is blank and the report says `artwork: absent` — never
+invent art, a burst or a label. Every cover is monochrome, folio-free and
+index-free. A chapter heading prints `Chapter 1: Title` (appendix `Appendix A:
+Title`); body headings print `1.1`, `1.1.1`, `1.1.1.1`, `1.1.1.1.1` at levels
+2-5 and a terminal branch prints its section number with a letter (`1.1 a)` in
+section `1.1`, `1.1.1 a)` in a subsection), in headings, depth-5 contents and
+`§` cross-references. Every level carries its full path, so a reference is
+unique and never ends with a period: `§1.1.` is section `1.1` followed by a full
+stop, not another section. A
+definition is one inline body paragraph (`Term: definition`), never a grey
+label; a glossary is an authored table. Every heading is followed by at least
+one visible body blank line. Each chapter with a visual carries a full-measure
+plate where the material supports it, or records a `no-plate` reason.
+Description and provenance share one centred caption; credits stay separate and
+left. Level-2/3/4 headings keep a measured blank band above the paragraph gap.
 
 Readability metrics are reported as warnings with pages and bands. Density is
 never a target and never a hard failure; answer every warning id in the review

@@ -1,0 +1,104 @@
+{
+  "rule": "Every A1 proof heading clears the following content by at least one clearly visible body blank line.",
+  "bodyLinePitchPt": 15.3,
+  "measurement": "300 dpi raster; vertical white band between heading ink and the next content ink, scanned across the text block (60.00-535.28 pt). Resolution 0.24 pt.",
+  "pdf": "build/design/a1/a1-proof.pdf",
+  "minimumMeasuredGapPt": 15.84,
+  "headings": [
+    {
+      "page": 1,
+      "heading": "Chapter 1: Full-width prose with a centred visual",
+      "following": "1. Full-width opening",
+      "gapPt": 30.24
+    },
+    {
+      "page": 1,
+      "heading": "1. Full-width opening",
+      "following": "body prose",
+      "gapPt": 15.84
+    },
+    {
+      "page": 1,
+      "heading": "1.1 Centred visual",
+      "following": "centred visual box",
+      "gapPt": 19.68
+    },
+    {
+      "page": 1,
+      "heading": "1.1.1 Full-width continuation",
+      "following": "body prose",
+      "gapPt": 18.72
+    },
+    {
+      "page": 2,
+      "heading": "Chapter 2: The same sequence with a full-measure visual",
+      "following": "2. Full-width opening",
+      "gapPt": 30.24
+    },
+    {
+      "page": 2,
+      "heading": "2. Full-width opening",
+      "following": "body prose",
+      "gapPt": 15.84
+    },
+    {
+      "page": 2,
+      "heading": "2.1 Full-measure visual",
+      "following": "full-measure visual box",
+      "gapPt": 19.68
+    },
+    {
+      "page": 2,
+      "heading": "2.1 a) Full-width continuation",
+      "following": "body prose",
+      "gapPt": 17.28
+    },
+    {
+      "page": 3,
+      "heading": "Chapter 3: Full-width opening, then prose beside a right-hand visual",
+      "following": "3. Full-width opening",
+      "gapPt": 24.72
+    },
+    {
+      "page": 3,
+      "heading": "3. Full-width opening",
+      "following": "body prose",
+      "gapPt": 15.84
+    },
+    {
+      "page": 3,
+      "heading": "3.1 Prose in the left region beside the right-hand visual",
+      "following": "two-column grid",
+      "gapPt": 16.08
+    },
+    {
+      "page": 4,
+      "heading": "Chapter 4: Visual left, prose right, full-width paragraph below",
+      "following": "4. Visual and prose",
+      "gapPt": 24.72
+    },
+    {
+      "page": 4,
+      "heading": "4. Visual and prose",
+      "following": "4.1 Prose in the right region beside the left-hand visual",
+      "gapPt": 20.88
+    },
+    {
+      "page": 4,
+      "heading": "4.1 Prose in the right region beside the left-hand visual",
+      "following": "two-column grid",
+      "gapPt": 16.08
+    },
+    {
+      "page": 4,
+      "heading": "4.2 Full-width paragraph below",
+      "following": "body prose",
+      "gapPt": 15.84
+    }
+  ],
+  "precedingContentGapPt": {
+    "minimum": 17.76,
+    "maximum": 30.24,
+    "note": "Bands above headings (including a preceding heading) also exceed 15.30 pt."
+  }
+}

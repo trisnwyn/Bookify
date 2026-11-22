@@ -1,0 +1,396 @@
+{
+  "checks": [
+    {
+      "code": null,
+      "detail": "build ran with networking disabled and no model calls",
+      "evidence": {
+        "draft": false
+      },
+      "id": "offline",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "build ran without an OCR engine or vendored OCR data (measured probe)",
+      "evidence": {
+        "ocr": {
+          "engineInvocations": 0,
+          "invoked": false,
+          "measured": true,
+          "probe": "subprocess.run+io.open",
+          "subprocessCalls": 32,
+          "vendorRead": false
+        }
+      },
+      "id": "ocr_free_build",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "layout facts identical; bytes identical",
+      "evidence": {
+        "bytesEqual": true,
+        "pages": 5
+      },
+      "id": "determinism",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "all faces embedded; 2270 characters covered (0 Japanese)",
+      "evidence": {
+        "characters": 2270,
+        "japanese": 0
+      },
+      "id": "glyphs",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "cover-3 rendered: 1 title line(s), artwork not-applicable",
+      "evidence": {
+        "artwork": "not-applicable",
+        "chapterIndex": "none",
+        "chromaticPixels": 0,
+        "composition": "cover-3",
+        "images": 0,
+        "inkBounds": {
+          "bottomPt": 778.08,
+          "leftPt": 68.16,
+          "rightPt": 526.08,
+          "topPt": 154.08
+        },
+        "overlaps": [],
+        "rotatedTitle": false,
+        "rules": [],
+        "selection": "engine-fallback",
+        "titleLines": 1,
+        "titleSizePt": 34.01
+      },
+      "id": "cover",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "1 definition(s) inline at body size",
+      "evidence": {
+        "count": 1
+      },
+      "id": "definitions",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "13 probes extracted intact (4 machine-read)",
+      "evidence": {
+        "machineReadProbes": 4
+      },
+      "id": "text",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "5 A4 pages, none blank",
+      "evidence": {
+        "pages": 5
+      },
+      "id": "pages",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "1 figure caption(s) centred within \u00b12 pt",
+      "evidence": {
+        "captions": [
+          {
+            "blockId": "fig-receipts",
+            "kind": "diagram",
+            "label": "Figure 1",
+            "lines": 3,
+            "maxDeltaPt": 0.784,
+            "page": 4,
+            "preset": "full",
+            "targetCentrePt": 297.638
+          }
+        ],
+        "groups": {
+          "chart": {
+            "single": 0,
+            "wrapped": 0
+          },
+          "diagram": {
+            "single": 0,
+            "wrapped": 1
+          },
+          "illustration": {
+            "single": 0,
+            "wrapped": 0
+          }
+        },
+        "maxCreditDeltaPt": 0.0,
+        "maxDeltaPt": 0.784
+      },
+      "id": "captions",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "0 illustration(s), at most one per page",
+      "evidence": {
+        "pages": {}
+      },
+      "id": "illustration-limit",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "0 illustration record(s) complete and credited",
+      "evidence": {
+        "ids": []
+      },
+      "id": "rights",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "5 numbered contents entries match pages; numbering sequential",
+      "evidence": {},
+      "id": "xrefs",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "heading and body rhythm within the measured bands",
+      "evidence": {
+        "bodyPitchSamples": 5,
+        "clearanceSamples": 5,
+        "columnPages": [],
+        "deckSamples": 1,
+        "h2Samples": 1,
+        "h3Samples": 1,
+        "headingBands": [
+          {
+            "bandPt": 28.32,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "How the reconstruction was checked"
+          },
+          {
+            "bandPt": 21.84,
+            "column": 0,
+            "level": 3,
+            "page": 4,
+            "section": "Reading a cell"
+          }
+        ],
+        "headingClearance": [
+          {
+            "clearancePt": 16.08,
+            "column": 0,
+            "level": 1,
+            "page": 3,
+            "section": "A table inside an image"
+          },
+          {
+            "clearancePt": 15.84,
+            "column": 0,
+            "level": 1,
+            "page": 4,
+            "section": "A page that is only an image"
+          },
+          {
+            "clearancePt": 18.48,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "How the reconstruction was checked"
+          },
+          {
+            "clearancePt": 15.6,
+            "column": 0,
+            "level": 3,
+            "page": 4,
+            "section": "Reading a cell"
+          },
+          {
+            "clearancePt": 21.6,
+            "column": 0,
+            "level": 1,
+            "page": 5,
+            "section": "When the image cannot be read"
+          }
+        ],
+        "paragraphGapSamples": 0,
+        "wrappedHeadingSamples": 1
+      },
+      "id": "rhythm",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "1 plate(s) at the text measure; every opener complete",
+      "evidence": {
+        "gaps": [],
+        "plates": [
+          {
+            "basis": "measured",
+            "blockId": "fig-receipts",
+            "chapter": "2",
+            "label": "Figure 1",
+            "leftPt": null,
+            "page": 4,
+            "widthPt": 475.28
+          }
+        ],
+        "visuals": [],
+        "warnings": []
+      },
+      "id": "plates",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "3 body page(s); every density metric in band",
+      "evidence": {
+        "bands": {
+          "denseRunMax": 3,
+          "denseWords": 650.0,
+          "paragraphWordsMax": 240.0,
+          "paragraphWordsMedianMax": 150.0,
+          "tablesPerPageMax": 2,
+          "wordsPerPageCeiling": 800.0,
+          "wordsPerPageFloor": 60.0,
+          "wordsPerPageMedian": [
+            140.0,
+            650.0
+          ]
+        },
+        "consecutiveDensePages": {
+          "longestRun": 0,
+          "pages": []
+        },
+        "exemptions": [
+          {
+            "page": 1,
+            "reason": "cover"
+          },
+          {
+            "page": 2,
+            "reason": "contents"
+          },
+          {
+            "page": 3,
+            "reason": "chapter opener"
+          },
+          {
+            "page": 4,
+            "reason": "chapter opener"
+          },
+          {
+            "page": 5,
+            "reason": "chapter opener"
+          }
+        ],
+        "paragraphWords": {
+          "count": 6,
+          "max": 39,
+          "median": 26.0
+        },
+        "tablesPerPage": {
+          "max": 0,
+          "pages": {}
+        },
+        "warnings": [],
+        "wordsPerPage": {
+          "count": 3,
+          "median": 163.0,
+          "pages": {
+            "3": 163,
+            "4": 250,
+            "5": 44
+          }
+        }
+      },
+      "id": "readability",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "2 machine-read block(s) carry digits only",
+      "evidence": {
+        "warnings": [
+          {
+            "blockId": "t-trial",
+            "check": "machine_read",
+            "detail": "t-trial on page 1 carries only machine-read digits; the value is inferred and must be cross-checked by a reader",
+            "id": "MACHINE_READ_DIGITS:t-trial",
+            "page": 1,
+            "region": 1
+          },
+          {
+            "blockId": "t-receipts",
+            "check": "machine_read",
+            "detail": "t-receipts on page 2 carries only machine-read digits; the value is inferred and must be cross-checked by a reader",
+            "id": "MACHINE_READ_DIGITS:t-receipts",
+            "page": 2,
+            "region": 1
+          }
+        ]
+      },
+      "id": "machine_read",
+      "status": "warn"
+    },
+    {
+      "code": null,
+      "detail": "rendered pages inspected by agent at 2026-11-15T12:00:00",
+      "evidence": {
+        "contactSheet": "evidence/contact-sheet.png",
+        "reviewedAt": "2026-11-15T12:00:00",
+        "reviewedBy": "agent",
+        "warningsAnswered": 2
+      },
+      "id": "review",
+      "status": "manual"
+    }
+  ],
+  "gate": "pass",
+  "generatedFrom": {
+    "manuscript": "book.yaml",
+    "manuscriptRevision": 1,
+    "pdf": "evidence/book.pdf",
+    "pdfSha256": "ca9d6e4f6b6ac36f8a9936bdf58096b9db2ee6154c2152f0583fe82c74edcfac",
+    "previousPdf": "evidence/book-2.pdf"
+  },
+  "pins": {
+    "python": "3.13.16",
+    "typst": "0.15.1"
+  },
+  "schemaVersion": "1.1",
+  "warnings": [
+    {
+      "check": "machine_read",
+      "detail": {
+        "blockId": "t-trial",
+        "check": "machine_read",
+        "detail": "t-trial on page 1 carries only machine-read digits; the value is inferred and must be cross-checked by a reader",
+        "id": "MACHINE_READ_DIGITS:t-trial",
+        "page": 1,
+        "region": 1
+      },
+      "id": "MACHINE_READ_DIGITS:t-trial"
+    },
+    {
+      "check": "machine_read",
+      "detail": {
+        "blockId": "t-receipts",
+        "check": "machine_read",
+        "detail": "t-receipts on page 2 carries only machine-read digits; the value is inferred and must be cross-checked by a reader",
+        "id": "MACHINE_READ_DIGITS:t-receipts",
+        "page": 2,
+        "region": 1
+      },
+      "id": "MACHINE_READ_DIGITS:t-receipts"
+    }
+  ]
+}

@@ -46,6 +46,7 @@ class Canvas:
     width: float
     centre: float
     expected_centre: float
+    column: bool = False
 
 
 @dataclass(frozen=True)
@@ -67,7 +68,11 @@ def _page_size(pdf: Path) -> tuple[float, float]:
     return float(match.group(1)), float(match.group(2))
 
 
-def _canvas(spec: captions_check.CaptionSpec, page_width: float) -> Canvas:
+def _canvas(
+    spec: captions_check.CaptionSpec,
+    page_width: float,
+    measurement: captions_check.CaptionMeasurement,
+) -> Canvas:
     margin = captions_check.page_margin(page_width)
     column = captions_check.image_column(spec.preset, page_width)
     if column is not None:
@@ -75,6 +80,13 @@ def _canvas(spec: captions_check.CaptionSpec, page_width: float) -> Canvas:
         width = right - left
         expected = (left + right) / 2
         return Canvas(left, right, width, expected, expected)
+    if spec.columns == 2:
+        # A visual inside a two-column chapter is measured on its own column,
+        # never on the page canvas.
+        index = captions_check.column_index(measurement.lines[0], page_width)
+        left, right = captions_check.column_bounds(index, page_width)
+        centre = (left + right) / 2
+        return Canvas(left, right, right - left, centre, centre, column=True)
     # D4: a chart, diagram or full illustration is a plate at the text measure.
     width = tokens.PLATE_PT
     expected = page_width / 2
@@ -121,6 +133,11 @@ def _measure_band(
     row_lo = max(0, int(top * SCALE))
     row_hi = min(height, int(bottom * SCALE))
     band = grayscale[row_lo:row_hi, :] < INK_THRESHOLD
+    if canvas.column:
+        canvas_lo = max(0, int(canvas.left * SCALE))
+        canvas_hi = min(band.shape[1], int(canvas.right * SCALE) + 1)
+        band[:, :canvas_lo] = False
+        band[:, canvas_hi:] = False
 
     for line in lines:
         if line.page != page or line.y_max <= top or line.y_min >= bottom:
@@ -236,7 +253,7 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
     max_caption_delta = 0.0
     for spec in specs:
         measurement = measurements[spec.block_id]
-        canvas = _canvas(spec, page_width)
+        canvas = _canvas(spec, page_width, measurement)
         page_measurements = by_page[measurement.page]
         position = page_measurements.index(measurement)
         previous = page_measurements[position - 1] if position > 0 else None

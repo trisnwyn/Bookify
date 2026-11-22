@@ -1,0 +1,41 @@
+{
+  "pages": 5,
+  "pdfSha256": "76d090235ce6043e40ecb85720b0e42b4005edb945d1155f06b122eafe67fc79",
+  "perPage": [
+    {
+      "chars": 80,
+      "ink": 0.00771,
+      "occupancy": 0.0887,
+      "page": 1,
+      "textSha256": "1e73d472d24b9c2496f825441d3ed7520864514fdad4a54c3c673468d2ab8da4"
+    },
+    {
+      "chars": 1195,
+      "ink": 0.006327,
+      "occupancy": 1.0348,
+      "page": 2,
+      "textSha256": "7dc4a8db3ae6288b95dec6a71bc6dac34008f712487c3aa8b5076196961947a7"
+    },
+    {
+      "chars": 2327,
+      "ink": 0.054801,
+      "occupancy": 1.0376,
+      "page": 3,
+      "textSha256": "c205c56055408e2e314b9a59f6cf6f0c7a31485204f03abc955af4d41f0ad764"
+    },
+    {
+      "chars": 1517,
+      "ink": 0.035319,
+      "occupancy": 1.0348,
+      "page": 4,
+      "textSha256": "1f7774b5fc29150b3cbebd79dcf6ab396b8808bab07f26c6003fb27b712d84e3"
+    },
+    {
+      "chars": 327,
+      "ink": 0.088731,
+      "occupancy": 1.0362,
+      "page": 5,
+      "textSha256": "054090abc6d11fc2a359c33ae9058372b4e88cd00639718c972d32eaf897ecee"
+    }
+  ]
+}

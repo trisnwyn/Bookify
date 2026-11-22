@@ -1,5 +1,7 @@
 #import "/typst/theme.typ": book_base, heading-below, tokens
 #import "/typst/blocks.typ": *
+#import "/typst/cover.typ": render-cover
+#import "/typst/compositions.typ": block-width, illustration-width, section-columns
 #import "/typst/cetz/diagram.typ": diagram
 
 #let doc = json(sys.inputs.data)
@@ -20,146 +22,37 @@
 #set page(numbering: "1")
 #show: body => book_base(body, chapter-count: chapters)
 
-// D4: every level-1 chapter opens with its printed number, a rule and the
-// title; the authored standfirst keeps its own gap. Front-matter headings
-// (the contents title) have no number and keep the plain level-1 treatment.
+// D4 (superseded): the chapter heading is one h1 line in the form
+// `Chapter 1: Title`; the numeral, rule and title stack is retired. The counter
+// still numbers the contents list with the bare `1`, so the printed sentence
+// form is added here only. Front-matter headings (the contents title) have no
+// number and keep the plain level-1 treatment.
 #show heading.where(level: 1): it => {
-  if it.numbering == none {
-    block(above: tokens.space.before_heading, below: heading-below(tokens.type.h1), {
-      set text(size: tokens.type.h1, weight: 500)
-      par(leading: tokens.leading_extra.h1, justify: false, it.body)
-    })
-  } else {
-    context {
-      let nums = counter(heading).at(here())
-      block(above: tokens.space.before_heading, below: heading-below(tokens.type.h1), {
-        block({
-          set text(size: tokens.type.opener_numeral, weight: 500)
-          set par(leading: tokens.leading_extra.opener_numeral, justify: false)
-          numbering(it.numbering, ..nums)
-        })
-        v(tokens.space.opener_rule)
-        line(length: 100%, stroke: tokens.rule.opener)
-        v(tokens.space.opener_title)
-        block({
-          set text(size: tokens.type.h1, weight: 500)
-          par(leading: tokens.leading_extra.h1, justify: false, it.body)
-        })
-      })
-    }
-  }
-}
-
-// D2: a typographic cover in the house style. Oversized left-aligned title,
-// one full-measure rule, the real chapter index (or the ledger motif beyond
-// twelve entries), and a footer line. No folio, no colour, no image.
-#let cover-title(metadata) = block({
-  set text(size: tokens.type.cover_title, weight: 500)
-  set par(leading: tokens.leading_extra.cover_title, justify: false)
-  metadata.title
-})
-
-#let cover-subtitle(metadata) = block({
-  set text(size: tokens.type.cover_subtitle, style: "italic", fill: tokens.ink.grey_1)
-  set par(leading: tokens.leading_extra.lead, justify: false)
-  metadata.subtitle
-})
-
-#let cover-meta(body) = block({
-  set text(size: tokens.type.cover_meta, fill: tokens.ink.grey_1)
-  body
-})
-
-#let cover-index-entry(entry) = block(above: tokens.space.after_caption, below: tokens.space.after_caption, width: 100%, {
-  grid(
-    columns: (auto, 1fr),
-    column-gutter: tokens.space.side_gutter,
-    {
-      set text(size: tokens.type.cover_index, fill: tokens.ink.grey_1)
-      set par(leading: tokens.leading_extra.cover_index, justify: false)
-      entry.number
-    },
-    {
-      set text(size: tokens.type.cover_index)
-      set par(leading: tokens.leading_extra.cover_index, justify: false)
-      entry.title
-    },
-  )
-})
-
-#let cover-index(cover) = {
-  if cover.indexMode == "list" {
-    for (index, entry) in cover.index.enumerate() {
-      cover-index-entry(entry)
-      if index < cover.index.len() - 1 {
-        line(length: 100%, stroke: tokens.rule.cover_index)
+  block(above: tokens.space.before_heading, below: heading-below(tokens.type.h1), {
+    set text(size: tokens.type.h1, weight: 500)
+    par(leading: tokens.leading_extra.h1, justify: false, {
+      if it.numbering != none {
+        context {
+          let printed = numbering(it.numbering, ..counter(heading).at(here()))
+          let prefix = if printed.starts-with("Appendix") { printed + ":" } else { "Chapter " + printed + ":" }
+          prefix + " " + it.body
+        }
+      } else {
+        it.body
       }
-    }
-  } else {
-    // Documented ledger motif: three thin rules of unequal measure, no list.
-    line(length: 100%, stroke: tokens.rule.cover_index)
-    v(tokens.space.cover_rule)
-    line(length: 62%, stroke: tokens.rule.cover_index)
-    v(tokens.space.cover_rule)
-    line(length: 34%, stroke: tokens.rule.cover_index)
-  }
+    })
+  })
 }
 
-#let cover-footer(metadata) = {
-  line(length: 100%, stroke: tokens.rule.cover_index)
-  v(tokens.space.cover_rule)
-  if "author" in metadata {
-    cover-meta(metadata.author)
-  }
-  if "course" in metadata {
-    cover-meta(metadata.course)
-  }
-}
-
-#let render-cover(metadata, cover) = block(width: 100%, height: tokens.measure.page_height - tokens.space.page_margin * 2, {
-  // The first line's glyph box rises above the layout line at a large size; a
-  // small token gap keeps every ink pixel inside the 60 pt margin.
-  v(tokens.space.after_block)
-  if "institution" in metadata {
-    cover-meta(metadata.institution)
-    v(tokens.space.cover_footer)
-  }
-  cover-title(metadata)
-  if "subtitle" in metadata {
-    v(tokens.space.cover_rule)
-    cover-subtitle(metadata)
-  }
-  v(tokens.space.cover_rule)
-  line(length: 100%, stroke: tokens.rule.cover)
-  v(tokens.space.cover_rule)
-  cover-index(cover)
-  v(1fr)
-  // Pinned to the bottom of the text block, lifted by the footer token plus
-  // the block gap so the *ink* keeps the required 24 pt slack after the last
-  // line's descent. Never floats into the margin.
-  place(bottom, dy: -(tokens.space.cover_footer + tokens.space.after_block), cover-footer(metadata))
-})
-
+// The selected cover composition draws the page; `doc.cover` records the
+// selection (author or engine fallback) and the artwork state.
 #page(numbering: none)[#render-cover(doc.metadata, doc.cover)]
 
 // One section body. A pagebreak from illustration deferral is only legal in
-// flowing content; a plate keep unit is moved whole instead.
-#let render-section(section, allow-break: true) = {
-  if section.kicker != none {
-    block(sticky: true, {
-      set text(size: tokens.type.small, fill: tokens.ink.grey_1)
-      section.kicker
-    })
-    parbreak()
-  }
-  heading(level: section.level, section.title)
-  if section.standfirst != none {
-    if section.level == 1 {
-      preset-standfirst(section.standfirst)
-    } else {
-      preset-lead(section.standfirst)
-    }
-  }
+// flowing content; a plate keep unit is moved whole instead. `column` tells the
+// block renderer it is inside a two-column chapter, so a visual takes the column
+// measure instead of the plate/figure measure.
+#let render-blocks(section, allow-break: true, column: false) = {
   for (block-index, block) in section.blocks.enumerate() {
     if block.type == "paragraph" {
       preset-paragraph(block.text)
@@ -182,6 +75,8 @@
       preset-case(title: if "title" in block { block.title } else { none }, block.text)
     } else if block.type == "assessment" {
       preset-assessment(title: if "title" in block { block.title } else { none }, block.text)
+    } else if block.type == "branch" {
+      preset-branch(block.marker, block.text)
     } else if block.type == "list" {
       preset-list(block.items, ordered: block.ordered)
     } else if block.type == "table" {
@@ -191,7 +86,7 @@
     } else if block.type == "chart" {
       preset-chart(image(block.path, width: 100%), caption: block.caption, note: if "note" in block { block.note } else { none })
     } else if block.type == "diagram" {
-      preset-diagram(diagram(block.spec, tokens.measure.plate), caption: block.caption, note: if "note" in block { block.note } else { none })
+      preset-diagram(diagram(block.spec, block-width(column: column)), caption: block.caption, note: if "note" in block { block.note } else { none })
     } else if block.type == "unresolved" {
       preset-unresolved(block.note)
     } else if block.type == "illustration" {
@@ -199,13 +94,20 @@
         pagebreak()
       }
       let composition = if "composition" in block { block.composition } else { "full" }
-      let companion = if "companion" in block { companion-content(block.companion) } else { none }
+      let width = illustration-width(composition, column: column)
+      let companions = if "companions" in block {
+        block.companions.map(entry => companion-content(entry))
+      } else if "companion" in block {
+        (companion-content(block.companion),)
+      } else {
+        ()
+      }
       preset-illustration(
-        image(block.path, width: 100%),
+        image(block.path, width: width),
         caption: block.caption,
         credit: block.credit,
         composition: composition,
-        companion: companion,
+        companions: companions,
         note: if "note" in block { block.note } else { none },
       )
     }
@@ -217,26 +119,89 @@
   }
 }
 
-#outline(title: [Contents], depth: 3)
+#let render-head(section) = {
+  if section.kicker != none {
+    block(sticky: true, {
+      set text(size: tokens.type.small, fill: tokens.ink.grey_1)
+      section.kicker
+    })
+    parbreak()
+  }
+  heading(level: section.level, section.title)
+  if section.standfirst != none {
+    if section.level == 1 {
+      preset-standfirst(section.standfirst)
+    } else {
+      preset-lead(section.standfirst)
+    }
+  }
+}
+
+#let render-section(section, allow-break: true, column: false) = {
+  render-head(section)
+  render-blocks(section, allow-break: allow-break, column: column)
+}
+
+// A pure-plate section is one keep unit. Typst drops an inner heading's `above`
+// at the start of a block, so the keep block carries the gap itself.
+#let keep-above(level) = if level == 1 {
+  tokens.space.before_heading
+} else if level == 2 {
+  tokens.space.before_h2
+} else {
+  tokens.space.before_h3
+}
+
+// A chapter and its descendant sections are one authored unit: a two-column
+// chapter sets all of them inside the same column flow, as the accepted A2
+// composition does (heading and standfirst full measure, then columns).
+#let groups = doc.sections.fold((), (acc, section) => {
+  if section.level == 1 {
+    acc.push((head: section, children: ()))
+  } else {
+    let last = acc.pop()
+    last.children.push(section)
+    acc.push(last)
+  }
+  acc
+})
+
+#outline(title: [Contents], depth: 5)
 #pagebreak()
 
-#for (section-index, section) in doc.sections.enumerate() [
-  // A level-1 section defaults to `page`; levels 2/3 default to `auto`.
+#for (group-index, group) in groups.enumerate() [
+  #let section = group.head
   // The first body section never breaks, even if an explicit value says page.
-  #if section-index > 0 and section.breakBefore == "page" [
+  #if group-index > 0 and section.breakBefore == "page" [
     #pagebreak()
   ]
   #let keep = if "keepTogether" in section { section.keepTogether } else { false }
+  #let two-column = "layout" in section and section.layout.columns == 2
   // A deferred plate moves as a whole: lift its one-illustration break outside
   // the keep container, where a pagebreak is legal.
-  #if keep and section.blocks.any(block => block.type == "illustration" and "pagebreak" in block and block.pagebreak) [
+  #if keep and not two-column and section.blocks.any(block => block.type == "illustration" and "pagebreak" in block and block.pagebreak) [
     #pagebreak()
   ]
-  // Ordinary chapters stay breakable. A pure plate section is one keep unit;
-  // if it cannot fit, the build's unit-fit guard fails by block id.
-  #if keep [
-    #block(breakable: false, render-section(section, allow-break: false))
+  #if two-column [
+    #render-head(section)
+    #section-columns({
+      render-blocks(section, column: true)
+      for child in group.children [
+        #if child.breakBefore == "page" { pagebreak() }
+        #render-section(child, column: true)
+      ]
+    })
+  ] else if keep [
+    #block(above: keep-above(section.level), breakable: false, render-section(section, allow-break: false))
+    #for child in group.children [
+      #if child.breakBefore == "page" { pagebreak() }
+      #render-section(child)
+    ]
   ] else [
     #render-section(section)
+    #for child in group.children [
+      #if child.breakBefore == "page" { pagebreak() }
+      #render-section(child)
+    ]
   ]
 ]

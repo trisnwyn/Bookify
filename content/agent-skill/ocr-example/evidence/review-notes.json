@@ -1,0 +1,6 @@
+{
+  "decisions": {
+    "MACHINE_READ_DIGITS:t-trial": "Digits are corroborated by a second 450 dpi read recorded in the manuscript cross-check; the table remains inferred.",
+    "MACHINE_READ_DIGITS:t-receipts": "Digits are corroborated by the table's recorded arithmetic cross-check; the table remains inferred."
+  }
+}

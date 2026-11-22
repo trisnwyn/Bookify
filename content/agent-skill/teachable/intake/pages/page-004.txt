@@ -1,0 +1,14 @@
+Comparing counts
+The record can be summarised as counts. The counts below are synthetic: they exist to show a
+comparison, not to report an observation.
+
+ Category                                     First pass          Second pass         Change
+ Detail recorded                              12                  15                  +3
+ Setting recorded                             7                   7                   0
+ Warrant recorded                             4                   6                   +2
+
+The totals are small and invented. They show a relationship the prose can state: a longer list of details
+does not by itself add warrants. The second pass added details and warrants, but the setting count did
+not change.
+Read the table as a question about coverage, not as evidence that the sample is better understood. A
+count records how many entries were made, not how strong they are.

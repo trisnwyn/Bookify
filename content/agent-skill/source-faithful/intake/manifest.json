@@ -1,0 +1,59 @@
+{
+  "pageCount": 6,
+  "pages": [
+    {
+      "charCount": 827,
+      "images": [],
+      "isImageOnly": false,
+      "page": 1,
+      "textSha256": "38a6634d27401c55f1d569e4f5a696a726779dabb59d21035a24e0a0b5abe6f7"
+    },
+    {
+      "charCount": 814,
+      "images": [],
+      "isImageOnly": false,
+      "page": 2,
+      "textSha256": "3bc9546480ec70332a8968470c7c202d44a3974e811b5267e90a64277358011d"
+    },
+    {
+      "charCount": 723,
+      "images": [],
+      "isImageOnly": false,
+      "page": 3,
+      "textSha256": "bafbd5e4bcc3123ffc4cf56c009abb053af7020b2123f634bfd52d71a8e50978"
+    },
+    {
+      "charCount": 902,
+      "images": [],
+      "isImageOnly": false,
+      "page": 4,
+      "textSha256": "2e4717f2c44b5c73302115a9582453ce190b97874f6f47a2f3586ba889ad4041"
+    },
+    {
+      "charCount": 755,
+      "images": [],
+      "isImageOnly": false,
+      "page": 5,
+      "textSha256": "6f2c141a70a8abef702b21004d30938e74e91070d613a122b14d1357b82bd2fb"
+    },
+    {
+      "charCount": 0,
+      "images": [
+        {
+          "file": "images/page-006-img-00.png",
+          "height": 48,
+          "index": 0,
+          "sha256": "1fb8053506707629824ba13541fd6e7dec090a9796a849c78b8b4100a7f40a8b",
+          "width": 72
+        }
+      ],
+      "isImageOnly": true,
+      "page": 6,
+      "textSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "sourceId": "source",
+  "sourceName": "source.pdf",
+  "sourceSha256": "2c751d32ba89126b996db5045814e6ed2dc03468f0785ba74c3d28077f4ae1be"
+}

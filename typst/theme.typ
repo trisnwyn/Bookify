@@ -35,8 +35,6 @@
   quote: 8.67pt,   // 0.660*10.2 + 8.67 = 15.40 total
   // v2: total pitch minus the measured natural line height (0.660 em).
   cover_title: 18.56pt,    // 0.660*34.0 + 18.56 = 41.00 total
-  cover_index: 5.924pt,    // 0.660*8.6 + 5.924  = 11.60 total
-  opener_numeral: 21.60pt, // 0.660*40.0 + 21.60 = 48.00 total
 )
 
 #let tokens = (
@@ -53,17 +51,18 @@
     table_head: 8.1pt,
     note: 9.2pt,
     quote: 10.2pt,
-    // v2 designed cover and chapter opener (D2, D4).
+    // The accepted cover compositions share one cover type scale.
     cover_title: 34pt,
     cover_subtitle: 12.6pt,
     cover_meta: 8.4pt,
-    cover_index: 8.6pt,
-    opener_numeral: 40pt,
   ),
   leading_extra: leading_extra,
   space: (
     page_margin: 60pt,
-    before_heading: 17pt,
+    // A level-1 chapter heading that follows content on the same page keeps a
+    // visible blank line above it too: 30 pt yields a 15.3 pt measured line-box
+    // gap after the preceding 10.1 pt line. At a page top Typst drops it.
+    before_heading: 30pt,
     // D6: level-2/3 headings separate from the preceding body text. Both must
     // exceed between_paragraphs for Typst's max() to have any effect.
     before_h2: 32pt,
@@ -88,17 +87,14 @@
     after_figure: 14pt,
     after_caption: 8pt,
     side_gutter: 16pt,
-    // D2 cover rhythm and D4 chapter-opener rhythm.
-    opener_rule: 12pt,
-    opener_title: 14pt,
-    cover_rule: 12pt,
-    cover_footer: 24pt,
   ),
   measure: (
     body: 475.28pt,
     // D4: a plate is one visual at the full text measure.
     plate: 475.28pt,
-    // D2: A4 height, so the cover can fill the text block and pin its footer.
+    // A2: one of two equal columns, (body - gutter) / 2.
+    column: 229.64pt,
+    // A2: A4 height, so the cover can fill the text block and pin its footer.
     page_height: 297mm,
     figure_width: 430pt,
     side_fraction: 0.46,
@@ -108,10 +104,43 @@
     table_head: 0.4pt,
     table_bottom: 0.6pt,
     figure_stroke: 0.55pt,
-    // D2/D4: the only ornament the house style allows.
-    cover: 0.6pt,
-    cover_index: 0.4pt,
-    opener: 0.6pt,
+  ),
+  // The seven accepted cover compositions (cover-1..cover-7), in the order of
+  // the reviewed proofs. Every offset is a house value measured in that proof;
+  // no reference measurement, font size or pixel is copied.
+  cover: (
+    origin: 0pt,
+    inset: 1pt,
+    meta_top: 8pt,
+    comp1: (
+      meta_gap: 40pt, art_width: 342.24pt, art_height: 352pt,
+      art_gap: 32pt, title_gap: 10pt, sub_gap: 7pt,
+    ),
+    comp2: (
+      meta_gap: 32pt, art_width: 332.70pt, art_height: 340pt,
+      art_gap: 46pt, title_gap: 10pt,
+    ),
+    comp3: (
+      title_top: 92pt, title_gap: 14pt, meta_gap: 340pt,
+    ),
+    comp4: (
+      meta_gap: 24pt, title_gap: 10pt, art_gap: 70pt, art_height: 330pt,
+    ),
+    comp5: (
+      field_y: 340pt, field_drop: 160pt, field_inset: 1pt,
+      title_x: 75.28pt, title_y: 330pt, title_width: 400pt,
+      support_dx: 40pt, support_gap: 12pt,
+      art_x: 5pt, art_y: 470pt, art_size: 200pt,
+    ),
+    comp6: (
+      field_width: 235pt, field_y: 110pt, field_height: 500pt,
+      title_x: 320pt, title_y: 155pt, title_height: 470pt, support_gap: 12pt,
+      art_x: 13pt, art_y: 300pt, art_size: 210pt,
+    ),
+    comp7: (
+      title_y: 150pt, support_gap: 12pt,
+      art_x: 8pt, art_y: 330pt, art_size: 280pt,
+    ),
   ),
   ink: (
     text: rgb("#000000"),
@@ -171,19 +200,23 @@
   name
 }
 
-// D3: chapter headings print 1, 1.1, 1.1.1; appendices print Appendix A, A.1.
-// `chapter-count` is the number of level-1 chapters before the appendices.
+// D3: the hierarchy prints `Chapter 1: Title` at level 1, then the path to
+// each heading: `1.1`, `1.1.1`, `1.1.1.1`, `1.1.1.1.1`. The chapter stem is the
+// printed chapter number (`1`, `2`) or the appendix letter (`A`), so a body
+// number never repeats the chapter word and an appendix child prints `A.1`.
+// No number ends with a period, which is what keeps a cross-reference (`§1.1`)
+// distinct from a shorter reference followed by a sentence full stop.
 #let heading-numbering(chapter-count) = (..nums) => {
   let values = nums.pos()
   if values.len() == 0 { return "" }
   let first = values.first()
   let parents = values.slice(1)
   let back = chapter-count != none and first > chapter-count
-  let head = if back { appendix-name(first - chapter-count) } else { str(first) }
+  let stem = if back { appendix-name(first - chapter-count) } else { str(first) }
   if parents.len() == 0 {
-    if back { "Appendix " + head } else { head }
+    if back { "Appendix " + stem } else { stem }
   } else {
-    head + "." + parents.map(str).join(".")
+    stem + "." + parents.map(str).join(".")
   }
 }
 
@@ -192,10 +225,15 @@
 // line's tallest ascenders rise `(ascent_em - line_box_em) * follow` above its
 // own layout line. `follow` is the largest face the theme can place directly
 // under a heading (the lead), so one rule is conservative for every block type.
+// On top of that ink separation the house rule reserves one visibly blank body
+// line (`blank_line`), so a reader always sees white space, not a hairline gap.
+#let blank_line = ink_metrics.line_box_em * tokens.type.body + tokens.leading_extra.body
+
 #let heading-below(size, follow: tokens.type.lead) = calc.max(
   tokens.space.after_heading,
   ink_metrics.descent_em * size
     + (ink_metrics.ascent_em - ink_metrics.line_box_em) * follow
+    + blank_line
     + tokens.space.heading_clearance,
 )
 
@@ -206,6 +244,9 @@
   set par(justify: true, leading: tokens.leading_extra.body)
   show math.equation: set text(font: fonts.maths)
   show heading: set text(font: fonts.latin, weight: 600)
+  // A heading never sits alone at the foot of a page or column: it stays with
+  // the block that follows it (the next paragraph, figure or caption).
+  show heading: set block(sticky: true)
   show heading.where(level: 1): set text(size: tokens.type.h1, weight: 500)
   show heading.where(level: 1): set par(leading: tokens.leading_extra.h1)
   show heading.where(level: 1): set block(above: tokens.space.before_heading, below: heading-below(tokens.type.h1))
@@ -215,6 +256,17 @@
   show heading.where(level: 3): set text(size: tokens.type.h3, weight: 600)
   show heading.where(level: 3): set par(leading: tokens.leading_extra.h3)
   show heading.where(level: 3): set block(above: tokens.space.before_h3, below: heading-below(tokens.type.h3))
+  // Level 4 continues the path (`1.1.1`). The live theme defines h1-h3 roles
+  // only, so it keeps the h3 type and weight; the number path, not a new size,
+  // carries the depth.
+  show heading.where(level: 4): set text(size: tokens.type.h3, weight: 600)
+  show heading.where(level: 4): set par(leading: tokens.leading_extra.h3)
+  show heading.where(level: 4): set block(above: tokens.space.before_h3, below: heading-below(tokens.type.h3))
+  // `1.1.1.1`: level 5 is the fourth body component; it keeps the h3 role, and
+  // the number path, not a new size, carries the depth.
+  show heading.where(level: 5): set text(size: tokens.type.h3, weight: 600)
+  show heading.where(level: 5): set par(leading: tokens.leading_extra.h3)
+  show heading.where(level: 5): set block(above: tokens.space.before_h3, below: heading-below(tokens.type.h3))
   set heading(numbering: heading-numbering(chapter-count))
   body
 }

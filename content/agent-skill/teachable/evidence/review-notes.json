@@ -1,0 +1,6 @@
+{
+  "decisions": {
+    "rhythm:unmeasured:h3": "The teachable sample has no level-3 heading, so no h3 band sample exists; the h2 band is measured and the h3 default is pinned by the design test rather than invented here.",
+    "readability:wordsPerPage:page=5": "Page 5 closes the teachable chapter with a short deliberate summary; the sparse page is the authored shape, not a missing section, and no filler was added."
+  }
+}

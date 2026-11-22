@@ -1,0 +1,227 @@
+schemaVersion: '1.0'
+revision: 1
+id: image-ledgers
+metadata:
+  title: Reading Image-Borne Ledgers
+  subtitle: A short public-safe OCR specimen
+  languages:
+  - en
+  author: Bookify OCR F1
+sections:
+- id: sec-trial
+  title: A table inside an image
+  blocks:
+  - id: p-trial
+    type: lead
+    confidence: inferred
+    text: The first page carries prose and a trial-balance table supplied as a page
+      image. The prose alone cannot support a claim about the numbers; the table is
+      reconstructed from the image region and every value stays marked as machine-read.
+    sourceAnchors:
+    - sourceId: fixture
+      page: 1
+  - id: d-trial
+    type: definition
+    term: Trial balance
+    definition: A list of account balances reconstructed from a page image; the values
+      stay machine-read and inferred, never verified.
+    sourceAnchors:
+    - sourceId: fixture
+      page: 1
+  - id: t-trial
+    type: table
+    confidence: inferred
+    caption: Selected balances reconstructed from the page-1 image.
+    header:
+    - Account
+    - Amount
+    rows:
+    - - Cash at bank
+      - 12,480.00
+    - - Accounts receivable
+      - 8,215.50
+    - - Office equipment
+      - 24,000.00
+    - - Accounts payable
+      - 9,340.25
+    - - Loan payable
+      - 6,000.00
+    - - Revenue
+      - 18,939.50
+    - - Rent expense
+      - 4,120.00
+    - - Wages expense
+      - 16,670.00
+    - - Totals
+      - 65,485.50
+    widths:
+    - 0.68
+    - 0.32
+    align:
+    - left
+    - right
+    note: Reconstructed from an image by OCR; values are machine-read and corroborated
+      by a second read at 450 dpi.
+    sourceAnchors:
+    - sourceId: fixture
+      page: 1
+      region: 1
+    machineRead:
+      region: 1
+      method: ocr-table-v1
+      confidence: 95.02
+      crossCheckedBy: second read at 450 dpi agrees; page 1 region 1 crop intake/ocr/page-001-region-01.png
+  - id: u-omitted
+    type: unresolved
+    note: The page-1 image also carries an Owner's capital line. Its first pass measured
+      mean confidence 77.58 (second pass 80.34), below the eligible band, so the line
+      is omitted. The table above is not a complete balance and no value is guessed.
+    sourceAnchors:
+    - sourceId: fixture
+      page: 1
+- id: sec-receipts
+  title: A page that is only an image
+  blocks:
+  - id: p-receipts
+    type: paragraph
+    confidence: inferred
+    text: 'The second page has no text layer at all. Adequate OCR makes it extracted-with-uncertainty:
+      the page is not treated as verified, and the receipt total is checked by the
+      table''s own arithmetic.'
+    sourceAnchors:
+    - sourceId: fixture
+      page: 2
+  - id: t-receipts
+    type: table
+    confidence: inferred
+    caption: Cash receipts reconstructed from the image-only page.
+    header:
+    - Date
+    - Received from
+    - Receipt no.
+    - Amount
+    rows:
+    - - 02 Apr
+      - R. Okafor
+      - CR-1001
+      - 2,450.00
+    - - 05 Apr
+      - L. Nguyen
+      - CR-1002
+      - 1,980.50
+    - - 09 Apr
+      - M. Silva
+      - CR-1003
+      - 3,215.75
+    - - 14 Apr
+      - A. Haddad
+      - CR-1004
+      - '875.00'
+    - - 21 Apr
+      - S. Weber
+      - CR-1005
+      - 4,120.25
+    - - 28 Apr
+      - T. Ito
+      - CR-1006
+      - 2,640.00
+    - - Total
+      - ''
+      - ''
+      - 15,281.50
+    widths:
+    - 0.16
+    - 0.38
+    - 0.22
+    - 0.24
+    align:
+    - left
+    - left
+    - left
+    - right
+    note: Reconstructed from an image by OCR; values are machine-read and corroborated
+      by arithmetic (the receipt amounts sum to the printed total).
+    sourceAnchors:
+    - sourceId: fixture
+      page: 2
+      region: 1
+    machineRead:
+      region: 1
+      method: ocr-table-v1
+      confidence: 95.34
+      crossCheckedBy: 'arithmetic: receipt amounts sum to the printed total 15,281.50'
+  - id: fig-receipts
+    type: diagram
+    caption: 'Synthetic process diagram: an image region is cropped, read twice at
+      different resolutions, and only agreeing lines become a marked reconstruction.'
+    confidence: inferred
+    note: Illustrative diagram authored for this specimen; it is not traced from the
+      source.
+    diagram:
+      preset: process
+      synthetic: true
+      nodes:
+      - id: n-crop
+        label: Crop
+        sub: region
+      - id: n-read
+        label: Read
+        sub: 300 / 450 dpi
+      - id: n-mark
+        label: Mark
+        sub: machine-read
+      edges:
+      - from: n-crop
+        to: n-read
+        kind: arrow
+      - from: n-read
+        to: n-mark
+        kind: arrow
+      - from: n-mark
+        to: n-crop
+        kind: arrow
+      groups:
+      - id: g-pass
+        label: One pass
+        nodes:
+        - n-crop
+        - n-read
+        - n-mark
+  - id: p-bridge
+    type: paragraph
+    confidence: inferred
+    text: 'The process is evidence handling, not proof: the marked table is the only
+      publication of the values, and the omitted line stays unresolved.'
+    sourceAnchors:
+    - sourceId: fixture
+      page: 2
+- id: sec-method
+  level: 2
+  title: How the reconstruction was checked
+  blocks:
+  - id: p-method
+    type: paragraph
+    text: Each region is read twice and the two reads are compared token by token.
+      Agreement corroborates the read; it never proves the value correct.
+    sourceAnchors:
+    - sourceId: fixture
+      page: 2
+- id: sec-cells
+  level: 3
+  title: Reading a cell
+  blocks:
+  - id: p-cells
+    type: paragraph
+    text: A cell is used only when its line reaches the eligible band. A line below
+      the band is omitted with a note, as the trial balance above shows.
+    sourceAnchors:
+    - sourceId: fixture
+      page: 2
+- id: sec-unresolved
+  title: When the image cannot be read
+  blocks:
+  - id: u-degraded
+    type: unresolved
+    note: Page 3 is a 45 dpi image. OCR agreement is 0.6667 and mean confidence is
+      43.25, so no line reaches the uncertainty band. The page remains unresolved;
+      no text or number from it is used.

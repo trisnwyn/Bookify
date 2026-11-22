@@ -1,0 +1,5 @@
+{
+  "decisions": {
+    "rhythm:unmeasured:h3": "This five-page sample has two level-3 headings but neither follows body text on the same page, so no h3 band sample exists; the h2 band is measured and the h3 token/default is pinned by the design test rather than invented here."
+  }
+}

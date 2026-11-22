@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from bookify.design import tokens
 from bookify.manuscript import model
 from bookify.publish import rights
 
@@ -31,42 +30,72 @@ def appendix_letter(index: int) -> str:
 
 
 def section_numbers(manuscript: model.Manuscript) -> list[dict[str, Any]]:
-    """D3: the printed number of every section, in document order.
+    """The printed number of every section, in document order.
 
-    Level-1 chapters print `1`, `2`; appendices print `Appendix A`, `Appendix B`
-    while their children print `A.1`, `A.1.1`. The `number` field is the
-    cross-reference form (`1`, `A`, `A.1`); `printed` is what a heading shows.
+    The hierarchy is the one the page shows, level by level: `Chapter 1: Title`
+    → `1.1 Heading` → `1.1.1 Subheading` → terminal `1.1.1 a)` → continuing
+    `1.1.1.1`, `1.1.1.1.1`. The chapter stem is the printed chapter number
+    (`1`, `2`) or the appendix letter (`A`), so a body heading never repeats the
+    chapter word and an appendix child prints `A.1`.
+
+    Every level carries the path to itself, which is why no number ends with a
+    period: an earlier scheme printed the level-2 marker as `1.` and gave a
+    second sibling `1.2.`, so `§1.` could be a chapter reference followed by a
+    sentence full stop and `§1.2.` could be either the second section or a
+    subsection plus punctuation. A reader could not resolve the token. The
+    hierarchical path removes both collisions by construction.
+
+    `number` is the cross-reference form and equals `printed` for body levels;
+    it is the printed chapter number for a chapter and the bare appendix letter
+    for an appendix chapter (`§A`, not `§Appendix A`). Two sections never share
+    a `number`, and `§1.1.` always means section `1.1` followed by punctuation
+    because no section is numbered `1.1.`.
     """
     numbers: list[dict[str, Any]] = []
-    prefix = ""
-    level2 = level3 = 0
+    stem = ""
+    role = "chapter"
+    counters = [0, 0, 0, 0]  # level 2, 3, 4, 5
     for section in manuscript.sections:
         level = section.get("level", 1)
-        role = section.get("role", "chapter") if level == 1 else "chapter"
         if level == 1:
+            role = section.get("role", "chapter")
             if role == "appendix":
                 count = sum(
                     1 for item in numbers if item["level"] == 1 and item["role"] == "appendix"
                 ) + 1
-                prefix = appendix_letter(count)
-                printed = f"Appendix {prefix}"
+                printed = f"Appendix {appendix_letter(count)}"
+                stem = appendix_letter(count)
             else:
                 count = sum(1 for item in numbers if item["level"] == 1 and item["role"] == "chapter") + 1
-                prefix = str(count)
-                printed = prefix
-            level2 = level3 = 0
-            number = prefix
-        elif level == 2:
-            level2 += 1
-            level3 = 0
-            number = f"{prefix}.{level2}"
-            printed = number
+                printed = str(count)
+                stem = str(count)
+            counters = [0, 0, 0, 0]
+            number = stem if role == "appendix" else printed
         else:
-            level3 += 1
-            number = f"{prefix}.{level2}.{level3}"
-            printed = number
+            depth = min(level - 2, len(counters) - 1)
+            counters[depth] += 1
+            for deeper in range(depth + 1, len(counters)):
+                counters[deeper] = 0
+            # Every level carries its own path: `1.1`, `1.1.2`, `1.1.2.1`.
+            path = ".".join(str(value) for value in counters[: depth + 1])
+            printed = f"{stem}.{path}"
+            number = printed
         numbers.append({"level": level, "role": role, "number": number, "printed": printed})
     return numbers
+
+
+
+def section_heading(number: dict[str, Any], title: str) -> str:
+    """The full printed heading line for one section.
+
+    A chapter prints `Chapter 1: Title` and an appendix `Appendix A: Title`; the
+    numbered body headings keep the bare path (`1.1 Title`). The string is data,
+    so the report and the verifier can look for the line the page really shows.
+    """
+    if number["level"] == 1:
+        prefix = f"Chapter {number['printed']}" if number["role"] == "chapter" else number["printed"]
+        return f"{prefix}: {title}"
+    return f"{number['printed']} {title}"
 
 
 def _number_map(
@@ -118,6 +147,45 @@ def _companion_entry(block: dict[str, Any], labels: dict[str, str]) -> dict[str,
     return entry
 
 
+def _cover_entry(
+    manuscript: model.Manuscript, draft: bool
+) -> dict[str, Any]:
+    """The cover the renderer will draw, recorded as data, not as a claim.
+
+    An absent `metadata.cover` is the engine's documented typographic fallback,
+    never a user selection. An art-bearing composition with no artwork record
+    reserves its field and records `artwork: absent`; nothing is synthesized.
+    """
+    selection = manuscript.data["metadata"].get("cover")
+    if selection is None:
+        return {
+            "composition": model.COVER_DEFAULT,
+            "selection": "engine-fallback",
+            "artwork": "not-applicable",
+            "indexPrinted": False,
+        }
+    composition = selection["composition"]
+    entry: dict[str, Any] = {
+        "composition": composition,
+        "selection": "author",
+        "indexPrinted": False,
+    }
+    if composition == model.COVER_TYPOGRAPHIC:
+        entry["artwork"] = "not-applicable"
+        return entry
+    artwork = selection.get("artwork")
+    if not artwork:
+        entry["artwork"] = "absent"
+        return entry
+    record = rights.load(manuscript.root, artwork)
+    rights.require_publishable(record, draft)
+    entry["artwork"] = "present"
+    entry["artworkId"] = record.id
+    entry["artworkPath"] = "/" + record.path.lstrip("/")
+    entry["artworkCredit"] = record.credit
+    return entry
+
+
 def build(
     manuscript: model.Manuscript,
     figure_paths: dict[str, str],
@@ -125,15 +193,6 @@ def build(
 ) -> Document:
     numbers = section_numbers(manuscript)
     labels, _ = _number_map(manuscript, numbers)
-    cover_index = [
-        {
-            "number": item["printed"],
-            "title": _resolve(section["title"], labels),
-            "role": item["role"],
-        }
-        for section, item in zip(manuscript.sections, numbers)
-        if item["level"] == 1
-    ]
     data: dict[str, Any] = {
         "schemaVersion": "1.0",
         "revision": manuscript.revision,
@@ -143,12 +202,9 @@ def build(
         "numbering": {
             "chapters": sum(1 for item in numbers if item["level"] == 1 and item["role"] == "chapter"),
             "appendices": sum(1 for item in numbers if item["level"] == 1 and item["role"] == "appendix"),
-            "levels": 3,
+            "levels": 5,
         },
-        "cover": {
-            "index": cover_index,
-            "indexMode": "list" if len(cover_index) <= tokens.COVER_INDEX_LIMIT else "ledger",
-        },
+        "cover": _cover_entry(manuscript, draft),
     }
 
     for index, section in enumerate(manuscript.sections, start=1):
@@ -173,17 +229,21 @@ def build(
             "level": level,
             "role": numbers[index - 1]["role"],
             "printed": numbers[index - 1]["printed"],
+            "heading": section_heading(numbers[index - 1], _resolve(section["title"], labels)),
             "breakBefore": break_before,
             "title": _resolve(section["title"], labels),
             "kicker": _resolve(section["kicker"], labels) if section.get("kicker") else None,
             "standfirst": _resolve(section["standfirst"], labels) if section.get("standfirst") else None,
             "blocks": [],
         }
+        if section.get("layout"):
+            out_section["layout"] = {"columns": section["layout"]["columns"]}
         if keep_together:
             out_section["keepTogether"] = True
         if section.get("noPlate"):
             out_section["noPlate"] = section["noPlate"]
         consumed: set[str] = set()
+        branches = 0
         for position, block in enumerate(section["blocks"]):
             if block["id"] in consumed:
                 continue
@@ -240,6 +300,11 @@ def build(
                 entry["synthetic"] = synthetic
             elif kind == "unresolved":
                 entry["note"] = _resolve(block["note"], labels)
+            elif kind == "branch":
+                branches += 1
+                marker = f"{numbers[index - 1]['printed']} {chr(ord('a') + branches - 1)})"
+                entry["marker"] = marker
+                entry["text"] = _resolve(block["text"], labels)
             elif kind == "illustration":
                 record = rights.load(manuscript.root, block["illustrationId"])
                 rights.require_publishable(record, draft)
@@ -253,10 +318,18 @@ def build(
                 composition = block.get("composition")
                 if composition:
                     entry["composition"] = composition["preset"]
-                    if composition["preset"] != "full":
-                        companion = section["blocks"][position + 1]
-                        entry["companion"] = _companion_entry(companion, labels)
-                        consumed.add(companion["id"])
+                    if composition["preset"] in {"side-left", "side-right"}:
+                        single = "companions" not in composition
+                        ids = [composition["companion"]] if single else composition["companions"]
+                        companions = []
+                        for offset, companion_id in enumerate(ids):
+                            companion = section["blocks"][position + 1 + offset]
+                            companions.append(_companion_entry(companion, labels))
+                            consumed.add(companion_id)
+                        if single:
+                            entry["companion"] = companions[0]
+                        else:
+                            entry["companions"] = companions
                 data["illustrations"].append(
                     {
                         "id": record.id,

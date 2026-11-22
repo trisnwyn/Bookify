@@ -1,0 +1,953 @@
+{
+  "ocr": {
+    "developmentOnly": true,
+    "engine": {
+      "binary": "tesseract",
+      "binarySha256": "1462dc4b19e71adabb957a9b04bb67662563631eebda6e10983f02a3fc544a2d",
+      "data": [
+        {
+          "file": "eng.traineddata",
+          "lang": "eng",
+          "location": "vendored",
+          "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+        }
+      ],
+      "developmentOnly": true,
+      "leptonica": {
+        "sha256": "27f70f645a88e57cc5be893913933c8bd3a92de934093f5d8d5f82ccf5fb6c63",
+        "version": "1.87.0"
+      },
+      "library": {
+        "name": "libtesseract",
+        "sha256": "a792384a85875c8cc5b9e9b3d4d6c0161f41f2832505084eb96bf03e35ccb9a4",
+        "version": "5.5.3"
+      },
+      "models": [
+        {
+          "lang": "eng",
+          "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+        }
+      ],
+      "name": "tesseract",
+      "oem": 1,
+      "pagePsm": 3,
+      "regionPsm": 6,
+      "source": "environment",
+      "threads": 1,
+      "version": "5.5.3"
+    },
+    "engineSource": "environment",
+    "pinSha256": "aeb95412add09e5eb7f7c3779e79e937162d97de6b9ed63e14e9a096fa9403be"
+  },
+  "pageCount": 4,
+  "pages": [
+    {
+      "charCount": 956,
+      "images": [
+        {
+          "file": "images/page-001-img-00.png",
+          "height": 1083,
+          "index": 0,
+          "sha256": "bcd7c8b623bb1952354226abcc6a12269b42edd726d34c1073cb7d843cddf675",
+          "width": 2008
+        }
+      ],
+      "isImageOnly": false,
+      "ocr": {
+        "aggregate": "unweighted-mean-over-regions",
+        "agreement": 1.0,
+        "eligibleLineCount": 11,
+        "engine": {
+          "binary": "tesseract",
+          "binarySha256": "1462dc4b19e71adabb957a9b04bb67662563631eebda6e10983f02a3fc544a2d",
+          "data": [
+            {
+              "file": "eng.traineddata",
+              "lang": "eng",
+              "location": "vendored",
+              "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+            }
+          ],
+          "developmentOnly": true,
+          "leptonica": {
+            "sha256": "27f70f645a88e57cc5be893913933c8bd3a92de934093f5d8d5f82ccf5fb6c63",
+            "version": "1.87.0"
+          },
+          "library": {
+            "name": "libtesseract",
+            "sha256": "a792384a85875c8cc5b9e9b3d4d6c0161f41f2832505084eb96bf03e35ccb9a4",
+            "version": "5.5.3"
+          },
+          "models": [
+            {
+              "lang": "eng",
+              "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+            }
+          ],
+          "name": "tesseract",
+          "oem": 1,
+          "pagePsm": 3,
+          "regionPsm": 6,
+          "source": "environment",
+          "threads": 1,
+          "version": "5.5.3"
+        },
+        "lineCount": 12,
+        "lowConfidenceShare": 0.025,
+        "machineRead": true,
+        "meanConfidence": 95.02,
+        "minLine": 77.58,
+        "pinSha256": "aeb95412add09e5eb7f7c3779e79e937162d97de6b9ed63e14e9a096fa9403be",
+        "raster": {
+          "colorspace": "gray",
+          "dpi": 300,
+          "secondPassDpi": 450
+        },
+        "reason": null,
+        "regions": [
+          {
+            "agreement": 1.0,
+            "band": "adequate",
+            "bbox": [
+              56.72,
+              222.89,
+              539.22,
+              483.16
+            ],
+            "bboxUnits": "pt",
+            "confidence": {
+              "lowConfidenceShare": 0.025,
+              "mean": 95.02,
+              "minLine": 77.58
+            },
+            "cropSha256": "2352b8b59692e79888c6160c0fa8a70da487f8a3a0e8dae90141b24e8463c44e",
+            "cropSha256SecondPass": "bdd711a8e150dc104dbbc795daede588dc9889c3fb1ef746bb54fc9e9ff01a18",
+            "eligibleLineCount": 11,
+            "index": 1,
+            "lineCount": 12,
+            "lines": [
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  203.12,
+                  241.13,
+                  392.24,
+                  250.73
+                ],
+                "confidence": 96.25,
+                "eligible": true,
+                "index": 1,
+                "secondPassConfidence": 96.19,
+                "text": "Trial balance as at 31 March 2026",
+                "wordCount": 7
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.68,
+                  275.69,
+                  513.68,
+                  288.41
+                ],
+                "confidence": 96.58,
+                "eligible": true,
+                "index": 2,
+                "secondPassConfidence": 96.38,
+                "text": "Account Debit Credit",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  82.16,
+                  293.93,
+                  416.96,
+                  304.25
+                ],
+                "confidence": 96.41,
+                "eligible": true,
+                "index": 3,
+                "secondPassConfidence": 96.35,
+                "text": "Cash at bank 12,480.00",
+                "wordCount": 4
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.92,
+                  310.97,
+                  416.96,
+                  321.29
+                ],
+                "confidence": 96.31,
+                "eligible": true,
+                "index": 4,
+                "secondPassConfidence": 95.97,
+                "text": "Accounts receivable 8,215.50",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  82.16,
+                  328.25,
+                  416.96,
+                  339.05
+                ],
+                "confidence": 96.47,
+                "eligible": true,
+                "index": 5,
+                "secondPassConfidence": 96.23,
+                "text": "Office equipment 24,000.00",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.92,
+                  345.53,
+                  513.2,
+                  356.57
+                ],
+                "confidence": 96.44,
+                "eligible": true,
+                "index": 6,
+                "secondPassConfidence": 96.67,
+                "text": "Accounts payable 9,340.25",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.16,
+                  362.81,
+                  513.2,
+                  373.61
+                ],
+                "confidence": 77.58,
+                "eligible": false,
+                "index": 7,
+                "secondPassConfidence": 80.34,
+                "text": "Owner's capital 31,205.75",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  82.16,
+                  380.09,
+                  513.44,
+                  391.13
+                ],
+                "confidence": 96.72,
+                "eligible": true,
+                "index": 8,
+                "secondPassConfidence": 96.41,
+                "text": "Loan payable 6,000.00",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  82.16,
+                  398.33,
+                  513.44,
+                  407.69
+                ],
+                "confidence": 96.16,
+                "eligible": true,
+                "index": 9,
+                "secondPassConfidence": 96.23,
+                "text": "Revenue 18,939.50",
+                "wordCount": 2
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  82.16,
+                  415.61,
+                  416.96,
+                  425.45
+                ],
+                "confidence": 96.45,
+                "eligible": true,
+                "index": 10,
+                "secondPassConfidence": 96.59,
+                "text": "Rent expense 4,120.00",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.68,
+                  432.89,
+                  416.96,
+                  442.97
+                ],
+                "confidence": 96.52,
+                "eligible": true,
+                "index": 11,
+                "secondPassConfidence": 96.3,
+                "text": "Wages expense 16,670.00",
+                "wordCount": 3
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.92,
+                  445.13,
+                  513.44,
+                  460.73
+                ],
+                "confidence": 96.68,
+                "eligible": true,
+                "index": 12,
+                "secondPassConfidence": 96.43,
+                "text": "Totals 65,485.50 65,485.50",
+                "wordCount": 3
+              }
+            ],
+            "machineRead": true,
+            "raster": {
+              "colorspace": "gray",
+              "dpi": 300,
+              "height": 1084,
+              "secondPassDpi": 450,
+              "secondPassHeight": 1627,
+              "secondPassWidth": 3016,
+              "width": 2010
+            },
+            "rasterPath": "ocr/page-001-region-01.png",
+            "reason": null,
+            "textPath": "ocr/page-001-region-01.txt",
+            "tsvPath": "ocr/page-001-region-01.tsv",
+            "tsvSha256": "6d3f47b386350449a2d732cd61abd8d45c00afa3b0a35acccb4aa0b79636e024",
+            "tsvSha256SecondPass": "0f0cca346b4df9c04d74cf2cd06e1477cc3e55751c20399bf5c5feaa144abfe0",
+            "wordCount": 40
+          }
+        ],
+        "scope": "images",
+        "skipReason": null,
+        "status": "applied",
+        "textSha256": "9b53245da1c045530b760a957362f128941b37169178c47bd1d9a2b55b67ebbc",
+        "unsupportedScript": false,
+        "wordCount": 40
+      },
+      "page": 1,
+      "textSha256": "1e8455c8ad93a310ed628842f7e72c467ce68723fdfa80dd9a090d24fae2fe07"
+    },
+    {
+      "charCount": 0,
+      "images": [
+        {
+          "file": "images/page-002-img-00.png",
+          "height": 868,
+          "index": 0,
+          "sha256": "60d9134a6bb20dabd7fa74a12e90fb3a4d850dcdce2ecf6be7377265392bf5ac",
+          "width": 2008
+        }
+      ],
+      "isImageOnly": true,
+      "ocr": {
+        "aggregate": "region",
+        "agreement": 1.0,
+        "eligibleLineCount": 9,
+        "engine": {
+          "binary": "tesseract",
+          "binarySha256": "1462dc4b19e71adabb957a9b04bb67662563631eebda6e10983f02a3fc544a2d",
+          "data": [
+            {
+              "file": "eng.traineddata",
+              "lang": "eng",
+              "location": "vendored",
+              "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+            }
+          ],
+          "developmentOnly": true,
+          "leptonica": {
+            "sha256": "27f70f645a88e57cc5be893913933c8bd3a92de934093f5d8d5f82ccf5fb6c63",
+            "version": "1.87.0"
+          },
+          "library": {
+            "name": "libtesseract",
+            "sha256": "a792384a85875c8cc5b9e9b3d4d6c0161f41f2832505084eb96bf03e35ccb9a4",
+            "version": "5.5.3"
+          },
+          "models": [
+            {
+              "lang": "eng",
+              "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+            }
+          ],
+          "name": "tesseract",
+          "oem": 1,
+          "pagePsm": 3,
+          "regionPsm": 6,
+          "source": "environment",
+          "threads": 1,
+          "version": "5.5.3"
+        },
+        "lineCount": 9,
+        "lowConfidenceShare": 0.0,
+        "machineRead": true,
+        "meanConfidence": 95.34,
+        "minLine": 94.33,
+        "pinSha256": "aeb95412add09e5eb7f7c3779e79e937162d97de6b9ed63e14e9a096fa9403be",
+        "raster": {
+          "colorspace": "gray",
+          "dpi": 300,
+          "secondPassDpi": 450
+        },
+        "reason": null,
+        "regions": [
+          {
+            "agreement": 1.0,
+            "band": "adequate",
+            "bbox": [
+              0.0,
+              0.0,
+              595.28,
+              841.89
+            ],
+            "bboxUnits": "pt",
+            "confidence": {
+              "lowConfidenceShare": 0.0,
+              "mean": 95.34,
+              "minLine": 94.33
+            },
+            "cropSha256": "274964c0a661cd799b1c1fa57173e668572d0d1d0f8a85e5b80892925650a793",
+            "cropSha256SecondPass": "de3b5d7c17a54f8847f6ba3232c5ffd605c9fa522db8237b95dc5cfa7784cf7b",
+            "eligibleLineCount": 9,
+            "index": 1,
+            "lineCount": 9,
+            "lines": [
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  198.72,
+                  75.36,
+                  396.72,
+                  87.6
+                ],
+                "confidence": 95.25,
+                "eligible": true,
+                "index": 1,
+                "secondPassConfidence": 94.9,
+                "text": "Cash receipts journal \u2014 April 2026",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.84,
+                  109.92,
+                  462.72,
+                  122.88
+                ],
+                "confidence": 96.6,
+                "eligible": true,
+                "index": 2,
+                "secondPassConfidence": 96.04,
+                "text": "Date Received from Receipt no. Amount",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.6,
+                  128.16,
+                  462.24,
+                  138.96
+                ],
+                "confidence": 95.25,
+                "eligible": true,
+                "index": 3,
+                "secondPassConfidence": 95.05,
+                "text": "02 Apr R. Okafor CR-1001 2,450.00",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.6,
+                  146.16,
+                  462.24,
+                  156.24
+                ],
+                "confidence": 95.12,
+                "eligible": true,
+                "index": 4,
+                "secondPassConfidence": 94.68,
+                "text": "05 Apr L. Nguyen CR-1002 1,980.50",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.6,
+                  162.48,
+                  462.0,
+                  173.28
+                ],
+                "confidence": 94.33,
+                "eligible": true,
+                "index": 5,
+                "secondPassConfidence": 94.85,
+                "text": "09 Apr M. Silva CR-1003 3,215.75",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  82.08,
+                  180.0,
+                  462.24,
+                  190.56
+                ],
+                "confidence": 95.66,
+                "eligible": true,
+                "index": 6,
+                "secondPassConfidence": 95.71,
+                "text": "14 Apr A. Haddad CR-1004 875.00",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.84,
+                  197.28,
+                  462.0,
+                  207.84
+                ],
+                "confidence": 94.76,
+                "eligible": true,
+                "index": 7,
+                "secondPassConfidence": 94.38,
+                "text": "21 Apr S. Weber CR-1005 4,120.25",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.84,
+                  215.28,
+                  462.24,
+                  225.36
+                ],
+                "confidence": 95.28,
+                "eligible": true,
+                "index": 8,
+                "secondPassConfidence": 94.92,
+                "text": "28 Apr T. Ito CR-1006 2,640.00",
+                "wordCount": 6
+              },
+              {
+                "agreement": 1.0,
+                "band": "adequate",
+                "bbox": [
+                  81.84,
+                  231.84,
+                  462.48,
+                  242.16
+                ],
+                "confidence": 96.68,
+                "eligible": true,
+                "index": 9,
+                "secondPassConfidence": 96.35,
+                "text": "Total 15,281.50",
+                "wordCount": 2
+              }
+            ],
+            "machineRead": true,
+            "raster": {
+              "colorspace": "gray",
+              "dpi": 300,
+              "height": 3508,
+              "secondPassDpi": 450,
+              "secondPassHeight": 5262,
+              "secondPassWidth": 3721,
+              "width": 2481
+            },
+            "rasterPath": "ocr/page-002-region-01.png",
+            "reason": null,
+            "scope": "page",
+            "textPath": "ocr/page-002-region-01.txt",
+            "tsvPath": "ocr/page-002-region-01.tsv",
+            "tsvSha256": "b300c5e0d8763077d4e781d4e764183ca39d01784da7832e736b73d251f1918e",
+            "tsvSha256SecondPass": "617be788f1b198b98f2b2ae4aedee5ab6fd5d1f9099e998bb9a909820cf8182f",
+            "wordCount": 50
+          }
+        ],
+        "scope": "page",
+        "skipReason": null,
+        "status": "applied",
+        "textPath": "ocr/page-002-region-01.txt",
+        "textSha256": "6aba228f0cd3309c83f57a891460a807eff2d9d5508e23922949ba349003f7c9",
+        "tsvPath": "ocr/page-002-region-01.tsv",
+        "tsvSha256": "b300c5e0d8763077d4e781d4e764183ca39d01784da7832e736b73d251f1918e",
+        "unsupportedScript": false,
+        "wordCount": 50
+      },
+      "page": 2,
+      "textSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "charCount": 0,
+      "images": [
+        {
+          "file": "images/page-003-img-00.png",
+          "height": 163,
+          "index": 0,
+          "sha256": "ff0d5e6ee494bd202f2f6f3616b134a69a6421feff66692b0ba58f120e4edb02",
+          "width": 302
+        }
+      ],
+      "isImageOnly": true,
+      "ocr": {
+        "aggregate": "region",
+        "agreement": 0.6667,
+        "eligibleLineCount": 0,
+        "engine": {
+          "binary": "tesseract",
+          "binarySha256": "1462dc4b19e71adabb957a9b04bb67662563631eebda6e10983f02a3fc544a2d",
+          "data": [
+            {
+              "file": "eng.traineddata",
+              "lang": "eng",
+              "location": "vendored",
+              "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+            }
+          ],
+          "developmentOnly": true,
+          "leptonica": {
+            "sha256": "27f70f645a88e57cc5be893913933c8bd3a92de934093f5d8d5f82ccf5fb6c63",
+            "version": "1.87.0"
+          },
+          "library": {
+            "name": "libtesseract",
+            "sha256": "a792384a85875c8cc5b9e9b3d4d6c0161f41f2832505084eb96bf03e35ccb9a4",
+            "version": "5.5.3"
+          },
+          "models": [
+            {
+              "lang": "eng",
+              "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+            }
+          ],
+          "name": "tesseract",
+          "oem": 1,
+          "pagePsm": 3,
+          "regionPsm": 6,
+          "source": "environment",
+          "threads": 1,
+          "version": "5.5.3"
+        },
+        "lineCount": 12,
+        "lowConfidenceShare": 0.76,
+        "machineRead": true,
+        "meanConfidence": 43.25,
+        "minLine": 24.45,
+        "pinSha256": "aeb95412add09e5eb7f7c3779e79e937162d97de6b9ed63e14e9a096fa9403be",
+        "raster": {
+          "colorspace": "gray",
+          "dpi": 300,
+          "secondPassDpi": 450
+        },
+        "reason": "agreement 0.6667 below 0.98; mean confidence 43.25 below 90.00; low-confidence share 0.76 above 0.05",
+        "regions": [
+          {
+            "agreement": 0.6667,
+            "band": "below_threshold",
+            "bbox": [
+              0.0,
+              0.0,
+              595.28,
+              841.89
+            ],
+            "bboxUnits": "pt",
+            "confidence": {
+              "lowConfidenceShare": 0.76,
+              "mean": 43.25,
+              "minLine": 24.45
+            },
+            "cropSha256": "fdd82cf2ef4099942333ff5cc41c23047ea6e7a652e13e81c09dd3edbf081e44",
+            "cropSha256SecondPass": "98e45aa4cac9d0ee8f246b070cd678dc39019f043b4405f7c7e68bed78784fbc",
+            "eligibleLineCount": 0,
+            "index": 1,
+            "lineCount": 12,
+            "lines": [
+              {
+                "agreement": 0.8333,
+                "band": "below_threshold",
+                "bbox": [
+                  201.84,
+                  74.16,
+                  391.68,
+                  83.76
+                ],
+                "confidence": 81.9,
+                "eligible": false,
+                "index": 1,
+                "secondPassConfidence": 82.69,
+                "text": "Trial balance as ae 31 March 2026",
+                "wordCount": 7
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  109.92,
+                  511.44,
+                  121.92
+                ],
+                "confidence": 34.63,
+                "eligible": false,
+                "index": 2,
+                "secondPassConfidence": null,
+                "text": "Accom Debi Credid",
+                "wordCount": 3
+              },
+              {
+                "agreement": 0.6667,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  126.72,
+                  415.68,
+                  136.32
+                ],
+                "confidence": 53.84,
+                "eligible": false,
+                "index": 3,
+                "secondPassConfidence": 51.27,
+                "text": "Cash at bank 2480.00",
+                "wordCount": 4
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  143.28,
+                  415.68,
+                  154.8
+                ],
+                "confidence": 26.59,
+                "eligible": false,
+                "index": 4,
+                "secondPassConfidence": null,
+                "text": "Acccuni= rece ble Btis.50",
+                "wordCount": 4
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  160.8,
+                  415.92,
+                  173.04
+                ],
+                "confidence": 24.45,
+                "eligible": false,
+                "index": 5,
+                "secondPassConfidence": null,
+                "text": "Ceffice equipmeni Sh Cle 00",
+                "wordCount": 5
+              },
+              {
+                "agreement": 1.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  178.56,
+                  511.44,
+                  190.56
+                ],
+                "confidence": 25.36,
+                "eligible": false,
+                "index": 6,
+                "secondPassConfidence": 43.95,
+                "text": "Acceuniz payable ee Be)",
+                "wordCount": 4
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  195.36,
+                  511.44,
+                  204.96
+                ],
+                "confidence": 37.6,
+                "eligible": false,
+                "index": 7,
+                "secondPassConfidence": null,
+                "text": "Crvnar's cupaiall 5 E75",
+                "wordCount": 4
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  211.92,
+                  511.44,
+                  224.16
+                ],
+                "confidence": 47.96,
+                "eligible": false,
+                "index": 8,
+                "secondPassConfidence": null,
+                "text": "Loan payable EL aL",
+                "wordCount": 4
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  230.4,
+                  511.44,
+                  240.0
+                ],
+                "confidence": 30.93,
+                "eligible": false,
+                "index": 9,
+                "secondPassConfidence": null,
+                "text": "Flare ee be |",
+                "wordCount": 4
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  248.16,
+                  415.68,
+                  257.52
+                ],
+                "confidence": 44.13,
+                "eligible": false,
+                "index": 10,
+                "secondPassConfidence": null,
+                "text": "Reni mopenes 4,120.00",
+                "wordCount": 3
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  265.68,
+                  415.68,
+                  276.72
+                ],
+                "confidence": 31.55,
+                "eligible": false,
+                "index": 11,
+                "secondPassConfidence": null,
+                "text": "Wapes ea poe 16,600",
+                "wordCount": 4
+              },
+              {
+                "agreement": 0.0,
+                "band": "below_threshold",
+                "bbox": [
+                  82.08,
+                  280.32,
+                  513.12,
+                  292.56
+                ],
+                "confidence": 53.85,
+                "eligible": false,
+                "index": 12,
+                "secondPassConfidence": null,
+                "text": "Totals 65 435.50 65,865.50",
+                "wordCount": 4
+              }
+            ],
+            "machineRead": true,
+            "raster": {
+              "colorspace": "gray",
+              "dpi": 300,
+              "height": 3508,
+              "secondPassDpi": 450,
+              "secondPassHeight": 5262,
+              "secondPassWidth": 3721,
+              "width": 2481
+            },
+            "rasterPath": "ocr/page-003-region-01.png",
+            "reason": "agreement 0.6667 below 0.98; mean confidence 43.25 below 90.00; low-confidence share 0.76 above 0.05",
+            "scope": "page",
+            "textPath": "ocr/page-003-region-01.txt",
+            "tsvPath": "ocr/page-003-region-01.tsv",
+            "tsvSha256": "043018043e647a8363087f21e3be30698b46b342c997a1ac5b00717e5bc768c4",
+            "tsvSha256SecondPass": "8315507f805d92ae217718e6a58ce19bd775cfd6330fc411612d3e12f8dab1e8",
+            "wordCount": 50
+          }
+        ],
+        "scope": "page",
+        "skipReason": null,
+        "status": "below_threshold",
+        "textPath": "ocr/page-003-region-01.txt",
+        "textSha256": "316596a692914a652f76aeb5ef56b292a293f9c2cd5d4b97debcd1ef295a1304",
+        "tsvPath": "ocr/page-003-region-01.tsv",
+        "tsvSha256": "043018043e647a8363087f21e3be30698b46b342c997a1ac5b00717e5bc768c4",
+        "unsupportedScript": false,
+        "wordCount": 50
+      },
+      "page": 3,
+      "textSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "charCount": 318,
+      "images": [],
+      "isImageOnly": false,
+      "ocr": {
+        "agreement": null,
+        "eligibleLineCount": 0,
+        "lineCount": 0,
+        "lowConfidenceShare": null,
+        "machineRead": false,
+        "meanConfidence": null,
+        "minLine": null,
+        "regions": [],
+        "scope": null,
+        "skipReason": "text_layer",
+        "status": "not_required",
+        "textSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "unsupportedScript": false,
+        "wordCount": 0
+      },
+      "page": 4,
+      "textSha256": "0baa38e788378f8a32870e1404ff4eb341805b8b85476cd2a4ad4a54fde228c9"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "sourceId": "fixture",
+  "sourceName": "fixture.pdf",
+  "sourceSha256": "c3c09d6f57b57f04dd3eefc6724a5b51dcb8466fbaa42ff0ca6333941ba3481d"
+}

@@ -1,0 +1,410 @@
+{
+  "checks": [
+    {
+      "code": null,
+      "detail": "build ran with networking disabled and no model calls",
+      "evidence": {
+        "draft": false
+      },
+      "id": "offline",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "build ran without an OCR engine or vendored OCR data (measured probe)",
+      "evidence": {
+        "ocr": {
+          "engineInvocations": 0,
+          "invoked": false,
+          "measured": true,
+          "probe": "subprocess.run+io.open",
+          "subprocessCalls": 41,
+          "vendorRead": false
+        }
+      },
+      "id": "ocr_free_build",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "layout facts identical; bytes identical",
+      "evidence": {
+        "bytesEqual": true,
+        "pages": 6
+      },
+      "id": "determinism",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "all faces embedded; 5221 characters covered (0 Japanese)",
+      "evidence": {
+        "characters": 5221,
+        "japanese": 0
+      },
+      "id": "glyphs",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "cover-3 rendered: 1 title line(s), artwork not-applicable",
+      "evidence": {
+        "artwork": "not-applicable",
+        "chapterIndex": "none",
+        "chromaticPixels": 0,
+        "composition": "cover-3",
+        "images": 0,
+        "inkBounds": {
+          "bottomPt": 778.08,
+          "leftPt": 164.16,
+          "rightPt": 431.04,
+          "topPt": 154.08
+        },
+        "overlaps": [],
+        "rotatedTitle": false,
+        "rules": [],
+        "selection": "engine-fallback",
+        "titleLines": 1,
+        "titleSizePt": 34.01
+      },
+      "id": "cover",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "8 definition(s) inline at body size",
+      "evidence": {
+        "count": 8
+      },
+      "id": "definitions",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "7 probes extracted intact (0 machine-read)",
+      "evidence": {
+        "machineReadProbes": 0
+      },
+      "id": "text",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "6 A4 pages, none blank",
+      "evidence": {
+        "pages": 6
+      },
+      "id": "pages",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "0 figure caption(s) centred within \u00b12 pt",
+      "evidence": {
+        "captions": [],
+        "groups": {
+          "chart": {
+            "single": 0,
+            "wrapped": 0
+          },
+          "diagram": {
+            "single": 0,
+            "wrapped": 0
+          },
+          "illustration": {
+            "single": 0,
+            "wrapped": 0
+          }
+        },
+        "maxCreditDeltaPt": 0.0,
+        "maxDeltaPt": 0.0
+      },
+      "id": "captions",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "0 illustration(s), at most one per page",
+      "evidence": {
+        "pages": {}
+      },
+      "id": "illustration-limit",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "0 illustration record(s) complete and credited",
+      "evidence": {
+        "ids": []
+      },
+      "id": "rights",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "9 numbered contents entries match pages; numbering sequential",
+      "evidence": {},
+      "id": "xrefs",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "heading and body rhythm within the measured bands",
+      "evidence": {
+        "bodyPitchSamples": 24,
+        "clearanceSamples": 9,
+        "columnPages": [],
+        "deckSamples": 1,
+        "h2Samples": 6,
+        "h3Samples": 0,
+        "headingBands": [
+          {
+            "bandPt": 30.48,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "Three levels of reading"
+          },
+          {
+            "bandPt": 28.32,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "Two labels and a moved sample"
+          },
+          {
+            "bandPt": 28.32,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "The record"
+          },
+          {
+            "bandPt": 29.04,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "Comparing counts"
+          },
+          {
+            "bandPt": 28.32,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "When the evidence stops"
+          },
+          {
+            "bandPt": 29.52,
+            "column": 0,
+            "level": 2,
+            "page": 6,
+            "section": "Source note"
+          }
+        ],
+        "headingClearance": [
+          {
+            "clearancePt": 15.84,
+            "column": 0,
+            "level": 1,
+            "page": 3,
+            "section": "Reading a sample"
+          },
+          {
+            "clearancePt": 15.6,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "Three levels of reading"
+          },
+          {
+            "clearancePt": 16.32,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "Two labels and a moved sample"
+          },
+          {
+            "clearancePt": 18.72,
+            "column": 0,
+            "level": 2,
+            "page": 3,
+            "section": "The record"
+          },
+          {
+            "clearancePt": 15.6,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "Comparing counts"
+          },
+          {
+            "clearancePt": 15.84,
+            "column": 0,
+            "level": 2,
+            "page": 4,
+            "section": "When the evidence stops"
+          },
+          {
+            "clearancePt": 15.84,
+            "column": 0,
+            "level": 2,
+            "page": 5,
+            "section": "What the chapter established"
+          },
+          {
+            "clearancePt": 15.6,
+            "column": 0,
+            "level": 2,
+            "page": 6,
+            "section": "Key terms"
+          },
+          {
+            "clearancePt": 18.48,
+            "column": 0,
+            "level": 2,
+            "page": 6,
+            "section": "Source note"
+          }
+        ],
+        "paragraphGapSamples": 11,
+        "wrappedHeadingSamples": 0
+      },
+      "id": "rhythm",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "0 plate(s) at the text measure; every opener complete",
+      "evidence": {
+        "gaps": [],
+        "plates": [],
+        "visuals": [],
+        "warnings": []
+      },
+      "id": "plates",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "1 readability warning(s); answer each in review notes",
+      "evidence": {
+        "bands": {
+          "denseRunMax": 3,
+          "denseWords": 650.0,
+          "paragraphWordsMax": 240.0,
+          "paragraphWordsMedianMax": 150.0,
+          "tablesPerPageMax": 2,
+          "wordsPerPageCeiling": 800.0,
+          "wordsPerPageFloor": 60.0,
+          "wordsPerPageMedian": [
+            140.0,
+            650.0
+          ]
+        },
+        "consecutiveDensePages": {
+          "longestRun": 0,
+          "pages": []
+        },
+        "exemptions": [
+          {
+            "page": 1,
+            "reason": "cover"
+          },
+          {
+            "page": 2,
+            "reason": "contents"
+          },
+          {
+            "page": 3,
+            "reason": "chapter opener"
+          }
+        ],
+        "paragraphWords": {
+          "count": 23,
+          "max": 67,
+          "median": 23.0
+        },
+        "tablesPerPage": {
+          "max": 0,
+          "pages": {}
+        },
+        "warnings": [
+          {
+            "band": [
+              60.0,
+              null
+            ],
+            "id": "readability:wordsPerPage:page=5",
+            "metric": "wordsPerPage",
+            "pages": [
+              5
+            ],
+            "value": 58
+          }
+        ],
+        "wordsPerPage": {
+          "count": 4,
+          "median": 313.5,
+          "pages": {
+            "3": 394,
+            "4": 445,
+            "5": 58,
+            "6": 233
+          }
+        }
+      },
+      "id": "readability",
+      "status": "warn"
+    },
+    {
+      "code": null,
+      "detail": "every machineRead block is inferred and well recorded",
+      "evidence": {},
+      "id": "machine_read",
+      "status": "pass"
+    },
+    {
+      "code": null,
+      "detail": "rendered pages inspected by agent at 2026-11-15T12:00:00",
+      "evidence": {
+        "contactSheet": "evidence/contact-sheet.png",
+        "reviewedAt": "2026-11-15T12:00:00",
+        "reviewedBy": "agent",
+        "warningsAnswered": 1
+      },
+      "id": "review",
+      "status": "manual"
+    }
+  ],
+  "gate": "pass",
+  "generatedFrom": {
+    "manuscript": "book.yaml",
+    "manuscriptRevision": 2,
+    "pdf": "evidence/teachable-textbook.pdf",
+    "pdfSha256": "57dab763047c0dab30e1ab0cdcb2895708d26265feb7669d8a119035db5d1bf3",
+    "previousPdf": "evidence/book-2.pdf"
+  },
+  "pins": {
+    "python": "3.13.16",
+    "typst": "0.15.1"
+  },
+  "schemaVersion": "1.1",
+  "warnings": [
+    {
+      "check": "readability",
+      "detail": {
+        "band": [
+          60.0,
+          null
+        ],
+        "id": "readability:wordsPerPage:page=5",
+        "metric": "wordsPerPage",
+        "pages": [
+          5
+        ],
+        "value": 58
+      },
+      "id": "readability:wordsPerPage:page=5"
+    }
+  ]
+}

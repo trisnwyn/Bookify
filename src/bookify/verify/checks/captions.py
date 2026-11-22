@@ -56,6 +56,9 @@ class CaptionSpec:
     text: str
     preset: str = "full"
     credit: str | None = None
+    # An authored two-column chapter (A2): the caption centres in the column it
+    # occupies, not on the page.
+    columns: int = 1
 
 
 @dataclass(frozen=True)
@@ -76,6 +79,28 @@ class CaptionMeasurement:
 def page_margin(page_width: float) -> float:
     """The side margins implied by the declared body measure on this page."""
     return (page_width - tokens.BODY_MEASURE_PT) / 2
+
+
+def column_bounds(index: int, page_width: float) -> tuple[float, float]:
+    """One equal column of an authored two-column page, in page points."""
+    from bookify.design import tokens as design_tokens
+
+    margin = page_margin(page_width)
+    width = design_tokens.COLUMN_WIDTH_PT
+    gutter = design_tokens.SIDE_GUTTER_PT
+    if index == 0:
+        return margin, margin + width
+    return margin + width + gutter, margin + width + gutter + width
+
+
+def column_index(line: "LineBox", page_width: float) -> int:
+    margin = page_margin(page_width)
+    return 1 if line.x_min >= margin + tokens.BODY_MEASURE_PT / 2 else 0
+
+
+def _in_column(index: int, line: "LineBox", page_width: float) -> bool:
+    left, right = column_bounds(index, page_width)
+    return line.x_min >= left - TOLERANCE_PT and line.x_max <= right + TOLERANCE_PT
 
 
 def image_column(preset: str, page_width: float) -> tuple[float, float] | None:
@@ -163,7 +188,8 @@ def expected_captions(manuscript: model.Manuscript) -> tuple[CaptionSpec, ...]:
     }
     document = normalize.build(manuscript, figure_paths, draft=True)
     specs: list[CaptionSpec] = []
-    for section in document.data["sections"]:
+    columns_by_section = model.effective_columns(document.data["sections"])
+    for index, section in enumerate(document.data["sections"]):
         for block in section["blocks"]:
             if block["type"] in FIGURE_KINDS:
                 # D5: the provenance line shares the centred caption block, so
@@ -180,6 +206,7 @@ def expected_captions(manuscript: model.Manuscript) -> tuple[CaptionSpec, ...]:
                         text=text,
                         preset=block.get("composition", "full"),
                         credit=block.get("credit") if block["type"] == "illustration" else None,
+                        columns=columns_by_section[index],
                     )
                 )
     return tuple(specs)
@@ -283,8 +310,61 @@ def _measure_side(spec: CaptionSpec, lines: tuple[LineBox, ...]) -> CaptionMeasu
     )
 
 
+def _measure_column(spec: CaptionSpec, lines: tuple[LineBox, ...]) -> CaptionMeasurement | str:
+    """Isolate a caption inside one column of a two-column chapter (A2)."""
+    candidates = [
+        index
+        for index, line in enumerate(lines)
+        if line.text.startswith(f"{spec.label}.")
+        and (_in_column(0, line, line.page_width) or _in_column(1, line, line.page_width))
+    ]
+    if not candidates:
+        return f"{spec.label}: caption label not found in either column"
+    if len(candidates) > 1:
+        return f"{spec.label}: caption could not be isolated; label appears more than once"
+
+    start_index = candidates[0]
+    start = lines[start_index]
+    column = column_index(start, start.page_width)
+    left, right = column_bounds(column, start.page_width)
+    expected = _stream(spec.text)
+    start_stream = _stream(start.text)
+    if start_stream != expected[: len(start_stream)]:
+        return f"{spec.label}: caption could not be isolated; first line does not match the stored description"
+
+    collected = [start]
+    consumed = len(start_stream)
+    for line in lines[start_index + 1 :]:
+        if consumed >= len(expected):
+            break
+        if line.page != start.page:
+            return f"{spec.label}: caption crosses a page boundary"
+        if not _in_column(column, line, start.page_width):
+            # Interleaved prose from the adjacent column is allowed.
+            continue
+        line_stream = _stream(line.text)
+        if line_stream == expected[consumed : consumed + len(line_stream)]:
+            collected.append(line)
+            consumed += len(line_stream)
+
+    if consumed < len(expected):
+        return f"{spec.label}: caption could not be isolated in its column; expected text ended early"
+
+    return CaptionMeasurement(
+        block_id=spec.block_id,
+        kind=spec.kind,
+        label=spec.label,
+        page=start.page,
+        lines=tuple(collected),
+        preset=spec.preset,
+        target_centre_pt=(left + right) / 2,
+    )
+
+
 def measure(spec: CaptionSpec, lines: tuple[LineBox, ...]) -> CaptionMeasurement | str:
     """Isolate one caption; full captions keep consecutive lines, side captions allow prose."""
+    if spec.columns == 2 and spec.preset not in SIDE_PRESETS:
+        return _measure_column(spec, lines)
     if spec.preset in SIDE_PRESETS:
         return _measure_side(spec, lines)
     return _measure_full(spec, lines)
@@ -391,8 +471,12 @@ def check(
         if isinstance(outcome, str):
             problems.append(outcome)
             continue
-        edge = credit_edge(spec.preset, measurement.lines[0].page_width)
-        column = image_column(spec.preset, measurement.lines[0].page_width)
+        page_width = measurement.lines[0].page_width
+        column = image_column(spec.preset, page_width)
+        if column is None and spec.columns == 2:
+            # A column caption's credit is left-aligned in that same column.
+            column = column_bounds(column_index(measurement.lines[0], page_width), page_width)
+        edge = column[0] if column is not None else credit_edge(spec.preset, page_width)
         book_page = abs(
             measurement.lines[0].page_width
             - (tokens.BODY_MEASURE_PT + 2 * tokens.PAGE_MARGIN_PT)

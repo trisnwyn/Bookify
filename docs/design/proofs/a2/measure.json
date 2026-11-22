@@ -1,0 +1,219 @@
+{
+  "geometry_pt": {
+    "page": [
+      595.2756,
+      841.8898
+    ],
+    "text_block": [
+      60.0,
+      60.0,
+      535.276,
+      781.89
+    ],
+    "columns": {
+      "one": [
+        60.0,
+        289.638
+      ],
+      "two": [
+        305.638,
+        535.276
+      ],
+      "width": 229.638,
+      "gutter": 16.0
+    }
+  },
+  "pages": [
+    {
+      "page": 1,
+      "title_bbox": {
+        "x0": 60.0,
+        "y0": 56.65,
+        "x1": 428.86,
+        "y1": 122.1
+      },
+      "col1_text_bbox": {
+        "x0": 60.0,
+        "y0": 124.16,
+        "x1": 291.72,
+        "y1": 777.7
+      },
+      "col2_text_bbox": {
+        "x0": 305.64,
+        "y0": 125.16,
+        "x1": 537.36,
+        "y1": 765.61
+      },
+      "words_in_columns": 489,
+      "words_crossing_gutter": [],
+      "right_edge_overhang": {
+        "col1": {
+          "count": 10,
+          "max_x": 291.72
+        },
+        "col2": {
+          "count": 10,
+          "max_x": 537.36
+        }
+      },
+      "folio_bbox": {
+        "x0": 295.11,
+        "y0": 795.86,
+        "x1": 300.16,
+        "y1": 811.23
+      },
+      "body_ink_bbox_px300": {
+        "x0": 59.76,
+        "y0": 60.0,
+        "x1": 536.88,
+        "y1": 775.2
+      },
+      "full_page_ink_bbox_px300": {
+        "x0": 59.76,
+        "y0": 59.76,
+        "x1": 536.88,
+        "y1": 806.4
+      },
+      "figure_unit_bbox_with_text": {
+        "x0": 305.52,
+        "y0": 486.96,
+        "x1": 535.2,
+        "y1": 665.76
+      },
+      "figure_label_caption_bbox": {
+        "x0": 339.79,
+        "y0": 484.03,
+        "x1": 493.92,
+        "y1": 667.59
+      },
+      "figure_vertical_clearance": {
+        "above": 6.08,
+        "below": 6.17
+      },
+      "image_size_px": [
+        2481,
+        3508
+      ]
+    },
+    {
+      "page": 2,
+      "title_bbox": null,
+      "col1_text_bbox": {
+        "x0": 60.0,
+        "y0": 55.97,
+        "x1": 291.72,
+        "y1": 757.73
+      },
+      "col2_text_bbox": {
+        "x0": 305.64,
+        "y0": 55.97,
+        "x1": 537.36,
+        "y1": 772.27
+      },
+      "words_in_columns": 596,
+      "words_crossing_gutter": [],
+      "right_edge_overhang": {
+        "col1": {
+          "count": 7,
+          "max_x": 291.72
+        },
+        "col2": {
+          "count": 13,
+          "max_x": 537.36
+        }
+      },
+      "folio_bbox": {
+        "x0": 295.11,
+        "y0": 795.86,
+        "x1": 300.16,
+        "y1": 811.23
+      },
+      "body_ink_bbox_px300": {
+        "x0": 60.0,
+        "y0": 60.0,
+        "x1": 536.88,
+        "y1": 770.16
+      },
+      "full_page_ink_bbox_px300": {
+        "x0": 60.0,
+        "y0": 58.8,
+        "x1": 536.88,
+        "y1": 806.4
+      },
+      "figure_unit_bbox_with_text": null,
+      "figure_label_caption_bbox": null,
+      "figure_vertical_clearance": {
+        "above": null,
+        "below": null
+      },
+      "image_size_px": [
+        2481,
+        3508
+      ]
+    }
+  ],
+  "measured_line_pitch_pt": {
+    "nominal": 15.3,
+    "median": 15.3,
+    "min": 15.29,
+    "max": 15.3,
+    "samples": 30
+  },
+  "heading_gaps": {
+    "Chapter 2": {
+      "heading_ink": [
+        68.64,
+        93.12
+      ],
+      "next_content_ink": [
+        109.2,
+        119.76
+      ],
+      "white_gap_pt": 16.08
+    },
+    "2. Example 1": {
+      "heading_ink": [
+        127.76,
+        140.24
+      ],
+      "next_content_ink": [
+        156.32,
+        165.2
+      ],
+      "white_gap_pt": 16.08
+    },
+    "2.1 Example 2": {
+      "heading_ink": [
+        499.24,
+        509.32
+      ],
+      "next_content_ink": [
+        524.92,
+        535.0
+      ],
+      "white_gap_pt": 15.6
+    },
+    "2.1.1 Continuing Branch": {
+      "heading_ink": [
+        141.0,
+        151.32
+      ],
+      "next_content_ink": [
+        166.92,
+        177.0
+      ],
+      "white_gap_pt": 15.6
+    },
+    "2.1.1.1 Deeper Branch": {
+      "heading_ink": [
+        428.0,
+        438.08
+      ],
+      "next_content_ink": [
+        453.92,
+        464.0
+      ],
+      "white_gap_pt": 15.84
+    }
+  }
+}

@@ -1,7 +1,18 @@
 # A1 — Textbook layout (working document)
 
-**Status:** `brainstorm` · **Owner:** user · **Encoder:** AI
-**Latest disposable proof:** `build/design/a1/` (not approved). It renders the four reference compositions at the current A4/type/measure tokens, applies the confirmed numerical hierarchy (`Chapter 1: Title` → `1. …` → `1.1 …` → `1.1 a)` / `1.1.1 …`), and enforces the fixed rule that every heading clears following content by at least one visible body blank line. Measured minimum: 15.84 pt against the 15.30 pt body line pitch. A1's layout questions remain open; this is not a decision or approval.
+**Status:** `encoded+proof` · **Owner:** user · **Encoder:** AI
+**Production renderer:** the four A1 compositions, the hierarchy
+`Chapter 1: Title` → `1.1 Heading` → `1.1.1 Subheading` → terminal `1.1.1 a)` or continuing `1.1.1.1` / `1.1.1.1.1` and the
+rule that every heading clears following content by at least one visible body
+blank line are integrated into the real build path (not only a proof), with a
+centred 430 pt visual, side prose groups, terminal `branch` blocks and an
+authored per-section two-column layout. Measured heading clearance: 15.60 pt
+minimum against the 15.30 pt body line pitch.
+**Tracked sources:** `docs/design/proofs/` (the proof `.typ` files, READMEs and
+measurement records). The original disposable artefacts stay in `build/design/`.
+The A1 layout questions Q1 and Q3–Q7 remain open, and Q2 (column count) remains
+open: two columns are available per section, never the default. This is
+`encoded+proof`, not an approval.
 **Scope of this document:** the body page only. Everything below is open until the
 user records a decision. Nothing here is a proposal; the baseline is what the current
 build measures, not what the design should be.
@@ -50,11 +61,25 @@ optional figure embedded in the right column and continuation on page 2. It uses
 baseline values above unchanged and the user-supplied numerical heading path
 `Chapter 2 → 2. → 2.1 → 2.1 a–c → 2.1.1 → 2.1.1.1`.
 
+**Superseded 2026-11-21.** The production hierarchy drops the bare `2.` step:
+`Chapter 2 → 2.1 → 2.1.1 → 2.1.1 a–c → 2.1.1.1 → 2.1.1.1.1`. The `2.` marker made
+`§` references ambiguous in prose — `§2.` was both the first section and a chapter
+reference followed by a full stop — and the proof above stays a record of what that
+proof used, not the current rule.
+
 Fixed heading-clearance rule recorded by the proof: every heading (chapter, section,
-subsection) is followed by at least one visibly blank body line. The proof uses
-15.30 pt (one body line pitch) as the reserved white band; the rendered 300 dpi
-measurement is 15.60 pt minimum. It is evidence only: Q2 (column count) remains open,
-and no product template, theme, or numbering code is changed.
+subsection, and now the fourth level) is followed by at least one visibly blank
+body line. The reserved white band is 15.30 pt (one body line pitch) on top of
+the face's descender ink and the next line's ascender overhang; the rendered
+300 dpi measurement is 15.60 pt minimum, and verify fails anything below the
+line pitch.
+
+The two-column composition is now an authored per-section capability
+(`layout: {columns: 2}`), with the heading and standfirst at the full measure and
+the body in two 229.64 pt columns. The chapter's descendants inherit the layout:
+their headings and figures stay inside the same columns, a column visual takes
+the column measure, and a side composition is refused there. Q2 (whether two
+columns are the default anywhere) remains open, so single column is the default.
 
 ## Brainstorm questions
 

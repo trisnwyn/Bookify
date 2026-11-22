@@ -15,8 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 # Bookify v2 D3 rebaseline: the normaliser now also materialises the printed
 # section number, the chapter/appendix role and the resolved cover index. The
 # semantic assertions below (no composition/companion leak) are unchanged.
-SPECIMEN_NORMALIZED_SHA256 = "1e6882085997843b9a19b9865f05ef69290201bae97a7e4150cda798a759abc6"
-SYNTHETIC_TRIAL_NORMALIZED_SHA256 = "42d70b6f0db2fc64efb59c6c291b5159e24fae6c652c4e46391b6a1449696a82"
+SPECIMEN_NORMALIZED_SHA256 = "d7fc9fe7299aa2afa15b0a739d8772ac5d41ae4d5ec4cd45987cdae83392f193"
+SYNTHETIC_TRIAL_NORMALIZED_SHA256 = "28857d98cbb1317f86f0647e1d2204ee7d9894519e7caf6ea1824021dc8f12d5"
 
 
 def _manuscript(tmp_path: Path, blocks: list[dict], name: str = "composition") -> model.Manuscript:
@@ -189,10 +189,20 @@ def test_specimen_and_synthetic_trial_normalized_documents_carry_resolved_hierar
         document = _document(manuscript)
         raw = json.dumps(document.data, sort_keys=True, ensure_ascii=False)
         assert hashlib.sha256(raw.encode()).hexdigest() == expected, label
-        assert "composition" not in raw and "companion" not in raw
+        assert "companion" not in raw
+        for section in document.data["sections"]:
+            for block in section["blocks"]:
+                assert "composition" not in block, block["id"]
+        # The integrated design is in the document model: a chapter heading line
+        # and a recorded cover decision, not the retired ledger/index payload.
+        assert document.data["cover"]["composition"] == "cover-3"
+        assert document.data["cover"]["selection"] == "engine-fallback"
+        assert "indexMode" not in document.data["cover"]
+        assert document.data["numbering"]["levels"] == 5
         for index, section in enumerate(document.data["sections"]):
             assert section["level"] == 1
             assert section["breakBefore"] == ("auto" if index == 0 else "page")
+            assert section["heading"].startswith(f"Chapter {index + 1}: ")
 
 
 def test_composition_entries_record_the_page_and_deferral(tmp_path: Path) -> None:
@@ -213,15 +223,19 @@ def test_composition_entries_record_the_page_and_deferral(tmp_path: Path) -> Non
     assert entries == [
         {
             "blockId": "b-photo-a",
+            "type": "illustration",
             "preset": "side-left",
             "companionId": "b-text",
+            "companionIds": ["b-text"],
             "page": 4,
             "deferred": False,
         },
         {
             "blockId": "b-photo-b",
+            "type": "illustration",
             "preset": "side-right",
             "companionId": "b-text-b",
+            "companionIds": ["b-text-b"],
             "page": 4,
             "deferred": False,
         },
