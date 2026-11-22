@@ -1,0 +1,308 @@
+schemaVersion: "1.0"
+revision: 1
+id: lorem-compositions
+metadata:
+  title: "Lorem Ipsum"
+  subtitle: "Four body compositions and a numbered hierarchy, in placeholder text"
+  languages: [en]
+  institution: "Example Institute"
+  course: "Composition Study"
+  author: "Bookify"
+  cover:
+    composition: cover-1
+    artwork: art-1
+sections:
+  - id: sec-plate
+    title: "Prose, Then a Full Plate"
+    kicker: "COMPOSITION ONE"
+    standfirst: "Full-measure prose followed by a plate at the 475.28 pt measure, with one centred caption carrying description and note, and the credit set separately at the left margin."
+    blocks:
+      - id: b-plate-a
+        type: paragraph
+        confidence: verified
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum. Donec ullamcorper nulla non metus auctor fringilla, sed posuere consectetur est at lobortis. Maecenas faucibus mollis interdum, etiam porta sem malesuada magna mollis euismod."
+      - id: b-plate-b
+        type: paragraph
+        confidence: verified
+        text: "Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean lacinia bibendum nulla sed consectetur. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Vestibulum id ligula porta felis euismod semper, curabitur blandit tempus porttitor."
+      - id: b-plate-photo
+        type: illustration
+        illustrationId: photo-1
+        caption: "A public-domain photograph used here only to show plate measure, centred caption and separate credit."
+        composition:
+          preset: full
+  - id: sec-plate-sub
+    title: "A Numbered Subsection"
+    level: 2
+    blocks:
+      - id: b-plate-sub-a
+        type: paragraph
+        confidence: verified
+        text: "Donec id elit non mi porta gravida at eget metus. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Sed posuere consectetur est at lobortis, aenean eu leo quam, pellentesque ornare sem lacinia quam venenatis vestibulum."
+  - id: sec-centred
+    title: "Prose and a Centred Visual"
+    breakBefore: page
+    kicker: "COMPOSITION TWO"
+    standfirst: "A centred visual at the 430 pt figure measure, followed by a table that repeats its header if it splits and keeps its caption once at the end."
+    blocks:
+      - id: b-centred-a
+        type: paragraph
+        confidence: verified
+        text: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit."
+      - id: b-centred-chart
+        type: chart
+        caption: "Two years of placeholder values shown side by side so the direction of change is readable without a legend."
+        confidence: inferred
+        chart:
+          kind: grouped_bar
+          categories: [North, South, East]
+          series:
+            - {id: y2025, label: "2025"}
+            - {id: y2026, label: "2026"}
+          values: [[32, 38], [27, 31], [22, 29]]
+          axis: {unit: sessions, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for this layout study."
+      - id: b-centred-b
+        type: paragraph
+        confidence: verified
+        text: "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem."
+      - id: b-centred-table
+        type: table
+        caption: "A four-row table in the body measure, with a header that repeats if the table splits."
+        header: [Composition, Measure, Caption]
+        rows:
+          - [Full plate, "475.28 pt", Centred]
+          - [Centred visual, "430 pt", Centred]
+          - [Side left, "46 %", Below the unit]
+          - [Side right, "46 %", Below the unit]
+      - id: b-centred-c0
+        type: paragraph
+        confidence: verified
+        text: "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est."
+      - id: b-centred-c1
+        type: paragraph
+        confidence: verified
+        text: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident."
+      - id: b-centred-c2
+        type: paragraph
+        confidence: verified
+        text: "Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus, duis mollis est non commodo luctus."
+  - id: sec-side
+    title: "Prose Beside the Image"
+    breakBefore: page
+    kicker: "COMPOSITION THREE"
+    standfirst: "A 46 % image column with a 16 pt gutter: prose beside a left image, then an image beside a three-block companion group on the right."
+    blocks:
+      - id: b-side-left-photo
+        type: illustration
+        illustrationId: photo-a
+        caption: "A left-hand image column with its companion prose read first."
+        composition:
+          preset: side-left
+          companion: b-side-left-note
+      - id: b-side-left-note
+        type: paragraph
+        confidence: verified
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum. Donec ullamcorper nulla non metus auctor fringilla."
+      - id: b-side-left-a1
+        type: paragraph
+        confidence: verified
+        text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+      - id: b-side-left-a2
+        type: paragraph
+        confidence: verified
+        text: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
+      - id: b-side-left-a3
+        type: paragraph
+        confidence: verified
+        text: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+      - id: b-side-left-a4
+        type: paragraph
+        confidence: verified
+        text: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt, neque porro quisquam est qui dolorem ipsum quia dolor sit amet."
+      - id: b-side-left-a5
+        type: paragraph
+        confidence: verified
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum. Donec ullamcorper nulla non metus auctor fringilla, sed posuere consectetur est at lobortis."
+      - id: b-side-left-a6
+        type: paragraph
+        confidence: verified
+        text: "Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean lacinia bibendum nulla sed consectetur. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Vestibulum id ligula porta felis euismod semper, curabitur blandit tempus porttitor."
+      - id: b-side-left-a7
+        type: paragraph
+        confidence: verified
+        text: "Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula."
+      - id: b-side-right-photo
+        type: illustration
+        illustrationId: hist-1
+        caption: "The same gutter, mirrored, carrying an ordered group of companions."
+        composition:
+          preset: side-right
+          companions: [b-side-c1, b-side-c2, b-side-c3]
+      - id: b-side-c1
+        type: paragraph
+        confidence: verified
+        text: "Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean lacinia bibendum nulla sed consectetur."
+      - id: b-side-c2
+        type: quote
+        text: "Morbi leo risus, porta ac consectetur ac, vestibulum at eros."
+        attribution: "Lorem"
+      - id: b-side-c3
+        type: definition
+        term: "Placeholder"
+        definition: "A word standing in for content that is not yet written, set inline in body type."
+      - id: b-side-right-b1
+        type: paragraph
+        confidence: verified
+        text: "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est."
+      - id: b-side-right-b2
+        type: paragraph
+        confidence: verified
+        text: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident."
+      - id: b-side-right-b3
+        type: paragraph
+        confidence: verified
+        text: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+      - id: b-side-right-b4
+        type: paragraph
+        confidence: verified
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum. Donec ullamcorper nulla non metus auctor fringilla, sed posuere consectetur est at lobortis."
+      - id: b-side-right-a1
+        type: paragraph
+        confidence: verified
+        text: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
+      - id: b-side-right-a2
+        type: paragraph
+        confidence: verified
+        text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+  - id: sec-columns
+    title: "Two Columns"
+    breakBefore: page
+    kicker: "COMPOSITION FOUR"
+    layout:
+      columns: 2
+    standfirst: "A two-column chapter: heading and standfirst stay full measure, descendants flow inside the columns, and a chart takes the 229.64 pt column measure."
+    blocks:
+      - id: b-col-a
+        type: paragraph
+        confidence: verified
+        text: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi."
+      - id: b-col-d
+        type: paragraph
+        confidence: verified
+        text: "Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean lacinia bibendum nulla sed consectetur. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Vestibulum id ligula porta felis euismod semper, curabitur blandit tempus porttitor."
+      - id: b-col-b
+        type: paragraph
+        confidence: verified
+        text: "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est."
+      - id: b-col-c
+        type: paragraph
+        confidence: verified
+        text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+      - id: b-col-chart
+        type: chart
+        caption: "A chart inside the column flow takes the column measure rather than the plate measure."
+        chart:
+          kind: bar
+          categories: [A, B, C]
+          series:
+            - {id: value, label: Value}
+          values: [[12], [18], [15]]
+          axis: {unit: index, min: 0}
+          verification: synthetic
+          notes: "Synthetic values authored for this layout study." 
+  - id: sec-columns-sub
+    title: "Inside the Column Flow"
+    level: 2
+    blocks:
+      - id: b-col-sub-a
+        type: paragraph
+        confidence: verified
+        text: "Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus."
+      - id: b-col-sub-b
+        type: paragraph
+        confidence: verified
+        text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+      - id: b-col-branch-a
+        type: branch
+        text: "A terminal branch is one body paragraph whose run-in marker follows its section number."
+      - id: b-col-branch-b
+        type: branch
+        text: "The second branch keeps the same marker stem and advances the letter, so the pair reads as one list."
+      - id: b-col-sub-c
+        type: paragraph
+        confidence: verified
+        text: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
+      - id: b-col-eq
+        type: equation
+        typst: "overline(x) = 1/n sum_(i=1)^n x_i"
+        caption: "Display mathematics stays vector text at the column measure."
+  - id: sec-diagram
+    title: "A Diagram and Ordinary Prose"
+    breakBefore: page
+    kicker: "COMPOSITION FIVE"
+    blocks:
+      - id: b-diagram
+        type: diagram
+        caption: "A process diagram at plate measure, with its caption and provenance in one centred block."
+        confidence: inferred
+        note: "Illustrative schematic; no source evidence."
+        diagram:
+          preset: process
+          synthetic: true
+          nodes:
+            - {id: n-one, label: "Read", sub: "input"}
+            - {id: n-two, label: "Set", sub: "compose"}
+            - {id: n-three, label: "Check", sub: "measure"}
+          edges:
+            - {from: n-one, to: n-two, kind: arrow}
+            - {from: n-two, to: n-three, kind: arrow}
+      - id: b-diagram-a
+        type: paragraph
+        confidence: verified
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum, donec ullamcorper nulla non metus auctor fringilla."
+      - id: b-diagram-d
+        type: paragraph
+        confidence: verified
+        text: "Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula."
+      - id: b-diagram-e
+        type: paragraph
+        confidence: verified
+        text: "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est."
+      - id: b-diagram-f
+        type: paragraph
+        confidence: verified
+        text: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident."
+      - id: b-diagram-g
+        type: paragraph
+        confidence: verified
+        text: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+      - id: b-diagram-h
+        type: paragraph
+        confidence: verified
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum. Donec ullamcorper nulla non metus auctor fringilla, sed posuere consectetur est at lobortis."
+      - id: b-diagram-i0
+        type: paragraph
+        confidence: verified
+        text: "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est."
+      - id: b-diagram-i1
+        type: paragraph
+        confidence: verified
+        text: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident."
+      - id: b-diagram-i2
+        type: paragraph
+        confidence: verified
+        text: "Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus, duis mollis est non commodo luctus."
+      - id: b-diagram-i3
+        type: paragraph
+        confidence: verified
+        text: "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est."
+      - id: b-diagram-b
+        type: paragraph
+        confidence: verified
+        text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+      - id: b-diagram-c
+        type: paragraph
+        confidence: verified
+        text: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
