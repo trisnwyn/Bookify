@@ -2,6 +2,8 @@
 
 A local authoring and offline publishing pipeline for long-form books: extract supplied PDFs, author a validated manuscript with uncertainty and rights recorded, compile it with Typst, and verify the result with evidence.
 
+A build writes one A4 PDF that carries its own identity — title, author and a PDF/A-2b conformance record — and the gate re-opens that file and checks it against the manuscript, so a document that misdescribes its book cannot pass.
+
 Content generation (agent-assisted, separate) never runs inside publishing. A build is a pure function of manuscript + assets + pinned local tools.
 
 ## Licence and status
@@ -121,10 +123,10 @@ any excluded file. Installation and verification commands are in
 ## Layout
 
 ```
-content/        manuscript YAML (specimen, catalogue)
+content/        manuscript YAML (specimen, catalogue, composition demo)
 schemas/        closed JSON Schema, examples, negative fixtures
 src/bookify/    toolchain, manuscript, design, figures, publish, intake, authoring, verify
-typst/          theme, block presets, book template, CeTZ diagram
+typst/          theme, block presets, seven covers, body compositions, book template, CeTZ diagram
 assets/          fonts, illustration records and images
 fixtures/       adversarial, negative and synthetic-trial test inputs
 examples/       reviewed catalogue PDF used by the packaging helper
@@ -133,9 +135,24 @@ skill/bookify/  this project's local skill (does not replace pdf-book-design)
 build/, dist/   generated output (ignored)
 ```
 
-## Limits (v1)
+## What a build produces
 
-- One chart kind (`grouped_bar`) and two diagram presets; no other output formats.
+One A4 PDF from a manuscript, its assets and the pinned tools, written offline:
+
+- PDF/A-2b, with `/OutputIntent`, `/Title` and `/Author` from the manuscript, a tagged structure tree and bookmarks from the heading tree. `/Lang` is present but set by the compiler, not the manuscript (see Limits). `verify` proves the conformance claim rather than taking the compiler's word for it.
+- A cover from one of seven compositions (`cover-1` … `cover-7`, selected in `metadata.cover`), body pages from four presets (`full` plate at 475.28 pt, `centred` at 430 pt, `side-left`, `side-right` at 46 % with a 16 pt gutter), two-column chapters, and branch blocks.
+- Fifteen chart kinds, ten diagram presets, four illustration families, tables and display mathematics, all as vector text.
+- Hierarchical numbering: `Chapter 1:` → `1.1` → `1.1.1` → `1.1.1.1`, contents to depth 5, and `§` references that print the number the heading prints.
+- One illustration per page; a second is deferred to the next illustration-free page in its section and recorded.
+- `build/build-report.json` as evidence: pages, placements, deferrals, plates, captions, readability, and the offline guard state.
+- A verify gate of eighteen checks (twenty for the catalogue). Red output fails it; a warning needs a recorded review decision.
+
+## Limits
+
+- PDF only. No EPUB, HTML or DOCX output, and one book per build.
+- Not print-ready. Chapter starts are not forced to recto, blank versos are never inserted and margins are not mirrored; the page model has no recto/verso parity.
+- No declared manuscript language for hyphenation, so Typst applies its default English rules to every book. Vietnamese has no dictionary and is never hyphenated, and English can break a word down to a two-letter fragment.
+- PDF/A-2b is claimed and verified; PDF/UA-1 is not. Equations carry no `alt` text in the schema, so the pipeline does not claim tagged accessibility.
 - OCR is Latin-first: `eng` by default, `vie` opt-in (tone-mark errors measured below the adequate band), no CJK. Adequate OCR is inferred, never verified; digits need a recorded cross-check. Image-only pages stay unresolved when OCR is below threshold.
 - Publishing requires `--offline` and a build directory inside the repository; the build uses `bwrap --unshare-net`.
 - `bwrap` is a verification dependency, not a pinned runtime package.

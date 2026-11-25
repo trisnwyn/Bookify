@@ -34,11 +34,18 @@ Equation `typst` is math source, not markup. It is parsed with `eval(source, mod
 | offline | build report, bound to the PDF and manuscript hashes/versions | `NETWORK_DENIED` |
 | determinism | current + previous PDF | `BUILD_FAILED` |
 | glyphs | `pdffonts`, every rendered string vs font cmaps (including equations) | `GLYPH_MISSING` |
+| docmeta | `pdfinfo` + `pdfinfo -meta`: `/Title`, `/Author`, language and any claimed standard against the manuscript | `BUILD_FAILED` |
+| cover | manuscript metadata and rendered ink: title ≤ 3 lines, no folio, no chromatic pixels, ink inside the 60 pt block | `VERIFY_FAILED` |
+| definitions | page text: inline `Term: definition` at body size | `VERIFY_FAILED` |
 | text | `pdftotext` probes (title, scripts, labels, credit, notes) | `BUILD_FAILED` |
 | pages | `pdfinfo`, rendered ink (per-page render, 10+ page safe) | `BUILD_FAILED` |
+| captions | page text lines: one centred caption per visual, credit left and separate | `VERIFY_FAILED` |
 | illustration-limit | page text: `Photograph N.` | `ILLUSTRATION_LIMIT` |
 | rights | records + page text | `RIGHTS_INCOMPLETE` |
-| xrefs | contents lines, numbered labels | `XREF_MISSING` |
+| xrefs | contents lines, numbered labels, `§` tokens | `XREF_MISSING` |
+| rhythm | rendered lines at 300 dpi: line pitch and the white band below every heading | `VERIFY_FAILED` |
+| plates | chapter openers and the measured width of each placed visual | `VERIFY_FAILED` |
+| readability | words per page, tables per page and paragraph length, with bands | warning only |
 | machine_read | manuscript `machineRead` blocks: region/method/confidence, never `verified`, table note, digit cross-check, no OCR chart | `SCHEMA_INVALID` |
 | ocr_free_build | build report OCR boundary record | `BUILD_FAILED` |
 | review | contact sheet + reviewer | `VERIFY_FAILED` |
