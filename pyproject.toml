@@ -43,7 +43,7 @@ packages = ["src/bookify"]
 "assets/fonts/Spectral-Bold.ttf" = "bookify/_data/assets/fonts/Spectral-Bold.ttf"
 "assets/fonts/Spectral-BoldItalic.ttf" = "bookify/_data/assets/fonts/Spectral-BoldItalic.ttf"
 "assets/fonts/STIXTwoMath-Regular.otf" = "bookify/_data/assets/fonts/STIXTwoMath-Regular.otf"
-"skill/bookify" = "bookify/_data/skill/bookify"
+"skills/bookify" = "bookify/_data/skills/bookify"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

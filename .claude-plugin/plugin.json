@@ -1,0 +1,26 @@
+{
+  "name": "bookify",
+  "version": "0.2.0",
+  "description": "Author publication-grade designed books, scholarly monographs, and practice workbooks from PDFs, slides, or notes using offline Typst typesetting and 18-check verification.",
+  "author": {
+    "name": "Bookify Maintainers"
+  },
+  "license": "MIT",
+  "keywords": [
+    "book",
+    "typst",
+    "pdf",
+    "textbook",
+    "monograph",
+    "latex",
+    "math",
+    "typesetting",
+    "publishing"
+  ],
+  "skills": [
+    "./skills/bookify"
+  ],
+  "commands": [
+    "./skills/bookify/commands"
+  ]
+}

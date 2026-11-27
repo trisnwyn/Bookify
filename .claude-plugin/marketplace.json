@@ -1,0 +1,19 @@
+{
+  "name": "bookify-marketplace",
+  "owner": {
+    "name": "Bookify Maintainers"
+  },
+  "metadata": {
+    "description": "Official plugin marketplace for Bookify — offline Typst book authoring and verification for AI coding agents."
+  },
+  "plugins": [
+    {
+      "name": "bookify",
+      "source": "./",
+      "description": "Author publication-grade designed books, scholarly math monographs, and practice workbooks offline with Typst and 18-check verification.",
+      "version": "0.2.0",
+      "license": "MIT",
+      "category": "publishing"
+    }
+  ]
+}

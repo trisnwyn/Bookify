@@ -42,6 +42,25 @@ def _parser() -> argparse.ArgumentParser:
     fonts_install.add_argument("--from-file", type=Path, default=None, help="install from a local file instead of downloading")
     fonts_install.add_argument("--json", action="store_true")
 
+    skill = subparsers.add_parser("skill", help="list or install the portable Bookify AI-agent skill")
+    skill_sub = skill.add_subparsers(dest="skill_command", required=True)
+    skill_list = skill_sub.add_parser("list", help="list supported agent platforms and install status")
+    skill_list.add_argument("--scope", choices=("global", "project"), default="global")
+    skill_list.add_argument("--project-dir", type=Path, default=None)
+    skill_list.add_argument("--json", action="store_true")
+    skill_inst = skill_sub.add_parser("install", help="install the lightweight Bookify skill to an agent platform")
+    skill_inst.add_argument(
+        "--platform",
+        choices=("claude", "codex", "opencode", "cursor", "antigravity", "agents", "all"),
+        required=True,
+    )
+    skill_inst.add_argument("--scope", choices=("global", "project"), default="global")
+    skill_inst.add_argument("--project-dir", type=Path, default=None)
+    skill_inst.add_argument("--target", type=Path, default=None, help="explicit target skill directory override")
+    skill_inst.add_argument("--overwrite", action="store_true", help="replace a non-Bookify directory at the target")
+    skill_inst.add_argument("--no-commands", action="store_true", help="skip installing slash command templates")
+    skill_inst.add_argument("--json", action="store_true")
+
     toolchain = subparsers.add_parser("toolchain", help="report or verify the local toolchain")
     toolchain_sub = toolchain.add_subparsers(dest="toolchain_command", required=True)
     doctor_parser = toolchain_sub.add_parser("doctor", help="report pins, fonts, packages and interpreter")
@@ -617,6 +636,41 @@ def _fonts_install(args: argparse.Namespace) -> int:
     return 0
 
 
+def _skill_list(args: argparse.Namespace) -> int:
+    from bookify.toolchain import skill_install
+
+    rows = skill_install.list_platforms(scope=args.scope, project_dir=args.project_dir)
+    if args.json:
+        print(json.dumps({"ok": True, "scope": args.scope, "platforms": rows}, indent=2, sort_keys=True))
+    else:
+        for row in rows:
+            mark = "installed" if row["installed"] else "not installed"
+            print(f"{row['platform']:12} {mark:14} {row['skillDir']}")
+    return 0
+
+
+def _skill_install(args: argparse.Namespace) -> int:
+    from bookify.toolchain import skill_install
+
+    payload = skill_install.install_skill(
+        args.platform,
+        scope=args.scope,
+        target_override=args.target,
+        overwrite=args.overwrite,
+        install_commands=not args.no_commands,
+        project_dir=args.project_dir,
+    )
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        if args.platform == "all":
+            for item in payload["results"]:
+                print(f"{item['platform']:12} installed -> {item['skillDir']}")
+        else:
+            print(f"{payload['platform']:12} installed -> {payload['skillDir']}")
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
@@ -624,6 +678,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _fonts_status(args)
         if args.command == "fonts" and args.fonts_command == "install":
             return _fonts_install(args)
+        if args.command == "skill" and args.skill_command == "list":
+            return _skill_list(args)
+        if args.command == "skill" and args.skill_command == "install":
+            return _skill_install(args)
         if args.command == "toolchain" and args.toolchain_command == "doctor":
             return _toolchain_doctor(args)
         if args.command == "toolchain" and args.toolchain_command == "install":
