@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main, public-main]
+  pull_request:
+
+jobs:
+  linux-full:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - name: Install system tools (Poppler + Bubblewrap)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils bubblewrap
+      - name: Sync dependencies
+        run: uv sync --dev
+      - name: Ensure Typst binary is available
+        run: uv run bookify toolchain install --json
+      - name: Run portable & skill test suite
+        run: |
+          uv run python -m pytest -q \
+            tests/test_exercise_and_centering.py \
+            tests/test_runtime_and_fonts.py \
+            tests/test_cross_platform.py \
+            tests/test_skill_packaging.py \
+            tests/test_verify_captions.py \
+            tests/test_manuscript.py \
+            tests/test_design.py \
+            tests/test_audit_fixes.py
+      - name: Build wheel and smoke-test isolated install
+        run: |
+          uv build --wheel --out-dir dist-ci
+          python3 -m venv /tmp/bookify-smoke
+          /tmp/bookify-smoke/bin/pip install --no-deps dist-ci/bookify-*.whl
+          /tmp/bookify-smoke/bin/pip install fonttools jsonschema matplotlib numpy pillow pyyaml
+          /tmp/bookify-smoke/bin/bookify --version
+          /tmp/bookify-smoke/bin/bookify toolchain doctor --json
+          /tmp/bookify-smoke/bin/bookify skill list --json
+
+  cross-platform-wheel:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - name: Install Poppler (macOS)
+        if: runner.os == 'macOS'
+        run: brew install poppler
+      - name: Install Poppler (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install poppler -y
+      - name: Sync dependencies
+        run: uv sync --dev
+      - name: Install pinned Typst for host OS/arch
+        run: uv run bookify toolchain install --json
+      - name: Run portable doctor
+        run: uv run bookify toolchain doctor --no-strict --json
+      - name: Run cross-platform & skill packaging tests
+        run: |
+          uv run python -m pytest -q \
+            tests/test_skill_packaging.py \
+            tests/test_runtime_and_fonts.py \
+            tests/test_cross_platform.py -k "not test_install_typst_from_local_tar_archive"
+      - name: Build wheel
+        run: uv build --wheel --out-dir dist-ci

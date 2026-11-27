@@ -8,6 +8,8 @@ probe/out/
 # Python
 __pycache__/
 *.pyc
+*.whl
+*.egg-info/
 .pytest_cache/
 
 # Web research cache

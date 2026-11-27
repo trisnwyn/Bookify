@@ -1,171 +1,146 @@
 # Bookify
 
-A local authoring and offline publishing pipeline for long-form books: extract supplied PDFs, author a validated manuscript with uncertainty and rights recorded, compile it with Typst, and verify the result with evidence.
+**Offline Typst book authoring, mathematical typesetting, and 18-check PDF verification for AI coding agents.**
 
-A build writes one A4 PDF that carries its own identity — title, author and a PDF/A-2b conformance record — and the gate re-opens that file and checks it against the manuscript, so a document that misdescribes its book cannot pass.
+Bookify turns PDFs, slide decks, or structured notes into publication-grade A4 **PDF/A-2b** monographs, scholarly math articles, textbooks, and practice workbooks — authored by your AI agent (Claude Code, OpenAI Codex, OpenCode, Cursor, or Google Antigravity) and compiled deterministically offline with Typst.
 
-Content generation (agent-assisted, separate) never runs inside publishing. A build is a pure function of manuscript + assets + pinned local tools.
+## Highlights
 
-## Licence and status
+- **Publication typography out of the box:** Vendored `Spectral` (all 7 weights) + `STIX Two Math` (display equations with stacked limits, matrices, integrals, and piecewise cases) + optional on-demand `Noto Serif CJK JP`.
+- **Geometric centering:** Display formulas, formula descriptions, tables, graphs, diagrams, and illustrations are mathematically centered to their measure and verified within `±2 pt`.
+- **Human-friendly exercise workspaces:** Native Typst primitives (`responseSpace` + `fillSpace`/`extraRows`) and a 10-case editorial rule ensure practice problems leave realistic error-recovery space (handwriting-pitch dotted lines, dot-grid proof boxes, tall padded fill-in tables with overflow rows, coordinate grids, choice checkboxes with revision lines, and algorithm trace tables).
+- **18-check verification gate:** Checks offline determinism (byte-identical double builds), embedded glyphs, PDF/A-2b metadata, cover geometry, caption centering, heading rhythm, readability bands, cross-references, rights/provenance, and visual contact-sheet inspection.
+- **Multi-platform skill + lightweight CLI:** The portable agent skill (`skills/bookify/`) is **< 100 KB** of pure markdown and pairs with a **~4 MB** installable Python CLI working across **Linux, macOS, and Windows**.
 
-Original Bookify code, its tests, test fixtures and documentation are released
-under the **MIT License**; see [`LICENSE`](LICENSE). Third-party components keep
-their own licences and notices. Manuscripts and original artwork remain the
-owner's unless a file states otherwise. See `LICENCES.md` for the full
-rights record and attribution.
+---
 
-## Requirements
+## Quickstart (30 Seconds)
 
-- Linux with `uv` (verified 0.12.24), Python managed by uv (3.13 environment), and the local tools already vendored here: Typst CLI under `tools/typst/`, CeTZ under `vendor/typst/`.
-- Poppler utilities (`pdftotext`, `pdfimages`, `pdffonts`, `pdftoppm`, `pdfinfo`, `pdftohtml`) and `bwrap` for verification and the offline build namespace.
-- OCR is intake-only: the system `tesseract` CLI plus `tesseract-langpack-eng` (add `tesseract-langpack-vie` only when Vietnamese OCR is enabled). Build and verify never need it. Fedora: `sudo dnf install tesseract tesseract-langpack-eng`.
-- Ghostscript and ImageMagick are only needed for the test suite's contact sheets and PDF comparisons.
+### 1. Install the Bookify CLI Engine
 
-Pinned versions live in `toolchain.lock.json` (Typst 0.15.1, CeTZ 0.5.3, Matplotlib 3.11.2, Python 3.13.16 at the time of writing). Run `uv run bookify toolchain doctor` to check a machine.
+```bash
+uv tool install bookify        # or: pipx install bookify
+bookify toolchain install      # installs pinned Typst 0.15.1 for Linux / macOS / Windows
+bookify toolchain doctor       # checks Typst, fonts, and Poppler
+```
 
-## Setup
+*(Optional — only needed when authoring Japanese/CJK books:)*
+
+```bash
+bookify fonts install cjk
+```
+
+### 2. Install the AI-Agent Skill
+
+Install directly to one or all supported platforms with the built-in installer:
+
+```bash
+bookify skill install --platform all
+# Or target a single platform:
+bookify skill install --platform claude       # ~/.claude/skills/bookify + commands
+bookify skill install --platform codex        # ~/.agents/skills/bookify
+bookify skill install --platform opencode     # ~/.config/opencode/skills/bookify + commands
+bookify skill install --platform cursor       # ~/.cursor/skills/bookify
+bookify skill install --platform antigravity  # ~/.gemini/config/skills/bookify
+```
+
+Or install via the universal Agent Skills ecosystem / Claude Code Plugin Marketplace:
+
+```bash
+# Universal Agent Skills CLI (Claude Code, Codex, Cursor, OpenCode, Antigravity, Copilot)
+npx skills add <owner>/bookify
+
+# Claude Code Plugin Marketplace
+# /plugin marketplace add <owner>/bookify
+```
+
+---
+
+## Supported Agent Platforms & OS Matrix
+
+| Platform | Skill Format | Slash Commands Included |
+| --- | --- | --- |
+| **Claude Code** | `skills/bookify/SKILL.md` + `.claude-plugin/plugin.json` | `/bookify`, `/bookify-source-faithful`, `/bookify-teachable-textbook` |
+| **OpenAI Codex** | `~/.agents/skills/bookify/SKILL.md` | Prompt modes via skill |
+| **OpenCode** | `~/.config/opencode/skills/bookify/SKILL.md` | `/bookify`, `/bookify-source-faithful`, `/bookify-teachable-textbook` |
+| **Cursor** | `~/.cursor/skills/bookify/SKILL.md` | Prompt modes via skill |
+| **Google Antigravity** | `~/.gemini/config/skills/bookify/SKILL.md` | Prompt modes via skill |
+
+| OS | Typst Compile | Offline Isolation | Contact Sheets | Poppler (`verify`) |
+| --- | --- | --- | --- | --- |
+| **Linux (x86_64 / arm64)** | Auto-installed `0.15.1` | `bwrap --unshare-net` (or `env-isolated`) | Built-in Pillow | `apt/dnf install poppler-utils` |
+| **macOS (arm64 / x86_64)** | Auto-installed `0.15.1` | `env-isolated` (local-only Typst) | Built-in Pillow | `brew install poppler` |
+| **Windows (x86_64)** | Auto-installed `0.15.1` | `env-isolated` (local-only Typst) | Built-in Pillow | `winget install oschwartz10612.Poppler` |
+
+---
+
+## Core CLI Commands
+
+| Command | Purpose |
+| --- | --- |
+| `bookify --version` | Print installed engine version |
+| `bookify toolchain install` | Download and verify pinned Typst `0.15.1` for the host OS/arch |
+| `bookify toolchain doctor [--json]` | Verify Typst, vendored packages, fonts, and system tools |
+| `bookify fonts status \| install cjk` | Check or install the optional Noto Serif CJK JP font pack |
+| `bookify skill list \| install` | List or install the portable skill across agent platforms |
+| `bookify intake --source FILE --out DIR` | Extract source PDF text/images with optional Tesseract OCR |
+| `bookify manuscript check --manuscript FILE` | Validate schema, cross-references, and exercise/figure rules |
+| `bookify design check --manuscript FILE` | Validate design tokens, presets, and exact glyph coverage |
+| `bookify build --manuscript FILE --out PDF --offline` | Compile deterministic PDF/A-2b offline (`--sandbox auto\|bwrap\|none`) |
+| `bookify figures contact-sheet --pdf PDF --out PNG` | Generate a PNG contact sheet with pure Pillow (no ImageMagick) |
+| `bookify verify --pdf PDF --manuscript FILE` | Run the 18-check acceptance gate |
+
+---
+
+## Build & Verify From Any Directory
+
+```bash
+bookify manuscript check --manuscript book.yaml --json
+bookify design check --manuscript book.yaml --json
+
+bookify build --manuscript book.yaml --out dist/book.pdf --offline --json
+bookify build --manuscript book.yaml --out build/rebuild.pdf --offline --json
+
+bookify figures contact-sheet --pdf dist/book.pdf --out build/contact-sheet.png --cols 4 --json
+
+bookify verify \
+  --pdf dist/book.pdf \
+  --manuscript book.yaml \
+  --previous-pdf build/rebuild.pdf \
+  --contact-sheet build/contact-sheet.png \
+  --reviewed-by "agent-visual-review" \
+  --reviewed-at "2026-11-28" \
+  --report build/verify.json --json
+```
+
+---
+
+## Development Setup (From Source Checkout)
 
 ```bash
 uv sync --locked
 uv run bookify toolchain doctor --json
+uv run python -m pytest -q
 ```
 
-## Build and verify the specimen
+### Repository Layout
 
-```bash
-uv run bookify build --manuscript content/specimen.yaml --out dist/specimen.pdf \
-  --offline --build-dir build/specimen
-uv run bookify build --manuscript content/specimen.yaml --out dist/specimen-rebuild.pdf \
-  --offline --build-dir build/rebuild
-
-pdftoppm -png -r 110 dist/specimen.pdf build/pages/page
-magick montage build/pages/page-*.png -tile 3x build/specimen-contact.png
-
-uv run bookify verify --pdf dist/specimen.pdf --manuscript content/specimen.yaml \
-  --previous-pdf dist/specimen-rebuild.pdf --build-report build/specimen/build-report.json \
-  --contact-sheet build/specimen-contact.png --reviewed-by "<you>" --reviewed-at "<ISO time>" \
-  --report build/verify.json
+```text
+skills/bookify/     portable multi-platform AI-agent skill (<100 KB, agentskills.io standard)
+.claude-plugin/     Claude Code plugin and marketplace manifests
+src/bookify/        CLI engine: runtime, toolchain, manuscript, design, figures, publish, intake, verify
+typst/              design tokens, block presets, 7 covers, compositions, CeTZ diagram engine
+schemas/            closed JSON Schema (v1.0) for manuscripts and exercise workspaces
+vendor/typst/       vendored CeTZ 0.5.3 and Oxifmt 1.0.0 packages
+assets/fonts/       Spectral (7 weights), STIX Two Math, and Noto Serif CJK JP
+tests/              comprehensive pytest verification suite
+.github/workflows/  Linux/macOS/Windows CI and PyPI/GitHub Release automation
 ```
 
-A passing gate prints `gate: pass`. The specimen report is `docs/specimen-report.md`.
+---
 
-## Author from a source
+## Licensing & Attribution
 
-```bash
-uv run bookify intake --source "<deck>.pdf" --out build/intake --changed-only --json
-# Intake is sandboxed (bwrap --unshare-net) by default; --allow-unsandboxed is the
-# explicit escape hatch for a trusted local source. OCR is the default for a
-# source that needs it; --no-ocr records a pre-OCR baseline.
-# Whitelisted/pinned languages: eng (default) or eng+vie (opt-in).
-uv run bookify author plan --intake build/intake --manuscript content/<book>.yaml \
-  --out build/author-plan.json --cache-dir build/cache/authoring --json
-# read build/intake/pages/page-NNN.txt, write a draft (see skill/bookify/SKILL.md)
-uv run bookify author apply --plan build/author-plan.json --draft <draft>.json \
-  --manuscript content/<book>.yaml --cache-dir build/cache/authoring \
-  --decisions build/authoring/decisions.jsonl --json
-```
-
-The authoring guide is `skill/bookify/SKILL.md`; `docs/build.md` records the authoring and build behaviour.
-
-## OCR intake
-
-OCR is intake-only. It reads image-borne text from a supplied source and is
-never used by publishing: `bookify build` and `bookify verify` are offline,
-model-free and OCR-free, and a machine with no OCR engine can still build and
-verify a manuscript.
-
-The release engine is the system Tesseract package, like Poppler:
-
-```sh
-# Fedora; add tesseract-langpack-vie only when Vietnamese OCR is enabled
-sudo dnf install tesseract tesseract-langpack-eng
-```
-
-- `eng` is the default; `vie` is opt-in with a measured tone-mark caveat. No CJK
-  OCR. Adequate text is `inferred`, never `verified`; digits need a recorded
-  cross-check.
-- The extracted development CLI (`tools/ocr/tesseract`) and vendored
-  `vendor/ocr/tessdata/**` are development-only and are excluded from the
-  public bundle.
-- The measured planning budget is 11.65 s per dual-pass page: about 39 minutes
-  for 200 whole pages, about 13 minutes for 200 regions. The old 30-minute
-  estimate counted OCR but not rendering; acceptance is now the measured
-  budget (200 whole pages ≤ 45 minutes). The second pass is never dropped.
-
-## Commands
-
-| Command | Purpose |
-| --- | --- |
-| `uv run bookify toolchain doctor` | verify pins, fonts, packages and interpreter |
-| `uv run bookify intake --source TARGET --out DIR` | stable extraction: text pages, images, hashes, OCR records |
-| `uv run bookify author plan` | pages that need work since the last apply |
-| `uv run bookify author apply` | merge an agent draft, validate, bump revision |
-| `uv run bookify author select` / `status` | illustration provenance and rights |
-| `uv run bookify manuscript check` | schema and semantic contract |
-| `uv run bookify design check` | tokens, presets, glyph coverage |
-| `uv run bookify figures render` | charts and diagrams outside a book build |
-| `uv run bookify build --offline` | compile the PDF and write a build report |
-| `uv run bookify verify` | acceptance gate over the built PDF |
-| `uv run pytest -q` | full test suite |
-
-## Package the skill bundle
-
-```bash
-python packaging/bookify_skill_bundle.py pack --out dist/bookify-skill-v2-final.tar.gz \
-  --check-determinism
-```
-
-The helper is standard-library only. It uses the reviewed example at
-`examples/catalogue.pdf`, so a fresh clone can build and verify a bundle without
-any excluded file. Installation and verification commands are in
-`packaging/payload/README.md`.
-
-## Layout
-
-```
-content/        manuscript YAML (specimen, catalogue, composition demo)
-schemas/        closed JSON Schema, examples, negative fixtures
-src/bookify/    toolchain, manuscript, design, figures, publish, intake, authoring, verify
-typst/          theme, block presets, seven covers, body compositions, book template, CeTZ diagram
-assets/          fonts, illustration records and images
-fixtures/       adversarial, negative and synthetic-trial test inputs
-examples/       reviewed catalogue PDF used by the packaging helper
-probe/          stack probe scripts from Checkpoint A
-skill/bookify/  this project's local skill (does not replace pdf-book-design)
-build/, dist/   generated output (ignored)
-```
-
-## What a build produces
-
-One A4 PDF from a manuscript, its assets and the pinned tools, written offline:
-
-- PDF/A-2b, with `/OutputIntent`, `/Title` and `/Author` from the manuscript, a tagged structure tree and bookmarks from the heading tree. `/Lang` is present but set by the compiler, not the manuscript (see Limits). `verify` proves the conformance claim rather than taking the compiler's word for it.
-- A cover from one of seven compositions (`cover-1` … `cover-7`, selected in `metadata.cover`), body pages from four presets (`full` plate at 475.28 pt, `centred` at 430 pt, `side-left`, `side-right` at 46 % with a 16 pt gutter), two-column chapters, and branch blocks.
-- Fifteen chart kinds, ten diagram presets, four illustration families, tables and display mathematics, all as vector text.
-- Hierarchical numbering: `Chapter 1:` → `1.1` → `1.1.1` → `1.1.1.1`, contents to depth 5, and `§` references that print the number the heading prints.
-- One illustration per page; a second is deferred to the next illustration-free page in its section and recorded.
-- `build/build-report.json` as evidence: pages, placements, deferrals, plates, captions, readability, and the offline guard state.
-- A verify gate of eighteen checks (twenty for the catalogue). Red output fails it; a warning needs a recorded review decision.
-
-## Limits
-
-- PDF only. No EPUB, HTML or DOCX output, and one book per build.
-- Not print-ready. Chapter starts are not forced to recto, blank versos are never inserted and margins are not mirrored; the page model has no recto/verso parity.
-- No declared manuscript language for hyphenation, so Typst applies its default English rules to every book. Vietnamese has no dictionary and is never hyphenated, and English can break a word down to a two-letter fragment.
-- PDF/A-2b is claimed and verified; PDF/UA-1 is not. Equations carry no `alt` text in the schema, so the pipeline does not claim tagged accessibility.
-- OCR is Latin-first: `eng` by default, `vie` opt-in (tone-mark errors measured below the adequate band), no CJK. Adequate OCR is inferred, never verified; digits need a recorded cross-check. Image-only pages stay unresolved when OCR is below threshold.
-- Publishing requires `--offline` and a build directory inside the repository; the build uses `bwrap --unshare-net`.
-- `bwrap` is a verification dependency, not a pinned runtime package.
-- Typst still adds spacing after `。`; pagination is not hand-tuned.
-- The private lecture-deck trial used during development is not published. The public test suite uses the source-independent, clearly synthetic `fixtures/synthetic-trial.yaml`, documented in `docs/synthetic-trial.md`.
-
-## Licence note
-
-Original code, tests, test fixtures and documentation are MIT-licensed; see
-`LICENSE`. The specimen and catalogue manuscripts and original artwork are not
-MIT-licensed and remain the owner's; see `LICENCES.md`. Spectral, Noto Serif CJK
-and STIX Two Math are redistributed under the SIL Open Font License 1.1; see
-`assets/fonts/fonts.yaml` and `packaging/payload/licences/`. The specimen
-photograph is a public-domain US State Department work, credited in
-`assets/illustrations/photo-1/record.yaml`; the catalogue's historical
-photograph is credited in `assets/illustrations/hist-1/record.yaml`.
+- **Bookify original code, tests, and documentation:** MIT License — see [`LICENSE`](LICENSE).
+- **Third-party components:** Typst, CeTZ, and Oxifmt (Apache-2.0); Spectral, STIX Two Math, and Noto Serif CJK JP (SIL Open Font License 1.1). Full attribution and rights records live in [`LICENCES.md`](LICENCES.md).
+- **Private development trials:** Never tracked or shipped; public tests use synthetic fixtures only.

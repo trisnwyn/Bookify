@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - name: Build wheel and sdist
+        run: uv build --out-dir dist
+      - name: Verify wheel size and bundled skill/assets
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          wheels = list(Path("dist").glob("bookify-*.whl"))
+          assert len(wheels) == 1, wheels
+          wheel = wheels[0]
+          size_mb = wheel.stat().st_size / (1024 * 1024)
+          print(f"Wheel: {wheel.name} ({size_mb:.2f} MB)")
+          assert size_mb < 10.0, f"wheel unexpectedly large: {size_mb:.2f} MB"
+          with zipfile.ZipFile(wheel) as zf:
+              names = set(zf.namelist())
+          for required in (
+              "bookify/_data/typst/blocks.typ",
+              "bookify/_data/schemas/manuscript.schema.json",
+              "bookify/_data/assets/fonts/Spectral-Regular.ttf",
+              "bookify/_data/assets/fonts/STIXTwoMath-Regular.otf",
+              "bookify/_data/skills/bookify/SKILL.md",
+          ):
+              assert required in names, f"missing in wheel: {required}"
+          print("Wheel integrity check passed.")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+
+  publish-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
