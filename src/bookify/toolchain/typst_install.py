@@ -89,14 +89,13 @@ def resolve_typst(
     *,
     allow_portable: bool = True,
 ) -> tuple[Path, str] | None:
-    """Locate Typst in precedence order: vendored -> user cache -> PATH."""
+    """Locate Typst in precedence order: compatible vendored -> user cache -> PATH."""
+    # The vendored binary in toolchain.lock.json is Linux x86_64 ELF.
+    # On macOS/Windows/arm64 (in portable mode), prefer the cached OS-native binary.
+    is_linux_x64 = normalized_platform() == ("linux", "x86_64")
     vendored = engine / lock.typst.binary
-    if vendored.is_file():
+    if (is_linux_x64 or not allow_portable) and vendored.is_file():
         return vendored, "vendored"
-    if sys.platform == "win32":
-        vendored_exe = vendored.with_suffix(".exe")
-        if vendored_exe.is_file():
-            return vendored_exe, "vendored"
 
     if not allow_portable:
         return None

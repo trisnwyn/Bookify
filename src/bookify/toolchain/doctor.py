@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.metadata
+import os
 import platform
 import shutil
 import subprocess
@@ -130,11 +131,14 @@ def _check_typst(root: Path, lock: pins.ToolchainLock, *, strict: bool = True) -
     return _result("typst", ok, f"{output} ({source}: {binary})", "BUILD_FAILED")
 
 
-def _check_package(root: Path, package: pins.PackagePin) -> Check:
+def _check_package(root: Path, package: pins.PackagePin, *, strict: bool = True) -> Check:
     directory = root / package.path
     if not directory.is_dir():
         return _result(f"package:{package.name}", False, f"missing directory: {package.path}", "BUILD_FAILED")
     digest_ok = pins.tree_sha256(directory) == package.sha256
+    if not digest_ok and not strict and (directory / "typst.toml").is_file():
+        # Windows git checkouts with autocrlf can rewrite LF -> CRLF in vendored text files.
+        return _result(f"package:{package.name}", True, f"{package.version} present (portable)", "BUILD_FAILED")
     return _result(
         f"package:{package.name}",
         digest_ok,
@@ -202,12 +206,19 @@ def _check_system_tools(*, strict: bool = True) -> list[Check]:
 
 
 def run(root: Path, lock_path: Path | None = None, *, strict: bool | None = None) -> Report:
-    use_strict = (not runtime.is_installed_wheel(root)) if strict is None else strict
+    if strict is None:
+        use_strict = (
+            not runtime.is_installed_wheel(root)
+            and os.environ.get("BOOKIFY_PORTABLE") != "1"
+            and sys.platform.startswith("linux")
+        )
+    else:
+        use_strict = strict
     lock = pins.load(lock_path or root / "toolchain.lock.json")
     checks: list[Check] = [_check_python(root, lock, strict=use_strict)]
     checks.extend(_check_python_packages(lock, strict=use_strict))
     checks.append(_check_typst(root, lock, strict=use_strict))
-    checks.extend(_check_package(root, package) for package in lock.packages)
+    checks.extend(_check_package(root, package, strict=use_strict) for package in lock.packages)
     checks.extend(_check_font(root, font, strict=use_strict) for font in lock.fonts)
     checks.extend(_check_system_tools(strict=use_strict))
     return Report(checks=tuple(checks))
