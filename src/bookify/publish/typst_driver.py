@@ -288,6 +288,8 @@ def _compile(
             command,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
             timeout=COMPILE_TIMEOUT_SECONDS,
             cwd=cwd,

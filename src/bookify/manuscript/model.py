@@ -592,7 +592,7 @@ def load(
     if not path.is_file():
         raise BookifyError("INPUT_INVALID", f"manuscript not found: {path}", str(path))
     try:
-        data = yaml.safe_load(path.read_text())
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except yaml.YAMLError as error:
         raise BookifyError("SCHEMA_INVALID", f"manuscript is not valid YAML: {error}", str(path)) from error
     if not isinstance(data, dict):

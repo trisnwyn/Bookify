@@ -55,7 +55,9 @@ def _normalise(text: str) -> str:
 
 def _run_tool(command: list[str], pdf: Path, error_code: str, detail: str) -> subprocess.CompletedProcess[str]:
     try:
-        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        result = subprocess.run(
+            command, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False
+        )
     except OSError as error:
         raise BookifyError(error_code, f"{command[0]} unavailable: {error}", str(pdf)) from error
     if result.returncode != 0:

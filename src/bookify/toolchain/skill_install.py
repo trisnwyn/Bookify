@@ -109,7 +109,7 @@ def _is_existing_bookify_install(target: Path) -> bool:
             pass
     skill_md = target / "SKILL.md"
     if skill_md.is_file():
-        head = skill_md.read_text(errors="ignore")[:500].lower()
+        head = skill_md.read_text(encoding="utf-8", errors="ignore")[:500].lower()
         if "name: bookify" in head:
             return True
     return False

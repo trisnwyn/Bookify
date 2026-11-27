@@ -25,7 +25,7 @@ def load_document() -> dict[str, Any]:
     path = runtime.engine_root() / "schemas" / "manuscript.schema.json"
     if not path.is_file():
         raise BookifyError("INPUT_INVALID", f"manuscript schema missing: {path}", str(path))
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def validate(data: Any) -> None:
