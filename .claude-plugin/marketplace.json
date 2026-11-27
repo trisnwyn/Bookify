@@ -1,7 +1,7 @@
 {
   "name": "bookify-marketplace",
   "owner": {
-    "name": "Bookify Maintainers"
+    "name": "Nguyen Duc Tri"
   },
   "metadata": {
     "description": "Official plugin marketplace for Bookify — offline Typst book authoring and verification for AI coding agents."

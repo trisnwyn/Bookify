@@ -34,7 +34,7 @@ jobs:
         run: |
           uv build --wheel --out-dir dist-ci
           python3 -m venv /tmp/bookify-smoke
-          /tmp/bookify-smoke/bin/pip install --no-deps dist-ci/bookify-*.whl
+          /tmp/bookify-smoke/bin/pip install --no-deps dist-ci/bookify*.whl
           /tmp/bookify-smoke/bin/pip install fonttools jsonschema matplotlib numpy pillow pyyaml
           /tmp/bookify-smoke/bin/bookify --version
           /tmp/bookify-smoke/bin/bookify toolchain doctor --json

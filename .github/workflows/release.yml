@@ -24,7 +24,7 @@ jobs:
           python3 - <<'PY'
           import zipfile
           from pathlib import Path
-          wheels = list(Path("dist").glob("bookify-*.whl"))
+          wheels = list(Path("dist").glob("bookify*.whl"))
           assert len(wheels) == 1, wheels
           wheel = wheels[0]
           size_mb = wheel.stat().st_size / (1024 * 1024)

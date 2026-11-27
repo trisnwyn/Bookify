@@ -1,10 +1,12 @@
 [project]
-name = "bookify"
+name = "bookify-typst"
 version = "0.2.0"
 description = "Offline Typst book authoring and verification engine for AI agents"
 readme = "README.md"
 license = { file = "LICENSE" }
+authors = [{ name = "Nguyen Duc Tri" }]
 requires-python = ">=3.12,<3.14"
+keywords = ["book", "typst", "pdf", "textbook", "monograph", "math", "ai-agent", "skill"]
 dependencies = [
   "fonttools>=4.50.0",
   "jsonschema>=4.23.0",
@@ -13,6 +15,11 @@ dependencies = [
   "pillow>=11.0.0",
   "pyyaml>=6.0.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/trisnwyn/Bookify"
+Repository = "https://github.com/trisnwyn/Bookify"
+Issues = "https://github.com/trisnwyn/Bookify/issues"
 
 [dependency-groups]
 dev = [

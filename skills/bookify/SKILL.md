@@ -18,7 +18,7 @@ bookify --version && bookify toolchain doctor --json
 If `bookify` is not installed yet, guide the user (or run with permission):
 
 ```sh
-uv tool install bookify        # or: pipx install bookify
+uv tool install bookify-typst  # or: pipx install bookify-typst
 bookify toolchain install      # downloads pinned Typst 0.15.1 for Linux/macOS/Windows
 # Optional — only needed when authoring Japanese/CJK books:
 bookify fonts install cjk

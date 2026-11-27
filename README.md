@@ -19,7 +19,7 @@ Bookify turns PDFs, slide decks, or structured notes into publication-grade A4 *
 ### 1. Install the Bookify CLI Engine
 
 ```bash
-uv tool install bookify        # or: pipx install bookify
+uv tool install bookify-typst  # or: pipx install bookify-typst
 bookify toolchain install      # installs pinned Typst 0.15.1 for Linux / macOS / Windows
 bookify toolchain doctor       # checks Typst, fonts, and Poppler
 ```
@@ -48,10 +48,10 @@ Or install via the universal Agent Skills ecosystem / Claude Code Plugin Marketp
 
 ```bash
 # Universal Agent Skills CLI (Claude Code, Codex, Cursor, OpenCode, Antigravity, Copilot)
-npx skills add <owner>/bookify
+npx skills add trisnwyn/Bookify
 
 # Claude Code Plugin Marketplace
-# /plugin marketplace add <owner>/bookify
+# /plugin marketplace add trisnwyn/Bookify
 ```
 
 ---

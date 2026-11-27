@@ -22,10 +22,12 @@ FALLBACK_VERSION = "0.2.0"
 
 
 def version() -> str:
-    try:
-        return importlib.metadata.version("bookify")
-    except importlib.metadata.PackageNotFoundError:
-        return FALLBACK_VERSION
+    for dist_name in ("bookify-typst", "bookify"):
+        try:
+            return importlib.metadata.version(dist_name)
+        except importlib.metadata.PackageNotFoundError:
+            continue
+    return FALLBACK_VERSION
 
 
 def _is_engine_dir(path: Path) -> bool:
