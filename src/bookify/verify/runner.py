@@ -56,22 +56,34 @@ def _load_report(path: Path | None) -> dict[str, Any] | None:
     return json.loads(path.read_text())
 
 
-def _intake_manifest(workspace: Path | None) -> dict[str, Any] | None:
+def _intake_manifest(
+    workspace: Path | None,
+    manuscript_path: Path | None = None,
+    manuscript_root: Path | None = None,
+) -> dict[str, Any] | None:
     """The source evidence beside a book, when one is present.
 
     Verify never reads vendor/ocr or invokes an engine; it only compares the
     manuscript's machine-read claims with the manifest intake already wrote.
     """
-    if workspace is None:
-        return None
-    path = workspace / "intake" / "manifest.json"
-    if not path.is_file():
-        return None
-    try:
-        data = json.loads(path.read_text())
-    except json.JSONDecodeError:
-        return None
-    return data if isinstance(data, dict) else None
+    candidates: list[Path] = []
+    if workspace is not None:
+        candidates.append(workspace / "intake" / "manifest.json")
+    else:
+        if manuscript_path is not None:
+            candidates.append(manuscript_path.resolve().parent / "intake" / "manifest.json")
+        if manuscript_root is not None:
+            candidates.append(manuscript_root / "intake" / "manifest.json")
+    for path in candidates:
+        if not path.is_file():
+            continue
+        try:
+            data = json.loads(path.read_text())
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict):
+            return data
+    return None
 
 
 def _warn_decisions(path: Path | None) -> dict[str, str]:
@@ -173,7 +185,7 @@ def run(
         rhythm_check.check(pdf, manuscript),
         plates_check.check(pdf, manuscript),
         readability_check.check(pdf, manuscript),
-        machine_read_check.check(manuscript, _intake_manifest(workspace)),
+        machine_read_check.check(manuscript, _intake_manifest(workspace, manuscript_path, manuscript.root)),
     ]
     if is_catalogue:
         checks.append(catalogue_check.check(pdf, manuscript))

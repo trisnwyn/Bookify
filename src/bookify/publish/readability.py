@@ -12,12 +12,27 @@ import re
 from pathlib import Path
 from typing import Any
 
+from bookify import pdf_measure
 from bookify.manuscript import model
 from bookify.publish import normalize, report
-from bookify.verify.checks.pages import numbered_labels, page_texts
 
 WORD = re.compile(r"[^\s]+")
+LABEL = re.compile(r"^(Figure|Table|Photograph) (\d+)\.")
 PROSE_TYPES = ("paragraph", "lead", "quote", "definition")
+
+
+def page_texts(pdf: Path) -> list[str]:
+    return pdf_measure.for_pdf(pdf).page_texts(error_code="BUILD_FAILED")
+
+
+def numbered_labels(texts: list[str]) -> dict[str, int]:
+    labels: dict[str, int] = {}
+    for page, text in enumerate(texts, start=1):
+        for line in text.splitlines():
+            match = LABEL.match(line.strip())
+            if match:
+                labels.setdefault(f"{match.group(1)} {match.group(2)}", page)
+    return labels
 
 BANDS = {
     "wordsPerPageMedian": (140.0, 650.0),
@@ -103,23 +118,26 @@ def measure(pdf: Path, document: dict[str, Any]) -> dict[str, Any]:
     contents = report.contents_pages(texts)
     plates, _gaps, _visuals = report.plate_entries(pdf, document, numbered)
 
-    # The page map comes from the build report when available; here recompute it
-    # from the rendered headings so verify and build agree without a sidecar.
+    # Recompute the section page map using the cached batch bbox lines without
+    # mutating the caller's document dict.
+    sections_with_pages: list[dict[str, Any]] = []
     for section in document["sections"]:
-        wanted = report.section_forms(section)
         page = next(
             (
                 index
                 for index in range(1, len(texts) + 1)
                 if index != 1
                 and index not in contents
-                and any(report.line_is_section(line, section) for line in report.grouped_page_lines(pdf, index))
+                and any(
+                    report.line_is_section(line, section)
+                    for line in report.grouped_page_lines(pdf, index)
+                )
             ),
             None,
         )
-        section["page"] = page
+        sections_with_pages.append({**section, "page": page})
 
-    exemptions = exempt_pages(document, contents, plates, len(texts))
+    exemptions = exempt_pages({"sections": sections_with_pages}, contents, plates, len(texts))
     tables_by_page: dict[int, int] = {}
     for page, text in enumerate(texts, start=1):
         tables_by_page[page] = len(re.findall(r"(?m)^Table \d+\.", text))

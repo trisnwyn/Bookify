@@ -14,11 +14,11 @@ from typing import Iterator
 import yaml
 from fontTools.ttLib import TTCollection, TTFont
 
+from bookify.design import tokens
 from bookify.errors import BookifyError
-from bookify.figures import checks as figure_checks
 from bookify.manuscript import model
 
-JAPANESE_RANGES = figure_checks.CJK_RANGES
+JAPANESE_RANGES = tokens.CJK_RANGES
 
 
 @dataclass(frozen=True)
@@ -70,9 +70,13 @@ def _record_strings(root: Path, illustration_id: str) -> list[str]:
 def _segments(manuscript: model.Manuscript) -> Iterator[tuple[str, str]]:
     """Every string that reaches the page, tagged with its script chain."""
     metadata = manuscript.data["metadata"]
-    for key in ("title", "subtitle", "institution"):
+    for key in ("title", "subtitle", "institution", "course", "author"):
         value = metadata.get(key)
         if isinstance(value, str):
+            yield value, "text"
+    cover = metadata.get("cover")
+    if isinstance(cover, dict) and isinstance(cover.get("artwork"), str):
+        for value in _record_strings(manuscript.root, cover["artwork"]):
             yield value, "text"
     for section in manuscript.sections:
         for key in ("title", "kicker", "standfirst"):

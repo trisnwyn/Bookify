@@ -62,9 +62,13 @@ def _section(data: dict[str, Any], section_id: str) -> dict[str, Any]:
 
 
 def _recorded_current(recorded: Any, work_item: dict[str, Any]) -> bool:
+    if not isinstance(recorded, dict):
+        return False
+    content_sha = work_item.get("contentSha256", work_item["textSha256"])
+    recorded_content = recorded.get("contentSha256", recorded.get("textSha256"))
     return (
-        isinstance(recorded, dict)
-        and recorded.get("textSha256") == work_item["textSha256"]
+        recorded.get("textSha256") == work_item["textSha256"]
+        and recorded_content == content_sha
         and recorded.get("promptVersion") == work_item.get("promptVersion", plan.PROMPT_VERSION)
         and recorded.get("schemaVersion") == work_item.get("schemaVersion", cache.SCHEMA_VERSION)
     )
@@ -84,17 +88,41 @@ def _model_name(draft: dict[str, Any]) -> str:
 def _normalise_work_item(item: dict[str, Any], plan_data: dict[str, Any], source_id: str) -> dict[str, Any]:
     """Accept older plan files that predate the versioned cache record."""
     text_sha256 = item["textSha256"]
+    content_sha256 = item.get("contentSha256", text_sha256)
     prompt_version = item.get("promptVersion", plan_data.get("promptVersion", plan.PROMPT_VERSION))
     schema_version = item.get("schemaVersion", cache.SCHEMA_VERSION)
     input_hash = item.get("inputHash") or cache.key(
-        source_id, int(item["page"]), text_sha256, prompt_version, schema_version
+        source_id, int(item["page"]), text_sha256, prompt_version, schema_version, content_sha256=content_sha256
     )
     return {
         **item,
+        "contentSha256": content_sha256,
         "promptVersion": prompt_version,
         "schemaVersion": schema_version,
         "inputHash": input_hash,
     }
+
+
+def _strip_page_anchor(
+    blocks: list[dict[str, Any]], source_id: str, page: int
+) -> tuple[list[dict[str, Any]], int]:
+    """Drop blocks anchored only to (source_id, page); keep multi-page blocks with that anchor removed."""
+    retained: list[dict[str, Any]] = []
+    insert_at: int | None = None
+    for block in blocks:
+        anchors = block.get("sourceAnchors", [])
+        matching = [a for a in anchors if a.get("sourceId") == source_id and a.get("page") == page]
+        if not matching:
+            retained.append(block)
+            continue
+        if insert_at is None:
+            insert_at = len(retained)
+        remaining = [a for a in anchors if not (a.get("sourceId") == source_id and a.get("page") == page)]
+        if remaining:
+            updated = copy.deepcopy(block)
+            updated["sourceAnchors"] = remaining
+            retained.append(updated)
+    return retained, len(retained) if insert_at is None else insert_at
 
 
 def apply(
@@ -103,8 +131,10 @@ def apply(
     manuscript_path: Path,
     cache_dir: Path,
     decisions_path: Path,
+    *,
+    workspace: Path | None = None,
 ) -> dict[str, Any]:
-    manuscript = model.load(manuscript_path)
+    manuscript = model.load(manuscript_path, workspace=workspace)
     plan_data = json.loads(plan_path.read_text())
     draft = json.loads(draft_path.read_text())
 
@@ -172,19 +202,15 @@ def apply(
                 candidate.setdefault("id", _block_id(source_id, page, position))
                 new_blocks.append(candidate)
 
-        retained = [
-            block
-            for block in section["blocks"]
-            if not any(a.get("sourceId") == source_id and a.get("page") == page for a in block.get("sourceAnchors", []))
-        ]
-        insert_at = next(
-            (
-                position
-                for position, block in enumerate(section["blocks"])
-                if any(a.get("sourceId") == source_id and a.get("page") == page for a in block.get("sourceAnchors", []))
-            ),
-            len(retained),
-        )
+        # Clean up stale blocks for this page in other sections if the page moved.
+        for other in data["sections"]:
+            if other["id"] == section["id"]:
+                continue
+            other_retained, _ = _strip_page_anchor(other["blocks"], source_id, page)
+            if other_retained:
+                other["blocks"] = other_retained
+
+        retained, insert_at = _strip_page_anchor(section["blocks"], source_id, page)
         section["blocks"] = retained[:insert_at] + new_blocks + retained[insert_at:]
         applied.append({"sourceId": source_id, "page": page, "sectionId": section["id"], "blocks": len(new_blocks)})
 
@@ -203,12 +229,14 @@ def apply(
     for item in applied:
         work_item = work_pages[(source_id, item["page"])]
         page_prompt = work_item.get("promptVersion", prompt_version)
+        content_sha = work_item.get("contentSha256")
         applied_index[f"{source_id}#{item['page']}"] = cache.record(
             text_sha256=work_item["textSha256"],
             prompt_version=page_prompt,
             model=model_name,
             input_hash=work_item["inputHash"],
             schema_version=work_item.get("schemaVersion", cache.SCHEMA_VERSION),
+            content_sha256=content_sha if content_sha != work_item["textSha256"] else None,
         )
         cache.put(
             cache_dir,
@@ -220,7 +248,7 @@ def apply(
             ),
             model_name,
             page_prompt,
-            work_item["textSha256"],
+            work_item["inputHash"],
         )
     cache.save_index(cache_dir, applied_index)
 

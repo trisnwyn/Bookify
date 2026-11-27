@@ -10,8 +10,11 @@
 #let edge-kind(edge) = edge.at("kind", default: "arrow")
 
 #let is-cjk(codepoint) = (
-  (0x2E80 <= codepoint and codepoint <= 0x9FFF)
-    or (0xF900 <= codepoint and codepoint <= 0xFAFF)
+  (0x3000 <= codepoint and codepoint <= 0x303F)
+    or (0x3040 <= codepoint and codepoint <= 0x309F)
+    or (0x30A0 <= codepoint and codepoint <= 0x30FF)
+    or (0x3400 <= codepoint and codepoint <= 0x4DBF)
+    or (0x4E00 <= codepoint and codepoint <= 0x9FFF)
     or (0xFF00 <= codepoint and codepoint <= 0xFFEF)
 )
 
@@ -399,12 +402,12 @@
     }
     for (row-index, row) in rows.enumerate() {
       let y = -header-h - row-index * row-h
-      rect((0, y), (label-w, y + row-h), stroke: tokens.diagram.group_rule)
-      cetz.draw.content((label-w / 2, y + row-h / 2), fitted(row, label-w * 1cm, row-h * 1cm, start: tokens.diagram.feedback, weight: tokens.diagram.label_weight))
+      rect((0, y), (label-w, y - row-h), stroke: tokens.diagram.group_rule)
+      cetz.draw.content((label-w / 2, y - row-h / 2), fitted(row, label-w * 1cm, row-h * 1cm, start: tokens.diagram.feedback, weight: tokens.diagram.label_weight))
       for (column-index, cell) in cells.at(row-index).enumerate() {
         let x = label-w + column-index * cell-w
-        rect((x, y), (x + cell-w, y + row-h), stroke: tokens.diagram.group_rule)
-        cetz.draw.content((x + cell-w / 2, y + row-h / 2), fitted(cell, cell-w * 1cm, row-h * 1cm, start: tokens.diagram.feedback))
+        rect((x, y), (x + cell-w, y - row-h), stroke: tokens.diagram.group_rule)
+        cetz.draw.content((x + cell-w / 2, y - row-h / 2), fitted(cell, cell-w * 1cm, row-h * 1cm, start: tokens.diagram.feedback))
       }
     }
   })

@@ -125,3 +125,13 @@ COVER_LINE_BOX_TOP_ALLOWANCE_PT = 8.0
 # D4: a plate is one visual at the full text measure, ±1 pt.
 PLATE_PT = BODY_MEASURE_PT
 PLATE_TOLERANCE_PT = 1.0
+
+# Shared CJK Unicode ranges used by design coverage, figure checks and CeTZ layouts.
+CJK_RANGES: tuple[tuple[int, int], ...] = (
+    (0x3000, 0x303F),  # CJK punctuation
+    (0x3040, 0x309F),  # Hiragana
+    (0x30A0, 0x30FF),  # Katakana
+    (0x3400, 0x4DBF),  # CJK extension A
+    (0x4E00, 0x9FFF),  # CJK unified ideographs
+    (0xFF00, 0xFFEF),  # halfwidth forms
+)

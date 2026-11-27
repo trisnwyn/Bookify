@@ -101,8 +101,13 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
     expected_author = _flat(metadata.get("author"))
     expected_languages = [str(language) for language in metadata["languages"]]
 
-    titles = [value for value in (info.get("Title"), *_values(root, ".//dc:title")) if value]
-    authors = [value for value in (info.get("Author"), *_values(root, ".//dc:creator")) if value]
+    info_title = _flat(info.get("Title"))
+    xmp_titles = _values(root, ".//dc:title")
+    info_author = _flat(info.get("Author"))
+    xmp_authors = _values(root, ".//dc:creator")
+
+    titles = [value for value in (info.get("Title"), *xmp_titles) if value]
+    authors = [value for value in (info.get("Author"), *xmp_authors) if value]
     languages = _values(root, ".//dc:language")
 
     declared_title = _flat(titles[0]) if titles else ""
@@ -133,6 +138,8 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
         problems.append("the file declares no title")
     elif declared_title != expected_title:
         problems.append(f"title is {declared_title!r}, manuscript says {expected_title!r}")
+    if info_title and xmp_titles and info_title != xmp_titles[0]:
+        problems.append(f"Info title {info_title!r} disagrees with XMP dc:title {xmp_titles[0]!r}")
 
     if expected_author and not declared_author:
         problems.append(f"the file declares no author, manuscript says {expected_author!r}")
@@ -140,6 +147,8 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
         problems.append(f"the file invents an author {declared_author!r}")
     elif expected_author and declared_author != expected_author:
         problems.append(f"author is {declared_author!r}, manuscript says {expected_author!r}")
+    if info_author and xmp_authors and info_author != xmp_authors[0]:
+        problems.append(f"Info author {info_author!r} disagrees with XMP dc:creator {xmp_authors[0]!r}")
 
     if problems:
         return failed(

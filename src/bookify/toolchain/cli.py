@@ -1,4 +1,4 @@
-"""Thin dispatcher: toolchain commands now, publishing commands as they land."""
+"""Thin CLI dispatcher with lazy module imports so light commands stay fast."""
 
 from __future__ import annotations
 
@@ -6,27 +6,9 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 from bookify.errors import BookifyError
-from bookify.design import coverage as design_coverage
-from bookify.design import lint as design_lint
-from bookify.figures import charts as chart_engine
-from bookify.figures import diagrams as diagram_engine
-from bookify.manuscript import model as manuscript_model
-from bookify.manuscript import schema as manuscript_schema
-from bookify.authoring import apply as author_apply
-from bookify.authoring import illustrations as author_illustrations
-from bookify.authoring import plan as author_plan
-from bookify.authoring import record as author_record
-from bookify.authoring import workspace as author_workspace
-from bookify.intake import changes as intake_changes
-from bookify.intake import extract as intake_extract
-from bookify.intake import manifest as intake_manifest
-from bookify.intake import ocr as intake_ocr
-from bookify.publish import typst_driver
-from bookify.verify import runner as verify_runner
-from bookify.toolchain import doctor
 
 ROOT = Path(__file__).resolve().parents[3]
 EXIT_CODES = {
@@ -55,7 +37,7 @@ def _parser() -> argparse.ArgumentParser:
     doctor_parser.add_argument("--json", action="store_true", help="machine-readable report")
     doctor_parser.add_argument("--lock", type=Path, default=None)
 
-    build = subparsers.add_parser("build", help="compile a manuscript (not implemented yet)")
+    build = subparsers.add_parser("build", help="compile a manuscript to an offline PDF")
     build.add_argument("--manuscript", type=Path)
     build.add_argument("--out", type=Path)
     build.add_argument("--offline", action="store_true")
@@ -136,6 +118,7 @@ def _parser() -> argparse.ArgumentParser:
     plan_parser.add_argument("--manuscript", type=Path, required=True)
     plan_parser.add_argument("--out", type=Path, default=Path("build/author-plan.json"))
     plan_parser.add_argument("--cache-dir", type=Path, default=Path("build/cache/authoring"))
+    plan_parser.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     plan_parser.add_argument("--json", action="store_true")
 
     apply_parser = author_sub.add_parser("apply", help="apply an agent draft to the manuscript")
@@ -144,6 +127,7 @@ def _parser() -> argparse.ArgumentParser:
     apply_parser.add_argument("--manuscript", type=Path, required=True)
     apply_parser.add_argument("--cache-dir", type=Path, default=Path("build/cache/authoring"))
     apply_parser.add_argument("--decisions", type=Path, default=Path("build/authoring/decisions.jsonl"))
+    apply_parser.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     apply_parser.add_argument("--json", action="store_true")
 
     select_parser = author_sub.add_parser("select", help="record an illustration selection")
@@ -151,12 +135,14 @@ def _parser() -> argparse.ArgumentParser:
     select_parser.add_argument("--illustration", required=True)
     select_parser.add_argument("--reason", required=True)
     select_parser.add_argument("--store", type=Path, default=Path("build/authoring/selections.json"))
+    select_parser.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     select_parser.add_argument("--json", action="store_true")
 
     status_parser = author_sub.add_parser("status", help="report selections and rights")
     status_parser.add_argument("--manuscript", type=Path, required=True)
     status_parser.add_argument("--store", type=Path, default=Path("build/authoring/selections.json"))
     status_parser.add_argument("--section", default=None)
+    status_parser.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     status_parser.add_argument("--json", action="store_true")
 
     contract = author_sub.add_parser("contract", help="validate the durable authoring record")
@@ -171,6 +157,8 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _toolchain_doctor(args: argparse.Namespace) -> int:
+    from bookify.toolchain import doctor
+
     report = doctor.run(ROOT, args.lock)
     if args.json:
         print(json.dumps(report.as_dict(), indent=2, sort_keys=True))
@@ -182,6 +170,9 @@ def _toolchain_doctor(args: argparse.Namespace) -> int:
 
 
 def _manuscript_check(args: argparse.Namespace) -> int:
+    from bookify.authoring import workspace as author_workspace
+    from bookify.manuscript import model as manuscript_model
+
     workspace = author_workspace.resolve(args.workspace)
     manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
     payload = {
@@ -200,15 +191,25 @@ def _manuscript_check(args: argparse.Namespace) -> int:
 
 
 def _manuscript_schema() -> int:
+    from bookify.manuscript import schema as manuscript_schema
+
     print(json.dumps(manuscript_schema.load_document(), indent=2, sort_keys=True))
     return 0
 
 
 def _author_plan(args: argparse.Namespace) -> int:
-    manuscript = manuscript_model.load(args.manuscript)
-    plan = author_plan.build(args.intake, manuscript, args.cache_dir)
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n")
+    from bookify.authoring import plan as author_plan
+    from bookify.authoring import workspace as author_workspace
+    from bookify.manuscript import model as manuscript_model
+
+    workspace = author_workspace.resolve(args.workspace)
+    intake = author_workspace.inside(workspace, args.intake, code="INPUT_INVALID", label="intake directory") if workspace else args.intake
+    out = author_workspace.inside(workspace, args.out, label="author plan") if workspace else args.out
+    cache_dir = author_workspace.inside(workspace, args.cache_dir, label="authoring cache") if workspace else args.cache_dir
+    manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
+    plan = author_plan.build(intake, manuscript, cache_dir)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n")
     if args.json:
         print(json.dumps(plan, indent=2, sort_keys=True))
     else:
@@ -219,8 +220,17 @@ def _author_plan(args: argparse.Namespace) -> int:
 
 
 def _author_apply(args: argparse.Namespace) -> int:
+    from bookify.authoring import apply as author_apply
+    from bookify.authoring import workspace as author_workspace
+
+    workspace = author_workspace.resolve(args.workspace)
+    plan_path = author_workspace.inside(workspace, args.plan, code="INPUT_INVALID", label="author plan") if workspace else args.plan
+    draft_path = author_workspace.inside(workspace, args.draft, code="INPUT_INVALID", label="draft") if workspace else args.draft
+    manuscript_path = author_workspace.inside(workspace, args.manuscript, code="INPUT_INVALID", label="manuscript") if workspace else args.manuscript
+    cache_dir = author_workspace.inside(workspace, args.cache_dir, label="authoring cache") if workspace else args.cache_dir
+    decisions_path = author_workspace.inside(workspace, args.decisions, label="decisions log") if workspace else args.decisions
     result = author_apply.apply(
-        args.plan, args.draft, args.manuscript, args.cache_dir, args.decisions
+        plan_path, draft_path, manuscript_path, cache_dir, decisions_path, workspace=workspace
     )
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
@@ -230,7 +240,12 @@ def _author_apply(args: argparse.Namespace) -> int:
 
 
 def _author_select(args: argparse.Namespace) -> int:
-    result = author_illustrations.select(args.store, args.section, args.illustration, args.reason)
+    from bookify.authoring import illustrations as author_illustrations
+    from bookify.authoring import workspace as author_workspace
+
+    workspace = author_workspace.resolve(args.workspace)
+    store = author_workspace.inside(workspace, args.store, label="selections store") if workspace else args.store
+    result = author_illustrations.select(store, args.section, args.illustration, args.reason)
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
@@ -239,8 +254,14 @@ def _author_select(args: argparse.Namespace) -> int:
 
 
 def _author_status(args: argparse.Namespace) -> int:
-    manuscript = manuscript_model.load(args.manuscript)
-    rows = author_illustrations.status(args.store, manuscript.root, args.section)
+    from bookify.authoring import illustrations as author_illustrations
+    from bookify.authoring import workspace as author_workspace
+    from bookify.manuscript import model as manuscript_model
+
+    workspace = author_workspace.resolve(args.workspace)
+    store = author_workspace.inside(workspace, args.store, label="selections store") if workspace else args.store
+    manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
+    rows = author_illustrations.status(store, manuscript.root, args.section)
     payload = {"ok": True, "selections": rows}
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -251,6 +272,9 @@ def _author_status(args: argparse.Namespace) -> int:
 
 
 def _author_contract_check(args: argparse.Namespace) -> int:
+    from bookify.authoring import record as author_record
+    from bookify.authoring import workspace as author_workspace
+
     workspace = author_workspace.resolve(args.workspace)
     record_path = args.record
     if record_path is None:
@@ -278,7 +302,9 @@ def _author_contract_check(args: argparse.Namespace) -> int:
     return 0
 
 
-def _intake_options(args: argparse.Namespace) -> intake_ocr.OcrOptions:
+def _intake_options(args: argparse.Namespace):
+    from bookify.intake import ocr as intake_ocr
+
     return intake_ocr.OcrOptions(
         enabled=bool(args.ocr),
         lang=args.ocr_lang,
@@ -307,6 +333,11 @@ def _ocr_payload(manifest: dict) -> dict[str, Any]:
 
 
 def _intake(args: argparse.Namespace) -> int:
+    from bookify.intake import changes as intake_changes
+    from bookify.intake import extract as intake_extract
+    from bookify.intake import manifest as intake_manifest
+    from bookify.intake import ocr as intake_ocr
+
     out = args.out
     previous = intake_manifest.load(out)
     digest = intake_extract.source_sha256(args.source)
@@ -363,6 +394,9 @@ def _intake(args: argparse.Namespace) -> int:
 
 
 def _verify(args: argparse.Namespace) -> int:
+    from bookify.authoring import workspace as author_workspace
+    from bookify.verify import runner as verify_runner
+
     workspace = author_workspace.resolve(args.workspace)
     pdf = args.pdf
     manuscript_path = args.manuscript
@@ -403,6 +437,11 @@ def _verify(args: argparse.Namespace) -> int:
 
 
 def _figures_render(args: argparse.Namespace) -> int:
+    from bookify.authoring import workspace as author_workspace
+    from bookify.figures import charts as chart_engine
+    from bookify.figures import diagrams as diagram_engine
+    from bookify.manuscript import model as manuscript_model
+
     workspace = author_workspace.resolve(args.workspace)
     manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
     out_dir = (
@@ -430,6 +469,11 @@ def _figures_render(args: argparse.Namespace) -> int:
 
 
 def _design_check(args: argparse.Namespace) -> int:
+    from bookify.authoring import workspace as author_workspace
+    from bookify.design import coverage as design_coverage
+    from bookify.design import lint as design_lint
+    from bookify.manuscript import model as manuscript_model
+
     workspace = author_workspace.resolve(args.workspace)
     manuscript = manuscript_model.load(args.manuscript, workspace=workspace)
     result = design_coverage.check(manuscript, manuscript.engine)
@@ -455,6 +499,9 @@ def _design_check(args: argparse.Namespace) -> int:
 
 
 def _build(args: argparse.Namespace) -> int:
+    from bookify.authoring import workspace as author_workspace
+    from bookify.publish import typst_driver
+
     if not args.manuscript or not args.out:
         raise BookifyError("INPUT_INVALID", "build needs --manuscript and --out")
     workspace = author_workspace.resolve(args.workspace)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.metadata
 import platform
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -11,6 +12,16 @@ from pathlib import Path
 
 from bookify.errors import BookifyError
 from bookify.toolchain import pins
+
+REQUIRED_SYSTEM_TOOLS: tuple[str, ...] = (
+    "bwrap",
+    "pdfinfo",
+    "pdftotext",
+    "pdftohtml",
+    "pdftoppm",
+    "pdfimages",
+    "pdffonts",
+)
 
 
 @dataclass(frozen=True)
@@ -116,6 +127,21 @@ def _check_font(root: Path, font: pins.FontPin) -> Check:
     )
 
 
+def _check_system_tools() -> list[Check]:
+    checks: list[Check] = []
+    for name in REQUIRED_SYSTEM_TOOLS:
+        found = shutil.which(name)
+        checks.append(
+            _result(
+                f"tool:{name}",
+                found is not None,
+                found if found is not None else f"missing system tool: {name}",
+                "BUILD_FAILED",
+            )
+        )
+    return checks
+
+
 def run(root: Path, lock_path: Path | None = None) -> Report:
     lock = pins.load(lock_path or root / "toolchain.lock.json")
     checks: list[Check] = [_check_python(root, lock)]
@@ -123,6 +149,7 @@ def run(root: Path, lock_path: Path | None = None) -> Report:
     checks.append(_check_typst(root, lock))
     checks.extend(_check_package(root, package) for package in lock.packages)
     checks.extend(_check_font(root, font) for font in lock.fonts)
+    checks.extend(_check_system_tools())
     return Report(checks=tuple(checks))
 
 

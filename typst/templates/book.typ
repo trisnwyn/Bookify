@@ -28,7 +28,7 @@
 // form is added here only. Front-matter headings (the contents title) have no
 // number and keep the plain level-1 treatment.
 #show heading.where(level: 1): it => {
-  block(above: tokens.space.before_heading, below: heading-below(tokens.type.h1), {
+  block(above: tokens.space.before_heading, below: heading-below(tokens.type.h1), sticky: true, {
     set text(size: tokens.type.h1, weight: 500)
     par(leading: tokens.leading_extra.h1, justify: false, {
       if it.numbering != none {
@@ -80,7 +80,13 @@
     } else if block.type == "list" {
       preset-list(block.items, ordered: block.ordered)
     } else if block.type == "table" {
-      preset-table(block.header, block.rows, caption: block.caption, widths: block.widths)
+      preset-table(
+        block.header,
+        block.rows,
+        caption: block.caption,
+        widths: block.widths,
+        align: block.at("align", default: none),
+      )
     } else if block.type == "equation" {
       preset-equation(eval(block.typst, mode: "math"), caption: block.caption)
     } else if block.type == "chart" {
@@ -169,6 +175,20 @@
 #outline(title: [Contents], depth: 5)
 #pagebreak()
 
+#let render-child-section(child) = {
+  let child-keep = if "keepTogether" in child { child.keepTogether } else { false }
+  if child.breakBefore == "page" or (
+    child-keep and child.blocks.any(block => block.type == "illustration" and "pagebreak" in block and block.pagebreak)
+  ) {
+    pagebreak()
+  }
+  if child-keep {
+    block(above: keep-above(child.level), breakable: false, render-section(child, allow-break: false))
+  } else {
+    render-section(child)
+  }
+}
+
 #for (group-index, group) in groups.enumerate() [
   #let section = group.head
   // The first body section never breaks, even if an explicit value says page.
@@ -194,14 +214,12 @@
   ] else if keep [
     #block(above: keep-above(section.level), breakable: false, render-section(section, allow-break: false))
     #for child in group.children [
-      #if child.breakBefore == "page" { pagebreak() }
-      #render-section(child)
+      #render-child-section(child)
     ]
   ] else [
     #render-section(section)
     #for child in group.children [
-      #if child.breakBefore == "page" { pagebreak() }
-      #render-section(child)
+      #render-child-section(child)
     ]
   ]
 ]

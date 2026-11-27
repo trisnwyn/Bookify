@@ -143,7 +143,7 @@ COVER_TYPOGRAPHIC = "cover-3"
 COVER_DEFAULT = COVER_TYPOGRAPHIC
 
 
-def _check_cover_selection(data: dict[str, Any]) -> None:
+def _check_cover_selection(data: dict[str, Any], root: Path) -> None:
     """The cover is an authored selection; artwork is an illustration record.
 
     No composition is a user default: an absent `metadata.cover` is recorded as
@@ -158,6 +158,10 @@ def _check_cover_selection(data: dict[str, Any]) -> None:
             "the typographic cover has no artwork field",
             "metadata.cover.artwork",
         )
+        return
+    artwork = selection.get("artwork")
+    if artwork:
+        _check_illustration_record(artwork, root, "metadata.cover.artwork")
 
 
 def _check_section_layout(data: dict[str, Any]) -> None:
@@ -210,16 +214,26 @@ def _check_xrefs(data: dict[str, Any], targets: frozenset[str]) -> None:
                 _require(target in targets, f"unknown reference target: {target}", f"sections[{index}]", "XREF_MISSING")
 
 
+def _has_numeric(value: Any) -> bool:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return True
+    if isinstance(value, list):
+        return any(_has_numeric(item) for item in value)
+    return False
+
+
 def _check_chart(block: dict[str, Any], locator: str) -> None:
     """One boundary: `figures.checks` owns every chart shape, range and cap rule."""
     figure_checks.validate_chart(block)
     chart = block["chart"]
-    values = chart.get("values", [])
     if block.get("confidence") == "unreadable":
-        numeric = [
-            value for row in values for value in row if value is not None
-        ] if isinstance(values, list) else []
-        _require(not numeric, "unreadable values must be null, not guessed", f"{locator}.confidence")
+        for field in ("values", "points", "counts", "stats", "samples"):
+            if field in chart and _has_numeric(chart[field]):
+                raise BookifyError(
+                    "SCHEMA_INVALID",
+                    "unreadable values must be null, not guessed",
+                    f"{locator}.confidence",
+                )
 
 
 
@@ -506,11 +520,10 @@ def _check_compositions(data: dict[str, Any]) -> None:
             )
 
 
-def _check_illustration(block: dict[str, Any], root: Path, locator: str) -> None:
-    illustration_id = block["illustrationId"]
+def _check_illustration_record(illustration_id: str, root: Path, locator: str) -> None:
     directory = root / "assets" / "illustrations" / illustration_id
     record_path = directory / "record.yaml"
-    _require(record_path.is_file(), f"missing illustration record: {illustration_id}", f"{locator}.illustrationId", "RIGHTS_INCOMPLETE")
+    _require(record_path.is_file(), f"missing illustration record: {illustration_id}", locator, "RIGHTS_INCOMPLETE")
     record = yaml.safe_load(record_path.read_text())
     _require(isinstance(record, dict), "illustration record must be a mapping", str(record_path), "RIGHTS_INCOMPLETE")
     for field in RECORD_FIELDS:
@@ -524,10 +537,23 @@ def _check_illustration(block: dict[str, Any], root: Path, locator: str) -> None
     _require(record["id"] == illustration_id, "record id must match its directory", str(record_path), "RIGHTS_INCOMPLETE")
     _require(record["kind"] in RECORD_KINDS, f"unsupported illustration kind: {record['kind']}", str(record_path), "RIGHTS_INCOMPLETE")
     _require(record["rightsStatus"] in RIGHTS_STATUS, f"unsupported rights status: {record['rightsStatus']}", str(record_path), "RIGHTS_INCOMPLETE")
-    image = root / record["path"]
+    resolved_root = root.resolve()
+    image = (resolved_root / record["path"]).resolve()
+    try:
+        image.relative_to(resolved_root)
+    except ValueError as error:
+        raise BookifyError(
+            "BUILD_FAILED",
+            f"illustration asset resolves outside the book root: {record['path']}",
+            f"{str(record_path)}:path",
+        ) from error
     _require(image.is_file(), f"illustration file missing: {record['path']}", str(image), "RIGHTS_INCOMPLETE")
     if "sha256" in record:
         _require(_sha256(image) == record["sha256"], "illustration file hash mismatch", str(image), "RIGHTS_INCOMPLETE")
+
+
+def _check_illustration(block: dict[str, Any], root: Path, locator: str) -> None:
+    _check_illustration_record(block["illustrationId"], root, f"{locator}.illustrationId")
 
 
 def engine_root() -> Path:
@@ -571,7 +597,7 @@ def load(
     _check_section_roles(data)
     _check_no_plate(data)
     _check_section_layout(data)
-    _check_cover_selection(data)
+    _check_cover_selection(data, project_root)
     _check_xrefs(data, section_ids | block_ids)
     _check_compositions(data)
 

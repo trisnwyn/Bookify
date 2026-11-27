@@ -6,12 +6,14 @@ import re
 from pathlib import Path
 
 from bookify.manuscript import model
-from bookify.publish import rights
+from bookify.publish import normalize, rights
 from bookify.verify.checks import Check, failed, passed
 from bookify.verify.checks.pages import page_texts
 
 VIETNAMESE = re.compile(r"[ăâđêôơưàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ]", re.I)
 JAPANESE = re.compile(r"[\u3040-\u30ff\u4e00-\u9fff]")
+MATH_SUM = re.compile(r"\bsum\b")
+REF = re.compile(r"\{ref:([a-z0-9][a-z0-9-]*)\}")
 
 
 def _blocks(manuscript: model.Manuscript) -> list[dict]:
@@ -34,7 +36,7 @@ def expected_probes(manuscript: model.Manuscript) -> list[str]:
                 probes.append(text[:20])
             elif JAPANESE.search(text) and len(text) >= 12:
                 probes.append(text[:12])
-        if block["type"] == "equation" and "sum" in block["typst"]:
+        if block["type"] == "equation" and MATH_SUM.search(block["typst"]):
             probes.append("∑")
         if block.get("note"):
             probes.append(block["note"])
@@ -55,12 +57,20 @@ def expected_probes(manuscript: model.Manuscript) -> list[str]:
             probes.append(f"Photograph {photographs}.")
             record = rights.load(manuscript.root, block["illustrationId"])
             probes.append(record.credit)
-            marker = rights.printed_class_wording(record, None)
+            marker = rights.printed_class_wording(record, block.get("caption"))
             if marker:
                 probes.append(marker)
 
-    if any("{ref:" in str(value) for section in manuscript.sections for value in section.values() if isinstance(value, str)):
-        probes.append("§1")
+    numbers = normalize.section_numbers(manuscript)
+    labels, _ = normalize._number_map(manuscript, numbers)
+    for section in manuscript.sections:
+        for value in section.values():
+            if not isinstance(value, str):
+                continue
+            for match in REF.finditer(value):
+                resolved = labels.get(match.group(1))
+                if resolved:
+                    probes.append(resolved)
     return [probe for probe in probes if probe]
 
 

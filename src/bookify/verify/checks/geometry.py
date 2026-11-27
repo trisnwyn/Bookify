@@ -20,6 +20,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from bookify import pdf_measure
 from bookify.design import tokens
 from bookify.errors import BookifyError
 from bookify.manuscript import model
@@ -95,22 +96,7 @@ def _canvas(
 
 
 def _raster(pdf: Path, page: int) -> np.ndarray:
-    with tempfile.TemporaryDirectory() as directory:
-        prefix = Path(directory) / f"page-{page:04d}"
-        result = subprocess.run(
-            [
-                "pdftoppm", "-png", "-r", str(DPI), "-f", str(page), "-l", str(page),
-                "-singlefile", str(pdf), str(prefix),
-            ],
-            capture_output=True, text=True, check=False,
-        )
-        if result.returncode != 0:
-            raise BookifyError("VERIFY_FAILED", f"pdftoppm failed on page {page}", str(pdf))
-        image = Path(f"{prefix}.png")
-        if not image.is_file():
-            raise BookifyError("VERIFY_FAILED", f"no raster for page {page}", str(pdf))
-        with Image.open(image) as source:
-            return np.asarray(source.convert("L"))
+    return pdf_measure.for_pdf(pdf).raster_gray(page, DPI, error_code="VERIFY_FAILED")
 
 
 def _line_rows(line: captions_check.LineBox) -> tuple[int, int]:

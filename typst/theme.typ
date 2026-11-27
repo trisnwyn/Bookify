@@ -243,7 +243,7 @@
   set text(font: (fonts.latin, fonts.japanese), size: tokens.type.body, lang: "en", region: "GB")
   set par(justify: true, leading: tokens.leading_extra.body)
   show math.equation: set text(font: fonts.maths)
-  show heading: set text(font: fonts.latin, weight: 600)
+  show heading: set text(font: (fonts.latin, fonts.japanese), weight: 600)
   // A heading never sits alone at the foot of a page or column: it stays with
   // the block that follows it (the next paragraph, figure or caption).
   show heading: set block(sticky: true)

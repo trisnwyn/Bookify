@@ -74,11 +74,14 @@ def _stream(text: str) -> str:
     return re.sub(r"[\s\u00ad]", "", text)
 
 
-def _column_bounds(index: int, margin: float, measure: float) -> tuple[float, float]:
-    half = measure / 2
+def _column_bounds(index: int, margin: float, measure: float, *, two_column: bool = True) -> tuple[float, float]:
+    if not two_column:
+        return margin, margin + measure
+    width = tokens.COLUMN_WIDTH_PT
+    gutter = tokens.SIDE_GUTTER_PT
     if index == 0:
-        return margin, margin + half
-    return margin + half, margin + measure
+        return margin, margin + width
+    return margin + width + gutter, margin + width + gutter + width
 
 
 def _rows(lines: list) -> list[dict]:
@@ -296,7 +299,7 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
 
     for section_id, (page, column, index, section) in titles.items():
         rows = rows_by_column[(page, column)]
-        x_from, x_to = _column_bounds(column, margin, measure)
+        x_from, x_to = _column_bounds(column, margin, measure, two_column=page in two_column_pages)
         title = rows[index]
         level = section.get("level", 1)
 
@@ -310,7 +313,7 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
             row_stream = row_stream[len(_stream(prefix_match.group(0))):]
         consumed = len(row_stream)
         cursor = index
-        while consumed != expected and cursor + 1 < len(rows):
+        while consumed < len(expected) and cursor + 1 < len(rows):
             following = rows[cursor + 1]
             stream = _stream(following["text"])
             if not expected[consumed:].startswith(stream):

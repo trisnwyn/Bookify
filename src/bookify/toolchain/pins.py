@@ -102,7 +102,10 @@ def _require(mapping: dict, keys: tuple[str, ...], locator: str) -> None:
 def _hash(value: object, locator: str) -> str:
     if not isinstance(value, str) or len(value) != 64:
         raise BookifyError("INPUT_INVALID", f"sha256 must be 64 hex characters: {locator}", locator)
-    int(value, 16)  # raises ValueError if not hexadecimal
+    try:
+        int(value, 16)
+    except ValueError as error:
+        raise BookifyError("INPUT_INVALID", f"sha256 must be 64 hex characters: {locator}", locator) from error
     return value
 
 

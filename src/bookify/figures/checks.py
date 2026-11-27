@@ -18,6 +18,7 @@ from typing import Any, Iterable
 import yaml
 from fontTools.ttLib import TTCollection, TTFont
 
+from bookify.design import tokens
 from bookify.errors import BookifyError
 from bookify.figures import presets
 
@@ -26,14 +27,7 @@ DIAGRAM_PRESETS: tuple[str, ...] = tuple(presets.DIAGRAM_PRESETS)
 
 # Scripts Typst renders through the CJK chain but Matplotlib cannot: a chart
 # string must stay inside the Spectral (Latin/Vietnamese) chain.
-CJK_RANGES: tuple[tuple[int, int], ...] = (
-    (0x3000, 0x303F),  # CJK punctuation
-    (0x3040, 0x309F),  # Hiragana
-    (0x30A0, 0x30FF),  # Katakana
-    (0x3400, 0x4DBF),  # CJK extension A
-    (0x4E00, 0x9FFF),  # CJK unified ideographs
-    (0xFF00, 0xFFEF),  # halfwidth forms
-)
+CJK_RANGES: tuple[tuple[int, int], ...] = tokens.CJK_RANGES
 
 # Label-fit geometry, pinned to the implemented CeTZ layouts (Tasks 33-36).
 # Typst remains the authoritative fitter and still panics; this gate exists so

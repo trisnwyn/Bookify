@@ -9,37 +9,20 @@ from pathlib import Path
 
 from PIL import Image
 
+from bookify import pdf_measure
 from bookify.errors import BookifyError
 from bookify.verify.checks import Check, failed, passed
 
 LABEL = re.compile(r"^(Figure|Table|Photograph) (\d+)\.")
+PHOTOGRAPH_CAPTION = re.compile(r"(?:^[ \t]*|[.!?][ \t]+|[ \t]{2,})Photograph (\d+)\.", re.MULTILINE)
 
 
 def pdf_info(pdf: Path) -> dict[str, str]:
-    result = subprocess.run(["pdfinfo", str(pdf)], capture_output=True, text=True, check=False)
-    if result.returncode != 0:
-        raise BookifyError("VERIFY_FAILED", "pdfinfo failed", str(pdf))
-    info: dict[str, str] = {}
-    for line in result.stdout.splitlines():
-        if ":" in line:
-            key, value = line.split(":", 1)
-            info[key.strip()] = value.strip()
-    return info
+    return pdf_measure.for_pdf(pdf).info(error_code="VERIFY_FAILED")
 
 
 def page_texts(pdf: Path) -> list[str]:
-    info = pdf_info(pdf)
-    pages = int(info["Pages"])
-    texts: list[str] = []
-    for index in range(1, pages + 1):
-        result = subprocess.run(
-            ["pdftotext", "-layout", "-f", str(index), "-l", str(index), str(pdf), "-"],
-            capture_output=True, text=True, check=False,
-        )
-        if result.returncode != 0:
-            raise BookifyError("VERIFY_FAILED", f"pdftotext failed on page {index}", str(pdf))
-        texts.append(result.stdout)
-    return texts
+    return pdf_measure.for_pdf(pdf).page_texts(error_code="VERIFY_FAILED")
 
 
 def numbered_labels(texts: list[str]) -> dict[str, int]:
@@ -55,7 +38,7 @@ def numbered_labels(texts: list[str]) -> dict[str, int]:
 def illustration_pages(texts: list[str]) -> dict[int, list[str]]:
     pages: dict[int, list[str]] = {}
     for page, text in enumerate(texts, start=1):
-        found = re.findall(r"Photograph (\d+)\.", text)
+        found = PHOTOGRAPH_CAPTION.findall(text)
         if found:
             pages[page] = sorted({f"Photograph {number}" for number in found})
     return pages

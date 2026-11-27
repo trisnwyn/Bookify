@@ -42,6 +42,21 @@ def check(pdf: Path, manuscript: model.Manuscript, draft: bool) -> Check:
                 problems.append(f"{record.id}: alt text missing")
             checked.append(record.id)
 
+    cover = manuscript.data["metadata"].get("cover") or {}
+    artwork = cover.get("artwork")
+    if isinstance(artwork, str) and artwork:
+        try:
+            record = rights.load(manuscript.root, artwork)
+        except Exception as error:  # noqa: BLE001 - report the contract code
+            problems.append(str(error))
+        else:
+            if record.rights_status != "verified" and not draft:
+                problems.append(f"{record.id}: unconfirmed rights")
+            if not record.alt.strip():
+                problems.append(f"{record.id}: alt text missing")
+            if record.id not in checked:
+                checked.append(record.id)
+
     if problems:
         return failed("rights", "RIGHTS_INCOMPLETE", "; ".join(problems), problems=problems)
     return passed("rights", f"{len(checked)} illustration record(s) complete and credited", ids=checked)

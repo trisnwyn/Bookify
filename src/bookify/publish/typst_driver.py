@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bookify.authoring import workspace as workspace_mod
+from bookify.design import coverage as design_coverage
 from bookify.errors import BookifyError
 from bookify.figures import charts, diagrams
 from bookify.manuscript import model
@@ -145,7 +146,17 @@ def _compile(
     if not typst.is_file():
         raise BookifyError("BUILD_FAILED", "typst binary missing", lock.typst.binary)
     data = _relative(compile_root, document_path)
-    prefix = ["bwrap", "--unshare-net", "--bind", "/", "/"]
+    out_dir = out_pdf.resolve().parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+    empty_pkg = compile_root / ".cache" / "empty-pkg"
+    empty_pkg.mkdir(parents=True, exist_ok=True)
+    prefix = [
+        "bwrap",
+        "--unshare-net",
+        "--die-with-parent",
+        "--ro-bind", "/", "/",
+        "--bind", str(out_dir), str(out_dir),
+    ]
     for source, target in mounts:
         prefix.extend(["--ro-bind", str(source), str(target)])
     if mounts:
@@ -221,6 +232,7 @@ def build(
     out_pdf.parent.mkdir(parents=True, exist_ok=True)
 
     mounts = _workspace_mounts(manuscript, stage) if manuscript.workspace is not None else ()
+    design_coverage.require_coverage(manuscript, manuscript.engine)
     with guard.offline(), audit.boundary() as boundary:
         figure_paths, figure_assets = _render_figures(manuscript, figure_dir, compile_root)
         document = normalize.build(manuscript, figure_paths, draft=draft)
@@ -232,26 +244,22 @@ def build(
         deferred: list[str] = []
         seen: set[tuple[tuple[str, int | None], ...]] = set()
         while True:
-            data = report.analyse(
-                out_pdf, document.data, figure_assets,
-                offline=guard.active(), draft=draft, manuscript_path=manuscript_path,
-                network_attempts=guard.attempts(),
-            )
-            unplaced = [item["illustrationId"] for item in data["placements"] if item["page"] is None]
+            placements = report.placement_entries(out_pdf, document.data)
+            unplaced = [item["illustrationId"] for item in placements if item["page"] is None]
             if unplaced:
                 raise BookifyError(
                     "BUILD_FAILED",
                     f"illustration label not found on any page: {', '.join(unplaced)}",
                     str(out_pdf),
                 )
-            conflicting = illustrations.conflicts(data["placements"])
+            conflicting = illustrations.conflicts(placements)
             if not conflicting:
                 break
             # The stop condition is agreement, not an attempt count: a pass is
             # repeated only while the placement map still changes. A map that
             # comes back to a previous state will never settle, so it fails now
             # instead of spending the remaining attempts.
-            layout = illustrations.signature(data["placements"])
+            layout = illustrations.signature(placements)
             if layout in seen:
                 illustrations.require_limit(conflicting)
                 raise BookifyError(
@@ -271,6 +279,12 @@ def build(
             deferred.extend(illustrations.defer_later(document.data, conflicting))
             document_path.write_text(json.dumps(document.data, indent=2, sort_keys=True) + "\n")
             _compile(manuscript, compile_root, document_path, out_pdf, lock, mounts)
+
+        data = report.analyse(
+            out_pdf, document.data, figure_assets,
+            offline=guard.active(), draft=draft, manuscript_path=manuscript_path,
+            network_attempts=guard.attempts(),
+        )
 
     data["pins"] = {"typst": lock.typst.version, "python": lock.python.version, "fonts": len(lock.fonts)}
     data["deferredIllustrations"] = sorted(set(deferred))

@@ -19,6 +19,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from bookify import pdf_measure
 from bookify.design import tokens
 from bookify.manuscript import model
 from bookify.publish import normalize, report
@@ -55,21 +56,7 @@ def _page_size(pdf: Path) -> tuple[float, float]:
 
 
 def raster(pdf: Path, page: int, dpi: int) -> np.ndarray:
-    with tempfile.TemporaryDirectory() as directory:
-        prefix = Path(directory) / f"page-{page:04d}"
-        result = subprocess.run(
-            [
-                "pdftoppm", "-png", "-r", str(dpi), "-f", str(page), "-l", str(page),
-                "-singlefile", str(pdf), str(prefix),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            raise RuntimeError(f"pdftoppm failed on page {page}")
-        with Image.open(f"{prefix}.png") as source:
-            return np.asarray(source.convert("RGB"))
+    return pdf_measure.for_pdf(pdf).raster_rgb(page, dpi, error_code="VERIFY_FAILED")
 
 
 def rules(image: np.ndarray, measure_px: int) -> list[int]:
@@ -185,7 +172,7 @@ def check(pdf: Path, manuscript: model.Manuscript) -> Check:
         np.count_nonzero((colour[:, :, 0] != colour[:, :, 1]) | (colour[:, :, 1] != colour[:, :, 2]))
     )
     evidence["chromaticPixels"] = chromatic
-    if chromatic:
+    if chromatic and cover["artwork"] != "present":
         problems.append(f"cover has {chromatic} chromatic pixels")
 
     if cover["artwork"] == "present":

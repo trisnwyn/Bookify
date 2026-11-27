@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 
+from bookify import pdf_measure
 from bookify.errors import BookifyError
 from bookify.design import tokens
 from bookify.manuscript import model
@@ -25,27 +26,7 @@ FIGURE_KINDS = ("chart", "diagram", "illustration")
 SIDE_PRESETS = ("side-left", "side-right")
 HTML_NS = "http://www.w3.org/1999/xhtml"
 
-
-@dataclass(frozen=True)
-class LineBox:
-    page: int
-    page_width: float
-    text: str
-    x_min: float
-    x_max: float
-    y_min: float
-    y_max: float
-
-    @property
-    def centre(self) -> float:
-        return (self.x_min + self.x_max) / 2
-
-    @property
-    def delta_pt(self) -> float:
-        return self.centre - self.page_width / 2
-
-    def delta_to(self, centre: float) -> float:
-        return self.centre - centre
+LineBox = pdf_measure.LineBox
 
 
 @dataclass(frozen=True)
@@ -141,41 +122,7 @@ def _stream(text: str) -> str:
 
 def read_lines(pdf: Path) -> tuple[LineBox, ...]:
     """Read every rendered text line with its page width and bounding box."""
-    result = subprocess.run(
-        ["pdftotext", "-bbox-layout", str(pdf), "-"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
-        raise BookifyError("VERIFY_FAILED", "pdftotext -bbox-layout failed", str(pdf))
-    try:
-        root = ET.fromstring(result.stdout)
-    except ET.ParseError as error:
-        raise BookifyError("VERIFY_FAILED", f"cannot parse PDF line boxes: {error}", str(pdf)) from error
-
-    lines: list[LineBox] = []
-    for page_index, page in enumerate(root.iter(f"{{{HTML_NS}}}page"), start=1):
-        width = float(page.attrib.get("width", "0"))
-        for line in page.iter(f"{{{HTML_NS}}}line"):
-            words = [word.text or "" for word in line.iter(f"{{{HTML_NS}}}word")]
-            text = _normalise(" ".join(words))
-            if not text:
-                continue
-            lines.append(
-                LineBox(
-                    page=page_index,
-                    page_width=width,
-                    text=text,
-                    x_min=float(line.attrib["xMin"]),
-                    x_max=float(line.attrib["xMax"]),
-                    y_min=float(line.attrib["yMin"]),
-                    y_max=float(line.attrib["yMax"]),
-                )
-            )
-    if not lines:
-        raise BookifyError("VERIFY_FAILED", "no text lines found in the PDF", str(pdf))
-    return tuple(lines)
+    return pdf_measure.for_pdf(pdf).line_boxes(error_code="VERIFY_FAILED")
 
 
 def expected_captions(manuscript: model.Manuscript) -> tuple[CaptionSpec, ...]:

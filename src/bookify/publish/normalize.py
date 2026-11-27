@@ -29,6 +29,11 @@ def appendix_letter(index: int) -> str:
     return letters
 
 
+def branch_letter(index: int) -> str:
+    """1 -> a, 26 -> z, 27 -> aa."""
+    return appendix_letter(index).lower()
+
+
 def section_numbers(manuscript: model.Manuscript) -> list[dict[str, Any]]:
     """The printed number of every section, in document order.
 
@@ -302,7 +307,7 @@ def build(
                 entry["note"] = _resolve(block["note"], labels)
             elif kind == "branch":
                 branches += 1
-                marker = f"{numbers[index - 1]['printed']} {chr(ord('a') + branches - 1)})"
+                marker = f"{numbers[index - 1]['printed']} {branch_letter(branches)})"
                 entry["marker"] = marker
                 entry["text"] = _resolve(block["text"], labels)
             elif kind == "illustration":

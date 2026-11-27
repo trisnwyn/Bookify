@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
+from bookify import pdf_measure
 from bookify.design import tokens
 from bookify.errors import BookifyError
 
@@ -69,50 +70,13 @@ def composition_entries(document: dict[str, Any], numbered: dict[str, int]) -> l
 
 
 def _text_pages(pdf: Path, count: int) -> list[str]:
-    pages: list[str] = []
-    for index in range(1, count + 1):
-        result = subprocess.run(
-            ["pdftotext", "-layout", "-f", str(index), "-l", str(index), str(pdf), "-"],
-            capture_output=True, text=True, check=False,
-        )
-        if result.returncode != 0:
-            raise BookifyError("BUILD_FAILED", f"pdftotext failed on page {index}", str(pdf))
-        pages.append(result.stdout)
-    return pages
+    del count
+    return pdf_measure.for_pdf(pdf).page_texts(error_code="BUILD_FAILED")
 
 
 def _bbox_lines(pdf: Path, page: int) -> tuple[float, float, list[tuple[str, float, float, float, float]]]:
     """Rendered line boxes on one page: text, xMin, xMax, yMin, yMax."""
-    result = subprocess.run(
-        ["pdftotext", "-bbox-layout", "-f", str(page), "-l", str(page), str(pdf), "-"],
-        capture_output=True, text=True, check=False,
-    )
-    if result.returncode != 0:
-        raise BookifyError("BUILD_FAILED", f"pdftotext -bbox-layout failed on page {page}", str(pdf))
-    try:
-        root = ET.fromstring(result.stdout)
-    except ET.ParseError as error:
-        raise BookifyError("BUILD_FAILED", f"cannot parse PDF line boxes: {error}", str(pdf)) from error
-    lines: list[tuple[str, float, float, float, float]] = []
-    for page_node in root.iter(f"{{{HTML_NS}}}page"):
-        width = float(page_node.attrib.get("width", "0"))
-        height = float(page_node.attrib.get("height", "0"))
-        for line in page_node.iter(f"{{{HTML_NS}}}line"):
-            words = [word.text or "" for word in line.iter(f"{{{HTML_NS}}}word")]
-            text = " ".join(" ".join(words).split())
-            if not text:
-                continue
-            lines.append(
-                (
-                    text,
-                    float(line.attrib["xMin"]),
-                    float(line.attrib["xMax"]),
-                    float(line.attrib["yMin"]),
-                    float(line.attrib["yMax"]),
-                )
-            )
-        return width, height, lines
-    return 0.0, 0.0, lines
+    return pdf_measure.for_pdf(pdf).bbox_lines(page, error_code="BUILD_FAILED")
 
 
 def contents_pages(texts: list[str]) -> set[int]:
@@ -453,32 +417,7 @@ def figure_boxes(pdf: Path) -> dict[int, list[tuple[float, float, float, float]]
     vector charts and diagrams it rasterises for the export. This is the
     measured width of a plate, not the width the template asked for.
     """
-    result = subprocess.run(
-        ["pdftohtml", "-xml", "-hidden", "-stdout", str(pdf)],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
-        raise BookifyError("BUILD_FAILED", "pdftohtml failed to list figure boxes", str(pdf))
-    try:
-        root = ET.fromstring(result.stdout)
-    except ET.ParseError as error:
-        raise BookifyError("BUILD_FAILED", f"cannot parse figure boxes: {error}", str(pdf)) from error
-    boxes: dict[int, list[tuple[float, float, float, float]]] = {}
-    for page_node in root.iter("page"):
-        number = int(page_node.attrib.get("number", "0"))
-        width = float(page_node.attrib.get("width", "0")) or 1.0
-        # The XML is emitted at a rounded pixel width; the page's real width is
-        # the A4 measure plus margins, so derive the scale from the page box.
-        scale = (tokens.BODY_MEASURE_PT + 2 * tokens.PAGE_MARGIN_PT) / width
-        for image in page_node.iter("image"):
-            left = float(image.attrib.get("left", "0")) * scale
-            top = float(image.attrib.get("top", "0")) * scale
-            box_width = float(image.attrib.get("width", "0")) * scale
-            height = float(image.attrib.get("height", "0")) * scale
-            boxes.setdefault(number, []).append((left, top, box_width, height))
-    return boxes
+    return pdf_measure.for_pdf(pdf).figure_boxes(error_code="BUILD_FAILED")
 
 
 def plate_entries(
@@ -625,16 +564,19 @@ def grouped_page_lines(pdf: Path, page: int) -> list[str]:
     block boundary mid-line (seen with per-level heading spacing). Grouping the
     bbox fragments that share a vertical box keeps the printed heading intact.
     """
-    _width, _height, lines = _bbox_lines(pdf, page)
-    grouped: list[list[float | list[tuple[float, str]]]] = []
-    for text, x_min, _x_max, y_min, y_max in sorted(lines, key=lambda line: (round(line[3], 1), line[1])):
-        if grouped and abs(float(grouped[-1][0]) - y_min) < 1.0 and abs(float(grouped[-1][1]) - y_max) < 1.0:
-            grouped[-1][2].append((x_min, text))  # type: ignore[union-attr]
-        else:
-            grouped.append([y_min, y_max, [(x_min, text)]])
+    return pdf_measure.for_pdf(pdf).grouped_page_lines(page, error_code="BUILD_FAILED")
+
+
+def placement_entries(pdf: Path, document: dict[str, Any]) -> list[dict[str, Any]]:
+    """Lightweight illustration placement map used while placement converges."""
+    numbered = pdf_measure.for_pdf(pdf).numbered_labels(error_code="BUILD_FAILED")
     return [
-        " ".join(text for _x, text in sorted(parts))  # type: ignore[union-attr]
-        for _y_min, _y_max, parts in grouped
+        {
+            "illustrationId": illustration["id"],
+            "page": numbered.get(illustration.get("label", "")) if illustration.get("label") else None,
+            "caption": illustration["caption"],
+        }
+        for illustration in document["illustrations"]
     ]
 
 
@@ -683,29 +625,22 @@ def analyse(
     manuscript_path: Path,
     network_attempts: int = 0,
 ) -> dict[str, Any]:
-    info = subprocess.run(["pdfinfo", str(pdf)], capture_output=True, text=True, check=True).stdout
-    pages = int(next(line.split()[1] for line in info.splitlines() if line.startswith("Pages:")))
-    size = next(line.split(":", 1)[1].strip() for line in info.splitlines() if line.startswith("Page size:"))
-    texts = _text_pages(pdf, pages)
-    height_match = re.search(r"x\s*([0-9.]+)\s*pts", size)
-    width_match = re.search(r"([0-9.]+)\s*x", size)
-    if not height_match or not width_match:
-        raise BookifyError("BUILD_FAILED", f"cannot read page size: {size}", str(pdf))
-    page_height = float(height_match.group(1))
-    page_width = float(width_match.group(1))
+    measured = pdf_measure.for_pdf(pdf)
+    info = measured.info(error_code="BUILD_FAILED")
+    pages = measured.page_count(error_code="BUILD_FAILED")
+    size = info.get("Page size", "")
+    page_width, page_height = measured.page_size(error_code="BUILD_FAILED")
+    texts = measured.page_texts(error_code="BUILD_FAILED")
 
     contents = contents_pages(texts)
-    grouped_cache: dict[int, list[str]] = {}
 
     def page_grouped(index: int) -> list[str]:
-        if index not in grouped_cache:
-            grouped_cache[index] = grouped_page_lines(pdf, index)
-        return grouped_cache[index]
+        return measured.grouped_page_lines(index, error_code="BUILD_FAILED")
 
     sections: list[dict[str, Any]] = []
+    section_page_by_label: dict[str, int | None] = {}
     for section in document["sections"]:
         printed = section.get("printed")
-        wanted = section_forms(section)
         page = next(
             (
                 index
@@ -715,6 +650,8 @@ def analyse(
             ),
             None,
         )
+        if section.get("label"):
+            section_page_by_label[section["label"]] = page
         sections.append(
             {
                 "number": section["number"],
@@ -725,17 +662,8 @@ def analyse(
             }
         )
 
+    numbered = measured.numbered_labels(error_code="BUILD_FAILED")
     placements: list[dict[str, Any]] = []
-    numbered: dict[str, int] = {}
-    # Read labels from the per-line text boxes, not `pdftotext -layout`: on a
-    # two-column page the layout line merges the neighbouring column's prose with
-    # the caption, so a right-column `Figure N.` would never start a line. A
-    # bbox line is one rendered run and keeps the label at its start.
-    for index in range(1, pages + 1):
-        for text, _x_min, _x_max, _y_min, _y_max in _bbox_lines(pdf, index)[2]:
-            match = LABEL.match(text.strip())
-            if match:
-                numbered.setdefault(f"{match.group(1)} {match.group(2)}", index)
     for illustration in document["illustrations"]:
         label = illustration.get("label")
         page = numbered.get(label) if label else None
@@ -796,7 +724,7 @@ def analyse(
     machine_read = [
         {
             "blockId": block["id"],
-            "page": numbered.get(block.get("label", "")),
+            "page": numbered.get(block.get("label", ""), section_page_by_label.get(block.get("label", ""))),
             "region": block["machineRead"]["region"],
             "method": block["machineRead"]["method"],
             "confidence": block["machineRead"]["confidence"],

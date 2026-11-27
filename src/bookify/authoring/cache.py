@@ -15,9 +15,19 @@ from typing import Any
 SCHEMA_VERSION = "1.0"
 
 
-def key(source_id: str, page: int, text_sha256: str, prompt_version: str, schema_version: str | None = None) -> str:
+def key(
+    source_id: str,
+    page: int,
+    text_sha256: str,
+    prompt_version: str,
+    schema_version: str | None = None,
+    content_sha256: str | None = None,
+) -> str:
     schema_version = schema_version or SCHEMA_VERSION
-    payload = f"{schema_version}|{prompt_version}|{source_id}#{page}|{text_sha256}"
+    if content_sha256 and content_sha256 != text_sha256:
+        payload = f"{schema_version}|{prompt_version}|{source_id}#{page}|{text_sha256}|{content_sha256}"
+    else:
+        payload = f"{schema_version}|{prompt_version}|{source_id}#{page}|{text_sha256}"
     return hashlib.sha256(payload.encode()).hexdigest()
 
 
@@ -27,15 +37,19 @@ def record(
     model: str,
     input_hash: str,
     schema_version: str | None = None,
+    content_sha256: str | None = None,
 ) -> dict[str, str]:
     """One applied-page record: content hash, versions, model and cache key."""
-    return {
+    entry = {
         "textSha256": text_sha256,
         "promptVersion": prompt_version,
         "schemaVersion": schema_version or SCHEMA_VERSION,
         "model": model,
         "inputHash": input_hash,
     }
+    if content_sha256 is not None:
+        entry["contentSha256"] = content_sha256
+    return entry
 
 
 def index_path(cache_dir: Path) -> Path:

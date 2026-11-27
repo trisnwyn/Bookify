@@ -129,6 +129,11 @@ def list_images(path: Path, page: int, policy: SandboxPolicy | None = None) -> l
     return images
 
 
+def _image_sort_key(path: Path) -> tuple[int, str]:
+    suffix = path.stem.rsplit("-", 1)[-1]
+    return (int(suffix), path.name) if suffix.isdigit() else (0, path.name)
+
+
 def extract_images(
     path: Path, page: int, target_dir: Path, policy: SandboxPolicy | None = None
 ) -> list[Path]:
@@ -141,7 +146,7 @@ def extract_images(
         ["pdfimages", "-png", "-f", str(page), "-l", str(page), str(path), str(prefix)],
         policy,
     )
-    return sorted(target_dir.glob("img-*.png"))
+    return sorted(target_dir.glob("img-*.png"), key=_image_sort_key)
 
 
 __all__ = [

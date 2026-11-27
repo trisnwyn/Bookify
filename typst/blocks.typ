@@ -112,7 +112,15 @@
   },
 )
 
-#let preset-table(header, rows, caption: none, widths: none) = block(
+#let _table-align(value) = if value == "right" {
+  right
+} else if value == "center" {
+  center
+} else {
+  left
+}
+
+#let preset-table(header, rows, caption: none, widths: none, align: none) = block(
   above: tokens.space.after_block,
   below: tokens.space.after_figure,
   {
@@ -120,12 +128,13 @@
     set par(leading: tokens.leading_extra.table)
     let columns = header.len()
     let columns_spec = if widths == none { range(columns).map(_ => 1fr) } else { widths.map(w => w * 1fr) }
+    let align_spec = if align == none { left } else { align.map(_table-align) }
     let captions = if caption == none {
       ()
     } else {
       (table.footer(
         repeat: false,
-        table.cell(colspan: columns, {
+        table.cell(colspan: columns, align: left, {
           set text(size: tokens.type.caption, fill: tokens.ink.grey_1, style: "italic")
           set par(leading: tokens.leading_extra.caption, justify: false)
           caption
@@ -134,7 +143,7 @@
     }
     table(
       columns: columns_spec,
-      align: left,
+      align: align_spec,
       stroke: none,
       table.hline(y: 0, stroke: tokens.rule.table_top),
       table.header(
