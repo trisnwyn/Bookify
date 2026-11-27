@@ -327,8 +327,8 @@ def build(
             build_dir = workspace_mod.inside(root, build_dir, label="build directory")
             out_pdf = workspace_mod.inside(root, out_pdf, label="output PDF")
         else:
-            build_dir = build_dir if build_dir.is_absolute() else root / build_dir
-            out_pdf = out_pdf if out_pdf.is_absolute() else root / out_pdf
+            build_dir = build_dir.resolve()
+            out_pdf = out_pdf.resolve()
         stage = build_dir / "typst-root"
         compile_root = stage
         document_path = stage / "book.json"

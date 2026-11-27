@@ -70,6 +70,35 @@ def test_standalone_book_builds_outside_repo_without_workspace_flag(tmp_path: Pa
     assert result.report["pdf"]["pages"] >= 3
 
 
+def test_standalone_relative_paths_resolve_from_cwd_not_doubled(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    sub = tmp_path / "books" / "demo"
+    sub.mkdir(parents=True)
+    book_yaml = sub / "book.yaml"
+    book_yaml.write_text(
+        yaml.safe_dump(
+            {
+                "schemaVersion": "1.0",
+                "revision": 1,
+                "id": "relative-cwd-test",
+                "metadata": {"title": "Relative Path Build", "languages": ["en"]},
+                "sections": [
+                    {
+                        "id": "sec-one",
+                        "title": "Relative",
+                        "level": 1,
+                        "blocks": [{"id": "b-1", "type": "paragraph", "text": "Relative path resolution check."}],
+                    }
+                ],
+            },
+            sort_keys=False,
+        )
+    )
+    monkeypatch.chdir(tmp_path)
+    result = typst_driver.build(Path("books/demo/book.yaml"), Path("books/demo/out.pdf"), Path("books/demo/build"), offline=True)
+    assert result.pdf == (sub / "out.pdf").resolve()
+    assert (sub / "out.pdf").is_file()
+
+
 def test_cli_fonts_status_and_version(capsys: pytest.CaptureFixture[str]) -> None:
     rc = cli.main(["fonts", "status", "--json"])
     assert rc == 0
