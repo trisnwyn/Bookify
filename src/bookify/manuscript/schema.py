@@ -13,17 +13,19 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import best_match
 
+from bookify import runtime
 from bookify.errors import BookifyError
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = runtime.engine_root()
 SCHEMA_PATH = ROOT / "schemas" / "manuscript.schema.json"
 
 
 @lru_cache(maxsize=1)
 def load_document() -> dict[str, Any]:
-    if not SCHEMA_PATH.is_file():
-        raise BookifyError("INPUT_INVALID", f"manuscript schema missing: {SCHEMA_PATH}", str(SCHEMA_PATH))
-    return json.loads(SCHEMA_PATH.read_text())
+    path = runtime.engine_root() / "schemas" / "manuscript.schema.json"
+    if not path.is_file():
+        raise BookifyError("INPUT_INVALID", f"manuscript schema missing: {path}", str(path))
+    return json.loads(path.read_text())
 
 
 def validate(data: Any) -> None:

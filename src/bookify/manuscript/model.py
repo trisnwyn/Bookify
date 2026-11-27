@@ -604,7 +604,12 @@ def load(
         engine_root_path = (engine or engine_root()).resolve()
     else:
         project_root = root.resolve() if root else _project_root(path)
-        engine_root_path = (engine or project_root).resolve()
+        if engine is not None:
+            engine_root_path = engine.resolve()
+        elif (project_root / "typst").is_dir() and (project_root / "schemas").is_dir():
+            engine_root_path = project_root
+        else:
+            engine_root_path = engine_root().resolve()
     section_ids, block_ids = _check_ids(data)
     _check_section_hierarchy(data)
     _check_section_roles(data)

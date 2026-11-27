@@ -202,7 +202,9 @@ def _round(value: float | None, digits: int) -> float | None:
 
 
 def _engine_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    from bookify import runtime
+
+    return runtime.engine_root()
 
 
 def _dev_engine() -> Path:

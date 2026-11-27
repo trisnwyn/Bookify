@@ -48,12 +48,17 @@ def _cmap(path: Path) -> frozenset[int]:
 
 
 def _chain_paths(root: Path, script: str) -> list[Path]:
+    from bookify import runtime
+
     manifest = yaml.safe_load((root / "assets" / "fonts" / "fonts.yaml").read_text())
     families = {family["family"]: family for family in manifest["families"]}
     chain = manifest["scripts"][script]["chain"]
     paths: list[Path] = []
     for name in chain:
-        paths.extend(root / entry["path"] for entry in families[name]["files"])
+        for entry in families[name]["files"]:
+            resolved = runtime.resolve_font_path(root, entry["path"])
+            if resolved is not None:
+                paths.append(resolved)
     return paths
 
 
@@ -163,9 +168,12 @@ def manuscript_text(manuscript: model.Manuscript) -> str:
 
 
 def check(manuscript: model.Manuscript, root: Path) -> Coverage:
-    latin = frozenset().union(*(_cmap(path) for path in _chain_paths(root, "latin-vietnamese")))
-    japanese = frozenset().union(*(_cmap(path) for path in _chain_paths(root, "japanese")))
-    maths = frozenset().union(*(_cmap(path) for path in _chain_paths(root, "maths")))
+    latin_paths = _chain_paths(root, "latin-vietnamese")
+    japanese_paths = _chain_paths(root, "japanese")
+    maths_paths = _chain_paths(root, "maths")
+    latin = frozenset().union(*(_cmap(path) for path in latin_paths)) if latin_paths else frozenset()
+    japanese = frozenset().union(*(_cmap(path) for path in japanese_paths)) if japanese_paths else frozenset()
+    maths = frozenset().union(*(_cmap(path) for path in maths_paths)) if maths_paths else frozenset()
 
     checked = 0
     japanese_count = 0
@@ -186,6 +194,12 @@ def check(manuscript: model.Manuscript, root: Path) -> Coverage:
                 continue
             if _is_japanese(codepoint):
                 japanese_count += 1
+                if not japanese_paths:
+                    raise BookifyError(
+                        "FONT_MISSING",
+                        "CJK font pack (Noto Serif CJK JP) is required for Japanese text; run 'bookify fonts install cjk'",
+                        str(manuscript.path),
+                    )
                 if codepoint not in japanese:
                     missing.append((character, f"U+{codepoint:04X}"))
             elif codepoint not in latin and codepoint not in japanese:

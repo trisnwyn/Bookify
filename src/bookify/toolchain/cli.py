@@ -8,9 +8,10 @@ import sys
 from pathlib import Path
 from typing import Any, Sequence
 
+from bookify import runtime
 from bookify.errors import BookifyError
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = runtime.engine_root()
 EXIT_CODES = {
     "INPUT_INVALID": 2,
     "SCHEMA_INVALID": 2,
@@ -29,7 +30,17 @@ EXIT_CODES = {
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="bookify", description="Local authoring and offline publishing")
+    parser.add_argument("--version", action="version", version=f"bookify {runtime.version()}")
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    fonts = subparsers.add_parser("fonts", help="inspect or install optional font packs")
+    fonts_sub = fonts.add_subparsers(dest="fonts_command", required=True)
+    fonts_status = fonts_sub.add_parser("status", help="report bundled and cached optional font packs")
+    fonts_status.add_argument("--json", action="store_true")
+    fonts_install = fonts_sub.add_parser("install", help="install an optional font pack into the user cache")
+    fonts_install.add_argument("pack", choices=("cjk",), help="font pack to install")
+    fonts_install.add_argument("--from-file", type=Path, default=None, help="install from a local file instead of downloading")
+    fonts_install.add_argument("--json", action="store_true")
 
     toolchain = subparsers.add_parser("toolchain", help="report or verify the local toolchain")
     toolchain_sub = toolchain.add_subparsers(dest="toolchain_command", required=True)
@@ -530,9 +541,36 @@ def _build(args: argparse.Namespace) -> int:
     return 0
 
 
+def _fonts_status(args: argparse.Namespace) -> int:
+    from bookify.toolchain import fonts as fonts_mod
+
+    payload = fonts_mod.cjk_status(runtime.engine_root())
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        state = f"installed ({payload['source']})" if payload["installed"] else "not installed"
+        print(f"cjk: {state} — {payload['path']}")
+    return 0
+
+
+def _fonts_install(args: argparse.Namespace) -> int:
+    from bookify.toolchain import fonts as fonts_mod
+
+    payload = fonts_mod.install_cjk(from_file=args.from_file)
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"{payload['pack']}: {payload['status']} at {payload['path']}")
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
+        if args.command == "fonts" and args.fonts_command == "status":
+            return _fonts_status(args)
+        if args.command == "fonts" and args.fonts_command == "install":
+            return _fonts_install(args)
         if args.command == "toolchain" and args.toolchain_command == "doctor":
             return _toolchain_doctor(args)
         if args.command == "manuscript" and args.manuscript_command == "check":

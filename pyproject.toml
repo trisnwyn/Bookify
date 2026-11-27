@@ -1,15 +1,17 @@
 [project]
 name = "bookify"
-version = "0.1.0"
-description = "Local authoring and offline publishing pipeline"
-requires-python = ">=3.13,<3.14"
+version = "0.2.0"
+description = "Offline Typst book authoring and verification engine for AI agents"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12,<3.14"
 dependencies = [
-  "fonttools>=4.68.0",
-  "jsonschema>=4.26.0",
-  "matplotlib==3.11.2",
-  "numpy==2.5.4",
-  "pillow>=13.0.0",
-  "pyyaml>=6.0.3",
+  "fonttools>=4.50.0",
+  "jsonschema>=4.23.0",
+  "matplotlib>=3.9.0",
+  "numpy>=2.0.0",
+  "pillow>=11.0.0",
+  "pyyaml>=6.0.0",
 ]
 
 [dependency-groups]
@@ -26,6 +28,22 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bookify"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"typst" = "bookify/_data/typst"
+"schemas" = "bookify/_data/schemas"
+"vendor/typst" = "bookify/_data/vendor/typst"
+"toolchain.lock.json" = "bookify/_data/toolchain.lock.json"
+"assets/fonts/fonts.yaml" = "bookify/_data/assets/fonts/fonts.yaml"
+"assets/fonts/Spectral-Regular.ttf" = "bookify/_data/assets/fonts/Spectral-Regular.ttf"
+"assets/fonts/Spectral-Italic.ttf" = "bookify/_data/assets/fonts/Spectral-Italic.ttf"
+"assets/fonts/Spectral-Medium.ttf" = "bookify/_data/assets/fonts/Spectral-Medium.ttf"
+"assets/fonts/Spectral-SemiBold.ttf" = "bookify/_data/assets/fonts/Spectral-SemiBold.ttf"
+"assets/fonts/Spectral-SemiBoldItalic.ttf" = "bookify/_data/assets/fonts/Spectral-SemiBoldItalic.ttf"
+"assets/fonts/Spectral-Bold.ttf" = "bookify/_data/assets/fonts/Spectral-Bold.ttf"
+"assets/fonts/Spectral-BoldItalic.ttf" = "bookify/_data/assets/fonts/Spectral-BoldItalic.ttf"
+"assets/fonts/STIXTwoMath-Regular.otf" = "bookify/_data/assets/fonts/STIXTwoMath-Regular.otf"
+"skill/bookify" = "bookify/_data/skill/bookify"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

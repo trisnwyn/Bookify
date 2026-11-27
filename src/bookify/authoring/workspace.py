@@ -11,14 +11,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from bookify import runtime
 from bookify.errors import BookifyError
 
 ENV = "BOOKIFY_WORKSPACE"
 
 
 def engine_root() -> Path:
-    """The installed engine tree: this package lives at ``<engine>/src/bookify``."""
-    return Path(__file__).resolve().parents[3]
+    """The installed engine tree (source checkout or wheel-bundled `_data`)."""
+    return runtime.engine_root()
 
 
 def from_environment() -> Path | None:

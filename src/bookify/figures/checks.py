@@ -83,7 +83,9 @@ def is_cjk(character: str) -> bool:
 
 
 def _project_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    from bookify import runtime
+
+    return runtime.engine_root()
 
 
 @lru_cache(maxsize=None)
@@ -99,6 +101,8 @@ def _face_metrics(path: str) -> tuple[int, dict[int, str], Any]:
 @lru_cache(maxsize=None)
 def _fit_chain(root: str) -> tuple[str, ...] | None:
     """The vendored latin-vietnamese + japanese chain, or None when unavailable."""
+    from bookify import runtime
+
     manifest_path = Path(root) / "assets" / "fonts" / "fonts.yaml"
     if not manifest_path.is_file():
         return None
@@ -113,8 +117,8 @@ def _fit_chain(root: str) -> tuple[str, ...] | None:
     for script in ("latin-vietnamese", "japanese"):
         for name in manifest.get("scripts", {}).get(script, {}).get("chain", []):
             for entry in families.get(name, {}).get("files", []):
-                candidate = Path(root) / entry["path"]
-                if candidate.is_file():
+                candidate = runtime.resolve_font_path(Path(root), entry["path"])
+                if candidate is not None and candidate.is_file():
                     paths.append(str(candidate))
     return tuple(paths) or None
 

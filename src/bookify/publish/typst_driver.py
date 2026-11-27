@@ -160,14 +160,23 @@ def _compile(
     for source, target in mounts:
         prefix.extend(["--ro-bind", str(source), str(target)])
     if mounts:
-        font_path, package_path = "engine-assets/fonts", "engine-vendor/typst"
+        font_paths = ["engine-assets/fonts"]
+        package_path = "engine-vendor/typst"
     else:
-        font_path, package_path = "assets/fonts", "vendor/typst"
+        font_paths = ["assets/fonts"]
+        package_path = "vendor/typst"
+    from bookify import runtime as _runtime
+    cached_fonts = _runtime.fonts_cache_dir()
+    if cached_fonts.is_dir():
+        font_paths.append(str(cached_fonts))
+    font_args: list[str] = []
+    for fp in font_paths:
+        font_args.extend(["--font-path", fp])
     command = [
         *prefix, "--chdir", str(compile_root), "--",
         str(typst), "compile",
         "--ignore-system-fonts", "--ignore-embedded-fonts",
-        "--font-path", font_path,
+        *font_args,
         "--package-path", package_path,
         "--package-cache-path", ".cache/empty-pkg",
         "--creation-timestamp", CREATION_TIMESTAMP,
@@ -202,9 +211,14 @@ def build(
         raise BookifyError("BUILD_FAILED", "publishing requires --offline", "--offline")
     manuscript = model.load(manuscript_path, workspace=workspace, engine=engine)
     root = manuscript.root
-    if manuscript.workspace is not None:
-        build_dir = workspace_mod.inside(root, build_dir, label="build directory")
-        out_pdf = workspace_mod.inside(root, out_pdf, label="output PDF")
+    external_book = manuscript.workspace is not None or manuscript.root.resolve() != manuscript.engine.resolve()
+    if external_book:
+        if manuscript.workspace is not None:
+            build_dir = workspace_mod.inside(root, build_dir, label="build directory")
+            out_pdf = workspace_mod.inside(root, out_pdf, label="output PDF")
+        else:
+            build_dir = build_dir if build_dir.is_absolute() else root / build_dir
+            out_pdf = out_pdf if out_pdf.is_absolute() else root / out_pdf
         stage = build_dir / "typst-root"
         compile_root = stage
         document_path = stage / "book.json"
@@ -227,11 +241,11 @@ def build(
     lock = pins.load(lock_file)
     doctor.run_or_fail(manuscript.engine, lock_file)
 
-    if manuscript.workspace is None:
+    if not external_book:
         out_pdf = out_pdf if out_pdf.is_absolute() else root / out_pdf
     out_pdf.parent.mkdir(parents=True, exist_ok=True)
 
-    mounts = _workspace_mounts(manuscript, stage) if manuscript.workspace is not None else ()
+    mounts = _workspace_mounts(manuscript, stage) if external_book else ()
     design_coverage.require_coverage(manuscript, manuscript.engine)
     with guard.offline(), audit.boundary() as boundary:
         figure_paths, figure_assets = _render_figures(manuscript, figure_dir, compile_root)
