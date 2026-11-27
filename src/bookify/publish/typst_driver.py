@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
+from bookify import runtime
 from bookify.authoring import workspace as workspace_mod
 from bookify.design import coverage as design_coverage
 from bookify.errors import BookifyError
@@ -15,10 +19,70 @@ from bookify.figures import charts, diagrams
 from bookify.manuscript import model
 from bookify.publish import illustrations, normalize, report, rights
 from bookify.toolchain import audit
-from bookify.toolchain import doctor, guard, pins
+from bookify.toolchain import doctor, guard, pins, typst_install
 
 CREATION_TIMESTAMP = "1750000000"
 COMPILE_TIMEOUT_SECONDS = 180
+SANDBOX_MODES = ("auto", "bwrap", "none")
+
+
+@lru_cache(maxsize=1)
+def _bwrap_works() -> bool:
+    if not sys.platform.startswith("linux"):
+        return False
+    bwrap = shutil.which("bwrap")
+    if not bwrap:
+        return False
+    probe_bin = "/bin/true" if Path("/bin/true").exists() else "/usr/bin/true"
+    if not Path(probe_bin).exists():
+        return False
+    try:
+        res = subprocess.run(
+            [bwrap, "--unshare-net", "--ro-bind", "/", "/", "--", probe_bin],
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+        return res.returncode == 0
+    except OSError:
+        return False
+
+
+def _use_bwrap(sandbox: str) -> bool:
+    if sandbox not in SANDBOX_MODES:
+        raise BookifyError("INPUT_INVALID", f"unsupported sandbox mode: {sandbox}", sandbox)
+    if sandbox == "none":
+        return False
+    if sandbox == "bwrap":
+        if not shutil.which("bwrap"):
+            raise BookifyError("BUILD_FAILED", "bwrap is required to prove an offline build", "bwrap")
+        return True
+    return _bwrap_works()
+
+
+def _materialize_stage_non_bwrap(manuscript: model.Manuscript, stage: Path) -> None:
+    """Copy small Typst templates and book assets into stage when bwrap is inactive.
+
+    Typst enforces that source/image files resolve inside ``--root`` (rejecting
+    symlinks that escape it), whereas ``--font-path`` and ``--package-path``
+    may point directly at the read-only engine directories without copying.
+    """
+    typst_src = manuscript.engine / "typst"
+    if not typst_src.is_dir():
+        raise BookifyError("BUILD_FAILED", f"engine asset missing: {typst_src}", str(typst_src))
+    typst_dst = stage / "typst"
+    if typst_dst.is_symlink() or typst_dst.is_file():
+        typst_dst.unlink()
+    elif typst_dst.is_dir():
+        shutil.rmtree(typst_dst)
+    shutil.copytree(typst_src, typst_dst)
+
+    root = manuscript.root.resolve()
+    for asset in _book_assets(manuscript):
+        target = stage / asset.relative_to(root)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(asset, target)
+    (stage / ".cache" / "empty-pkg").mkdir(parents=True, exist_ok=True)
 
 
 @dataclass(frozen=True)
@@ -139,41 +203,48 @@ def _compile(
     out_pdf: Path,
     lock: pins.ToolchainLock,
     mounts: tuple[tuple[Path, Path], ...] = (),
-) -> None:
-    typst = manuscript.engine / lock.typst.binary
-    if not shutil.which("bwrap"):
-        raise BookifyError("BUILD_FAILED", "bwrap is required to prove an offline build", "bwrap")
-    if not typst.is_file():
-        raise BookifyError("BUILD_FAILED", "typst binary missing", lock.typst.binary)
+    *,
+    sandbox: str = "auto",
+) -> dict[str, object]:
+    allow_portable = runtime.is_installed_wheel(manuscript.engine) or sandbox != "bwrap"
+    resolved = typst_install.resolve_typst(manuscript.engine, lock, allow_portable=allow_portable)
+    if resolved is None:
+        raise BookifyError(
+            "BUILD_FAILED",
+            "typst binary missing; run 'bookify toolchain install' or install typst onto PATH",
+            lock.typst.binary,
+        )
+    typst, typst_source = resolved
+    use_bwrap = _use_bwrap(sandbox)
     data = _relative(compile_root, document_path)
     out_dir = out_pdf.resolve().parent
     out_dir.mkdir(parents=True, exist_ok=True)
     empty_pkg = compile_root / ".cache" / "empty-pkg"
     empty_pkg.mkdir(parents=True, exist_ok=True)
-    prefix = [
-        "bwrap",
-        "--unshare-net",
-        "--die-with-parent",
-        "--ro-bind", "/", "/",
-        "--bind", str(out_dir), str(out_dir),
-    ]
-    for source, target in mounts:
-        prefix.extend(["--ro-bind", str(source), str(target)])
-    if mounts:
-        font_paths = ["engine-assets/fonts"]
-        package_path = "engine-vendor/typst"
+
+    if use_bwrap:
+        if mounts:
+            font_paths = ["engine-assets/fonts"]
+            package_path = "engine-vendor/typst"
+        else:
+            font_paths = ["assets/fonts"]
+            package_path = "vendor/typst"
     else:
-        font_paths = ["assets/fonts"]
-        package_path = "vendor/typst"
-    from bookify import runtime as _runtime
-    cached_fonts = _runtime.fonts_cache_dir()
+        if mounts:
+            _materialize_stage_non_bwrap(manuscript, compile_root)
+            font_paths = [str((manuscript.engine / "assets" / "fonts").resolve())]
+            package_path = str((manuscript.engine / "vendor" / "typst").resolve())
+        else:
+            font_paths = ["assets/fonts"]
+            package_path = "vendor/typst"
+    cached_fonts = runtime.fonts_cache_dir()
     if cached_fonts.is_dir():
         font_paths.append(str(cached_fonts))
     font_args: list[str] = []
     for fp in font_paths:
         font_args.extend(["--font-path", fp])
-    command = [
-        *prefix, "--chdir", str(compile_root), "--",
+
+    typst_cmd = [
         str(typst), "compile",
         "--ignore-system-fonts", "--ignore-embedded-fonts",
         *font_args,
@@ -186,14 +257,52 @@ def _compile(
         "--pdf-standard", "a-2b",
         "--root", ".",
         "--input", f"data={data}",
-        "typst/templates/book.typ", str(out_pdf),
+        "typst/templates/book.typ", str(out_pdf.resolve()),
     ]
+
+    env = dict(os.environ)
+    for proxy_key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
+        env.pop(proxy_key, None)
+    resolved_pkg = Path(package_path) if Path(package_path).is_absolute() else (compile_root / package_path)
+    env["TYPST_PACKAGE_PATH"] = str(resolved_pkg.resolve())
+    env["TYPST_PACKAGE_CACHE_PATH"] = str(empty_pkg.resolve())
+
+    if use_bwrap:
+        prefix = [
+            "bwrap",
+            "--unshare-net",
+            "--die-with-parent",
+            "--ro-bind", "/", "/",
+            "--bind", str(out_dir), str(out_dir),
+        ]
+        for source, target in mounts:
+            prefix.extend(["--ro-bind", str(source), str(target)])
+        command = [*prefix, "--chdir", str(compile_root), "--", *typst_cmd]
+        cwd = None
+    else:
+        command = typst_cmd
+        cwd = str(compile_root)
+
     try:
-        result = subprocess.run(command, capture_output=True, text=True, check=False, timeout=COMPILE_TIMEOUT_SECONDS)
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=COMPILE_TIMEOUT_SECONDS,
+            cwd=cwd,
+            env=env,
+        )
     except subprocess.TimeoutExpired as error:
         raise BookifyError("BUILD_FAILED", f"typst compile timed out after {COMPILE_TIMEOUT_SECONDS}s", str(out_pdf)) from error
     if result.returncode != 0:
         raise BookifyError("BUILD_FAILED", result.stderr.strip()[:2000] or "typst compile failed", str(out_pdf))
+    return {
+        "mode": "bwrap-unshare-net" if use_bwrap else "env-isolated",
+        "bwrap": use_bwrap,
+        "platform": sys.platform,
+        "typstSource": typst_source,
+    }
 
 
 def build(
@@ -206,6 +315,7 @@ def build(
     lock_path: Path | None = None,
     workspace: Path | None = None,
     engine: Path | None = None,
+    sandbox: str = "auto",
 ) -> BuildResult:
     if not offline:
         raise BookifyError("BUILD_FAILED", "publishing requires --offline", "--offline")
@@ -252,7 +362,7 @@ def build(
         document = normalize.build(manuscript, figure_paths, draft=draft)
         document_path.parent.mkdir(parents=True, exist_ok=True)
         document_path.write_text(json.dumps(document.data, indent=2, sort_keys=True) + "\n")
-        _compile(manuscript, compile_root, document_path, out_pdf, lock, mounts)
+        sandbox_info = _compile(manuscript, compile_root, document_path, out_pdf, lock, mounts, sandbox=sandbox)
 
         attempts = 0
         deferred: list[str] = []
@@ -292,7 +402,7 @@ def build(
                 )
             deferred.extend(illustrations.defer_later(document.data, conflicting))
             document_path.write_text(json.dumps(document.data, indent=2, sort_keys=True) + "\n")
-            _compile(manuscript, compile_root, document_path, out_pdf, lock, mounts)
+            sandbox_info = _compile(manuscript, compile_root, document_path, out_pdf, lock, mounts, sandbox=sandbox)
 
         data = report.analyse(
             out_pdf, document.data, figure_assets,
@@ -304,5 +414,6 @@ def build(
     data["deferredIllustrations"] = sorted(set(deferred))
     data["placementPasses"] = attempts
     data["ocr"] = boundary.evidence()
+    data["sandbox"] = sandbox_info
     report.write(data, build_dir / "build-report.json")
     return BuildResult(pdf=out_pdf, report=data)

@@ -47,6 +47,15 @@ def _parser() -> argparse.ArgumentParser:
     doctor_parser = toolchain_sub.add_parser("doctor", help="report pins, fonts, packages and interpreter")
     doctor_parser.add_argument("--json", action="store_true", help="machine-readable report")
     doctor_parser.add_argument("--lock", type=Path, default=None)
+    doctor_parser.add_argument(
+        "--strict",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="enforce exact repo checkout pins (default: strict in checkout, portable in wheel)",
+    )
+    install_parser = toolchain_sub.add_parser("install", help="install the pinned Typst binary for this OS/arch")
+    install_parser.add_argument("--from-archive", type=Path, default=None, help="install from a local archive file")
+    install_parser.add_argument("--json", action="store_true")
 
     build = subparsers.add_parser("build", help="compile a manuscript to an offline PDF")
     build.add_argument("--manuscript", type=Path)
@@ -55,6 +64,12 @@ def _parser() -> argparse.ArgumentParser:
     build.add_argument("--draft", action="store_true", help="allow unconfirmed rights")
     build.add_argument("--build-dir", type=Path, default=Path("build"))
     build.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
+    build.add_argument(
+        "--sandbox",
+        choices=("auto", "bwrap", "none"),
+        default="auto",
+        help="offline compile isolation: auto (bwrap on Linux when permitted, else env-isolated), bwrap, or none",
+    )
     build.add_argument("--json", action="store_true")
 
     manuscript = subparsers.add_parser("manuscript", help="check a manuscript against the contract")
@@ -73,13 +88,21 @@ def _parser() -> argparse.ArgumentParser:
     design_check.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     design_check.add_argument("--json", action="store_true")
 
-    figures = subparsers.add_parser("figures", help="render charts and diagrams from a manuscript")
+    figures = subparsers.add_parser("figures", help="render charts, diagrams and contact sheets")
     figures_sub = figures.add_subparsers(dest="figures_command", required=True)
     figures_render = figures_sub.add_parser("render", help="write deterministic SVG and CeTZ assets")
     figures_render.add_argument("--manuscript", type=Path, required=True)
     figures_render.add_argument("--out", type=Path, required=True)
     figures_render.add_argument("--workspace", type=Path, default=None, help="per-book workspace (or BOOKIFY_WORKSPACE)")
     figures_render.add_argument("--json", action="store_true")
+    contact = figures_sub.add_parser("contact-sheet", help="build a PNG contact sheet with Pillow (no ImageMagick)")
+    contact.add_argument("--pdf", type=Path, default=None, help="input PDF to render and tile")
+    contact.add_argument("--pages-dir", type=Path, default=None, help="directory of pre-rendered page PNGs")
+    contact.add_argument("--out", type=Path, required=True, help="output contact-sheet PNG path")
+    contact.add_argument("--cols", type=int, default=4, help="number of columns in the contact sheet")
+    contact.add_argument("--dpi", type=int, default=120, help="render DPI when --pdf is given")
+    contact.add_argument("--tile-width", type=int, default=420, help="width of each page tile in pixels")
+    contact.add_argument("--json", action="store_true")
 
     verify = subparsers.add_parser("verify", help="check a built PDF against the acceptance gate")
     verify.add_argument("--pdf", type=Path, required=True)
@@ -170,7 +193,7 @@ def _parser() -> argparse.ArgumentParser:
 def _toolchain_doctor(args: argparse.Namespace) -> int:
     from bookify.toolchain import doctor
 
-    report = doctor.run(ROOT, args.lock)
+    report = doctor.run(runtime.engine_root(), args.lock, strict=args.strict)
     if args.json:
         print(json.dumps(report.as_dict(), indent=2, sort_keys=True))
     else:
@@ -178,6 +201,35 @@ def _toolchain_doctor(args: argparse.Namespace) -> int:
             mark = "ok" if check.is_local else "FAIL"
             print(f"{mark:4} {check.identifier:20} {check.detail}")
     return 0 if report.ok else 3
+
+
+def _toolchain_install(args: argparse.Namespace) -> int:
+    from bookify.toolchain import typst_install
+
+    payload = typst_install.install_typst(from_archive=args.from_archive)
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"typst ({payload['platform']}): {payload['status']} at {payload['path']}")
+    return 0
+
+
+def _figures_contact_sheet(args: argparse.Namespace) -> int:
+    from bookify.figures import contact_sheet
+
+    payload = contact_sheet.build_contact_sheet(
+        out_path=args.out,
+        pdf=args.pdf,
+        pages_dir=args.pages_dir,
+        cols=args.cols,
+        dpi=args.dpi,
+        tile_width=args.tile_width,
+    )
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print(f"contact sheet: {payload['contactSheet']} ({payload['pages']} pages)")
+    return 0
 
 
 def _manuscript_check(args: argparse.Namespace) -> int:
@@ -523,6 +575,7 @@ def _build(args: argparse.Namespace) -> int:
         offline=args.offline,
         draft=args.draft,
         workspace=workspace,
+        sandbox=args.sandbox,
     )
     summary = {
         "ok": True,
@@ -573,6 +626,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _fonts_install(args)
         if args.command == "toolchain" and args.toolchain_command == "doctor":
             return _toolchain_doctor(args)
+        if args.command == "toolchain" and args.toolchain_command == "install":
+            return _toolchain_install(args)
         if args.command == "manuscript" and args.manuscript_command == "check":
             return _manuscript_check(args)
         if args.command == "manuscript" and args.manuscript_command == "schema":
@@ -581,6 +636,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _design_check(args)
         if args.command == "figures" and args.figures_command == "render":
             return _figures_render(args)
+        if args.command == "figures" and args.figures_command == "contact-sheet":
+            return _figures_contact_sheet(args)
         if args.command == "verify":
             return _verify(args)
         if args.command == "intake":
