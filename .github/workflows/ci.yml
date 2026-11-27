@@ -20,16 +20,7 @@ jobs:
       - name: Ensure Typst binary is available
         run: uv run bookify toolchain install --json
       - name: Run portable & skill test suite
-        run: |
-          uv run python -m pytest -q \
-            tests/test_exercise_and_centering.py \
-            tests/test_runtime_and_fonts.py \
-            tests/test_cross_platform.py \
-            tests/test_skill_packaging.py \
-            tests/test_verify_captions.py \
-            tests/test_manuscript.py \
-            tests/test_design.py \
-            tests/test_audit_fixes.py
+        run: uv run python -m pytest -q tests/test_exercise_and_centering.py tests/test_runtime_and_fonts.py tests/test_cross_platform.py tests/test_skill_packaging.py tests/test_verify_captions.py tests/test_manuscript.py tests/test_design.py tests/test_audit_fixes.py
       - name: Build wheel and smoke-test isolated install
         run: |
           uv build --wheel --out-dir dist-ci
@@ -65,10 +56,6 @@ jobs:
       - name: Run portable doctor
         run: uv run bookify toolchain doctor --no-strict --json
       - name: Run cross-platform & skill packaging tests
-        run: |
-          uv run python -m pytest -q \
-            tests/test_skill_packaging.py \
-            tests/test_runtime_and_fonts.py \
-            tests/test_cross_platform.py -k "not test_install_typst_from_local_tar_archive"
+        run: uv run python -m pytest -q tests/test_skill_packaging.py tests/test_runtime_and_fonts.py tests/test_cross_platform.py -k "not test_install_typst_from_local_tar_archive"
       - name: Build wheel
         run: uv build --wheel --out-dir dist-ci

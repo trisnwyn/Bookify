@@ -6,6 +6,7 @@ import subprocess
 from functools import lru_cache
 from pathlib import Path
 
+from bookify.figures import contact_sheet
 from bookify.publish import typst_driver
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,9 +23,7 @@ def specimen_build() -> tuple[Path, Path, Path]:
     first = typst_driver.build(SPECIMEN, ROOT / "dist" / "verify-specimen.pdf", work / "build", offline=True)
     second = typst_driver.build(SPECIMEN, ROOT / "dist" / "verify-specimen-2.pdf", work / "rebuild", offline=True)
     sheet = work / "contact.png"
-    subprocess.run(["pdftoppm", "-png", "-r", "50", str(first.pdf), str(work / "page")], check=True)
-    pages = sorted(work.glob("page-*.png"))
-    subprocess.run(["magick", "montage", *[str(page) for page in pages], "-tile", "3x", str(sheet)], check=True)
+    contact_sheet.build_contact_sheet(pdf=first.pdf, out_path=sheet, cols=3, dpi=50, tile_width=240)
     return first.pdf, second.pdf, sheet
 
 
