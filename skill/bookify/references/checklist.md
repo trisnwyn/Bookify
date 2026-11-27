@@ -80,11 +80,15 @@ contracts in one book).
       title/term/note.
 - [ ] The composition is unbreakable: image, caption, credit and companion share
       one page; the whole unit defers if needed; no split or silent drop.
-- [ ] Side captions are column-centred on every line; credits stay separate and
-      left in the image column; full/chart/diagram descriptions remain
-      page-centred.
-- [ ] Description and provenance share one centred caption at caption size; the
-      credit is a separate left line; no 9.2 pt figure note survives (D5).
+- [ ] Every formula, formula description, table caption, graph, diagram, and
+      full/centred illustration is centred within ±2 pt to its measure; side
+      illustrations and captions centre inside their 46 % column; photo credits
+      stay separate and left-aligned (D5).
+- [ ] Practice and exercise sections provide human error-recovery write-in
+      space matched to the problem format (extended dotted lines for prose,
+      dot-grid/blank boxes for math proofs, tall padded cells + extra overflow
+      rows for fill-in tables, coordinate grids for sketching, trace tables
+      with scratch columns, and separate space per `(a)/(b)/(c)` sub-part).
 - [ ] Every definition is inline (`Term: definition`) in body type; no grey role
       label or isolated term line (D1). A glossary, if any, is one authored
       table.

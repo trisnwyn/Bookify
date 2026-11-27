@@ -243,23 +243,23 @@ def test_caption_that_cannot_be_isolated_fails_loudly(tmp_path: Path) -> None:
     assert "could not be isolated" in result.detail
 
 
-def test_table_and_equation_captions_are_ignored_and_stay_left(tmp_path: Path) -> None:
+def test_table_and_equation_captions_and_formulas_are_centred(tmp_path: Path) -> None:
     manuscript = _manuscript(
         tmp_path,
         [
             {
                 "id": "b-table",
                 "type": "table",
-                "caption": "A left-aligned table caption.",
+                "caption": "A centred table caption.",
                 "header": ["A"],
                 "rows": [["1"]],
             },
-            {"id": "b-equation", "type": "equation", "typst": "x = 1", "caption": "Equation caption stays left."},
+            {"id": "b-equation", "type": "equation", "typst": "x = 1", "caption": "Equation caption is centred."},
             _chart("b-chart-centered", "Centred chart."),
         ],
     )
-    table_caption = "Table 1. A left-aligned table caption."
-    equation_caption = "Equation caption stays left."
+    table_caption = "Table 1. A centred table caption."
+    equation_caption = "Equation caption is centred."
     pdf = compile_typ(
         '#import "/typst/theme.typ": book_base\n'
         '#import "/typst/blocks.typ": *\n'
@@ -277,8 +277,10 @@ def test_table_and_equation_captions_are_ignored_and_stay_left(tmp_path: Path) -
     lines = captions.read_lines(pdf)
     table_line = _line_with(lines, "Table 1.")
     equation_line = _line_with(lines, "Equation caption")
-    assert abs(table_line.centre - table_line.page_width / 2) > 20
-    assert abs(equation_line.centre - equation_line.page_width / 2) > 20
+    formula_line = next(line for line in lines if "=" in line.text)
+    assert abs(table_line.centre - table_line.page_width / 2) <= captions.TOLERANCE_PT
+    assert abs(equation_line.centre - equation_line.page_width / 2) <= captions.TOLERANCE_PT
+    assert abs(formula_line.centre - formula_line.page_width / 2) <= captions.TOLERANCE_PT
 
 
 def test_note_joins_the_centred_caption_while_the_credit_stays_left(tmp_path: Path) -> None:

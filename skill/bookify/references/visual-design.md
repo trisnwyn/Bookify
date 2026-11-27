@@ -70,10 +70,13 @@ opener, numbering or caption markup.
   answers it. A chapter may be authored in two columns (`layout: {columns: 2}`);
   single column stays the default and no section switches silently. Never add a
   plate to fill space and never fabricate a visual.
-- **Captions (D5).** For charts, diagrams and full illustrations, one centred
-  caption at 8.2 pt carries the description *and* the provenance/source line
-  (`Source: …`, `Synthetic data.`). Credits remain a separate left-aligned line
-  at 7.6 pt. Table and equation captions keep their own treatment.
+- **Captions and visual centering (D5).** Every formula (`equation`), graph
+  (`chart`), diagram (`diagram`), full/centred illustration (`illustration`),
+  and table (`table`) is horizontally centred to its measure, and its
+  description/caption (including any provenance/source line such as
+  `Source: …` or `Synthetic data.`) is centred line-by-line at 8.2 pt beneath
+  it. Side-preset illustrations and their captions centre inside the 46 % image
+  column. Photograph credits remain a separate left-aligned line at 7.6 pt.
 - **Heading rhythm (D6).** Body 15.30 pt pitch and the 20.70 pt paragraph gap are
   fixed. Level-2, level-3 and level-4 headings open explicit blank bands above
   the paragraph gap (32 pt and 25 pt before), so a heading never collides with

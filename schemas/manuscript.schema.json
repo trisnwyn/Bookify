@@ -338,6 +338,45 @@
         },
         {
           "if": {
+            "not": {
+              "properties": {
+                "type": {
+                  "const": "assessment"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            }
+          },
+          "then": {
+            "properties": {
+              "responseSpace": false
+            }
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "type": {
+                  "const": "table"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            }
+          },
+          "then": {
+            "properties": {
+              "fillSpace": false,
+              "extraRows": false
+            }
+          }
+        },
+        {
+          "if": {
             "properties": {
               "type": {
                 "const": "diagram"
@@ -473,6 +512,17 @@
             ]
           }
         },
+        "fillSpace": {
+          "type": "boolean"
+        },
+        "extraRows": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "responseSpace": {
+          "$ref": "#/$defs/responseSpace"
+        },
         "typst": {
           "$ref": "#/$defs/text"
         },
@@ -522,6 +572,9 @@
         },
         "title": {
           "$ref": "#/$defs/text"
+        },
+        "responseSpace": {
+          "$ref": "#/$defs/responseSpace"
         }
       },
       "required": [
@@ -766,6 +819,14 @@
               "center"
             ]
           }
+        },
+        "fillSpace": {
+          "type": "boolean"
+        },
+        "extraRows": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
         }
       },
       "required": [
@@ -2476,6 +2537,67 @@
         },
         "crossCheckedBy": {
           "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "responseSpace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "lines",
+            "grid",
+            "blank",
+            "coordinate",
+            "choices",
+            "trace"
+          ]
+        },
+        "lines": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "lineStyle": {
+          "type": "string",
+          "enum": [
+            "dotted",
+            "ruled"
+          ]
+        },
+        "heightPt": {
+          "type": "number",
+          "minimum": 36,
+          "maximum": 480
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "choices": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "traceColumns": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 16
         }
       }
     }

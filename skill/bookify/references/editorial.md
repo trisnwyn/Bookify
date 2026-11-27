@@ -173,6 +173,62 @@ quotation, an uncertainty note or an enrichment citation is itself the point.
 Do not add apparatus to fill space. An apparatus block that adds no understanding
 is noise, and in strict mode it is a contract violation.
 
+## Exercise and practice workspace design (human error-recovery rule)
+
+Whenever a book includes exercises, practice problems, self-checks, or workbook
+drills (`assessment` blocks or fill-in-the-blank tables), design every answer
+area for **real human practice on paper or tablet**. Humans do not write final
+answers in one clean pass: they make arithmetic or sign slips, cross out false
+starts, erase, write larger than printed type, and revise intermediate steps.
+Never size an answer zone to the tight footprint of a printed solution — build
+in **+30–50 % error-recovery slack** adapted to the exact exercise format:
+
+1. **Short-answer and paragraph questions:** Use `responseSpace: {kind: lines}`
+   with full-measure dotted or ruled write-in lines at handwriting pitch
+   (`24 pt`, never print body leading). Always add extra lines beyond the ideal
+   answer length (minimum 3–4 full lines even for a 1–2 sentence prompt; 6–10+
+   lines for a paragraph explanation) so a crossed-out sentence still leaves
+   room to finish cleanly.
+2. **Multi-step mathematics, derivations, and proofs:** Never put tight ruled
+   single lines under equations or proofs — fractions, integrals, summations,
+   matrices, and cancelled terms collide with horizontal rules. Use
+   `responseSpace: {kind: grid}` (subtle dot-grid scratchpad) or `{kind: blank}`
+   sized for the expected derivation **plus at least one false start**
+   (`heightPt: 120–160` for short calculations; `180–260` for multi-step proofs).
+3. **Fill-in-the-blank tables, truth tables, matrices, and ledgers:** Set
+   `fillSpace: true` and `extraRows: 2` (or more) on the `table` block so every
+   writable cell has generous vertical padding (2×–3× print height, letting a
+   learner strike through a wrong value and write the correction inside the same
+   cell) **plus** extra blank overflow rows at the bottom for re-attempts.
+4. **Inline cloze / fill-in-the-blank sentences and equation blanks:** Make
+   every inline blank at least **2× the printed width** of the expected term
+   (or break to a full-width dotted line when a phrase is expected) so a
+   handwritten correction never collides with adjacent printed words.
+5. **Graphing, curve sketching, and geometric constructions:** Use
+   `responseSpace: {kind: coordinate}` with generous outer axis margin so
+   learners can rescale axes or correct mislabelled tick marks without writing
+   over the problem statement.
+6. **Diagram labelling and annotation:** Keep label callout boxes and leader
+   lines wide and tall enough for handwritten terminology plus a crossed-out
+   retry; never crowd label lines against the figure edge.
+7. **Multiple-choice, true–false, and matching with justification:** Use
+   `responseSpace: {kind: choices}` with generous vertical spacing between
+   options (so changing a marked box stays readable) and 2–3 dotted
+   *"Reasoning / revision space"* lines underneath.
+8. **Code tracing, dry-run state tables, and algorithm walkthroughs:** Use
+   `responseSpace: {kind: trace}` with explicit overflow rows (learners often
+   miscount loop bounds or off-by-one steps) and a dedicated `"Scratch"` column
+   for intermediate values.
+9. **Worked-example → "Your turn" drills and multi-part `(a)/(b)/(c)` problems:**
+   Place a dedicated response space immediately after **each** sub-part rather
+   than stacking `(a)`, `(b)`, `(c)` back-to-back above one ambiguous blank box.
+10. **Keep-together & readability honesty:** Never strand a problem prompt at
+    the bottom of a page while its write-in area jumps to the next page (the
+    engine keeps compact exercises unbreakable and anchors longer stems to
+    their workspace). Never shrink practice whitespace merely to chase a higher
+    words-per-page metric; record deliberate exercise pages in review notes if
+    a thin-page warning fires.
+
 ## No fake facts, no upgraded evidence
 
 - Every number, name, date, category, citation and quotation must come from the

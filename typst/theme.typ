@@ -180,6 +180,26 @@
     case: rgb("#4d4d4d"),
     assessment: rgb("#2f3e5c"),
   ),
+  workspace: (
+    line_pitch: 24pt,
+    line_stroke: 0.55pt,
+    box_stroke: 0.55pt,
+    box_radius: 2pt,
+    box_pad: 8pt,
+    default_height: 110pt,
+    grid_step: 14pt,
+    dot_radius: 0.65pt,
+    axis_stroke: 0.65pt,
+    axis_pad: 14pt,
+    checkbox_size: 8.5pt,
+    checkbox_gap: 7pt,
+    choice_gap: 9pt,
+    cell_inset_x: 6pt,
+    cell_inset_y: 11pt,
+    table_grid_stroke: 0.4pt,
+    unit_pt: 1pt,
+    compact_height_max: 160pt,
+  ),
 )
 
 #let fonts = (

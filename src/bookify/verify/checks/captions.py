@@ -1,9 +1,8 @@
-"""Rendered figure descriptions: every chart, diagram and photograph caption line is centred.
+"""Rendered descriptions: every chart, diagram, photograph, table and equation caption line is centred.
 
 The check reads line bounding boxes from `pdftotext -bbox-layout`. It groups
 caption lines by their printed label and expected text, so a Poppler block
-split after a wrapped line does not hide the continuation. Table and equation
-captions are deliberately outside this check.
+split after a wrapped line does not hide the continuation.
 """
 
 from __future__ import annotations
@@ -133,12 +132,18 @@ def expected_captions(manuscript: model.Manuscript) -> tuple[CaptionSpec, ...]:
         for block in section["blocks"]
         if block["type"] == "chart"
     }
+    raw_by_id = {
+        block["id"]: block
+        for section in manuscript.sections
+        for block in section["blocks"]
+    }
     document = normalize.build(manuscript, figure_paths, draft=True)
     specs: list[CaptionSpec] = []
     columns_by_section = model.effective_columns(document.data["sections"])
     for index, section in enumerate(document.data["sections"]):
         for block in section["blocks"]:
-            if block["type"] in FIGURE_KINDS:
+            kind = block["type"]
+            if kind in FIGURE_KINDS:
                 # D5: the provenance line shares the centred caption block, so
                 # the expected rendered text is description + note. Credits stay
                 # separate and are measured on their own left edge.
@@ -148,11 +153,35 @@ def expected_captions(manuscript: model.Manuscript) -> tuple[CaptionSpec, ...]:
                 specs.append(
                     CaptionSpec(
                         block_id=block["id"],
-                        kind=block["type"],
+                        kind=kind,
                         label=block["label"],
                         text=text,
                         preset=block.get("composition", "full"),
-                        credit=block.get("credit") if block["type"] == "illustration" else None,
+                        credit=block.get("credit") if kind == "illustration" else None,
+                        columns=columns_by_section[index],
+                    )
+                )
+            elif kind == "table" and raw_by_id.get(block["id"], {}).get("caption"):
+                specs.append(
+                    CaptionSpec(
+                        block_id=block["id"],
+                        kind="table",
+                        label=block["label"],
+                        text=block["caption"],
+                        preset="full",
+                        credit=None,
+                        columns=columns_by_section[index],
+                    )
+                )
+            elif kind == "equation" and raw_by_id.get(block["id"], {}).get("caption"):
+                specs.append(
+                    CaptionSpec(
+                        block_id=block["id"],
+                        kind="equation",
+                        label=block["id"],
+                        text=block["caption"],
+                        preset="full",
+                        credit=None,
                         columns=columns_by_section[index],
                     )
                 )
@@ -308,8 +337,64 @@ def _measure_column(spec: CaptionSpec, lines: tuple[LineBox, ...]) -> CaptionMea
     )
 
 
+def _measure_equation(spec: CaptionSpec, lines: tuple[LineBox, ...]) -> CaptionMeasurement | str:
+    expected = _stream(spec.text)
+    if not expected:
+        return f"{spec.label}: empty equation caption"
+    candidates = [
+        index
+        for index, line in enumerate(lines)
+        if _stream(line.text) and expected.startswith(_stream(line.text))
+    ]
+    if not candidates:
+        return f"{spec.label}: equation caption not found on any page"
+    last_error = f"{spec.label}: equation caption could not be isolated"
+    for start_index in candidates:
+        start = lines[start_index]
+        collected = [start]
+        consumed = len(_stream(start.text))
+        matched = True
+        while consumed < len(expected):
+            next_index = start_index + len(collected)
+            if next_index >= len(lines):
+                last_error = f"{spec.label}: equation caption could not be isolated; expected text ended early"
+                matched = False
+                break
+            line = lines[next_index]
+            if line.page != start.page:
+                last_error = f"{spec.label}: equation caption crosses a page boundary"
+                matched = False
+                break
+            line_stream = _stream(line.text)
+            if line_stream != expected[consumed : consumed + len(line_stream)]:
+                last_error = f"{spec.label}: equation caption could not be isolated; unexpected line {line.text!r}"
+                matched = False
+                break
+            collected.append(line)
+            consumed += len(line_stream)
+        if matched and consumed == len(expected):
+            if spec.columns == 2:
+                col = column_index(start, start.page_width)
+                left, right = column_bounds(col, start.page_width)
+                target = (left + right) / 2
+            else:
+                target = declared_centre(spec.preset, start.page_width)
+            return CaptionMeasurement(
+                block_id=spec.block_id,
+                kind=spec.kind,
+                label=spec.label,
+                page=start.page,
+                lines=tuple(collected),
+                preset=spec.preset,
+                target_centre_pt=target,
+            )
+    return last_error
+
+
 def measure(spec: CaptionSpec, lines: tuple[LineBox, ...]) -> CaptionMeasurement | str:
     """Isolate one caption; full captions keep consecutive lines, side captions allow prose."""
+    if spec.kind == "equation":
+        return _measure_equation(spec, lines)
     if spec.columns == 2 and spec.preset not in SIDE_PRESETS:
         return _measure_column(spec, lines)
     if spec.preset in SIDE_PRESETS:
@@ -493,8 +578,9 @@ def check(
         kind: {"single": 0, "wrapped": 0} for kind in FIGURE_KINDS
     }
     for measurement in measurements:
-        shape = "single" if len(measurement.lines) == 1 else "wrapped"
-        groups[measurement.kind][shape] += 1
+        if measurement.kind in groups:
+            shape = "single" if len(measurement.lines) == 1 else "wrapped"
+            groups[measurement.kind][shape] += 1
 
     if require_coverage:
         # D5 merges the provenance line into the centred caption, so a chart or

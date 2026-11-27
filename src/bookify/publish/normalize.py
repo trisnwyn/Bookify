@@ -261,6 +261,15 @@ def build(
                     entry["title"] = _resolve(block["title"], labels)
                 if block.get("attribution"):
                     entry["attribution"] = _resolve(block["attribution"], labels)
+                if kind == "assessment" and block.get("responseSpace"):
+                    space = dict(block["responseSpace"])
+                    if "label" in space:
+                        space["label"] = _resolve(space["label"], labels)
+                    if "choices" in space:
+                        space["choices"] = [_resolve(item, labels) for item in space["choices"]]
+                    if "traceColumns" in space:
+                        space["traceColumns"] = [_resolve(item, labels) for item in space["traceColumns"]]
+                    entry["responseSpace"] = space
             elif kind == "definition":
                 entry["term"] = _resolve(block["term"], labels)
                 entry["definition"] = _resolve(block["definition"], labels)
@@ -273,6 +282,10 @@ def build(
                 entry["rows"] = [[_resolve(cell, labels) for cell in row] for row in block["rows"]]
                 entry["widths"] = block.get("widths")
                 entry["align"] = block.get("align")
+                if block.get("fillSpace"):
+                    entry["fillSpace"] = True
+                if block.get("extraRows"):
+                    entry["extraRows"] = int(block["extraRows"])
             elif kind == "equation":
                 entry["typst"] = block["typst"]
                 entry["caption"] = _resolve(block["caption"], labels) if block.get("caption") else label

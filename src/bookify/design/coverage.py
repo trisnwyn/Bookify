@@ -91,6 +91,14 @@ def _segments(manuscript: model.Manuscript) -> Iterator[tuple[str, str]]:
                     yield value, "text"
             for item in block.get("items", []):
                 yield item, "text"
+            if kind == "assessment" and isinstance(block.get("responseSpace"), dict):
+                space = block["responseSpace"]
+                if isinstance(space.get("label"), str):
+                    yield space["label"], "text"
+                for choice in space.get("choices", []):
+                    yield choice, "text"
+                for column in space.get("traceColumns", []):
+                    yield column, "text"
             if kind == "table":
                 for cell in block.get("header", []):
                     yield cell, "text"

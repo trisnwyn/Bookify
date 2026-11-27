@@ -74,7 +74,11 @@
     } else if block.type == "case" {
       preset-case(title: if "title" in block { block.title } else { none }, block.text)
     } else if block.type == "assessment" {
-      preset-assessment(title: if "title" in block { block.title } else { none }, block.text)
+      preset-assessment(
+        title: if "title" in block { block.title } else { none },
+        block.text,
+        response_space: block.at("responseSpace", default: none),
+      )
     } else if block.type == "branch" {
       preset-branch(block.marker, block.text)
     } else if block.type == "list" {
@@ -86,6 +90,8 @@
         caption: block.caption,
         widths: block.widths,
         align: block.at("align", default: none),
+        fill_space: block.at("fillSpace", default: false),
+        extra_rows: block.at("extraRows", default: 0),
       )
     } else if block.type == "equation" {
       preset-equation(eval(block.typst, mode: "math"), caption: block.caption)

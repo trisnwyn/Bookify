@@ -154,8 +154,14 @@ The engine generates the house defaults; do not hand-write them:
 - **Chapter headings.** One h1 line per chapter, `Chapter n: Title`, followed by
   at least one visible body blank line before the standfirst, lead or first
   paragraph. The retired numeral-and-rule stack is gone.
-- **Captions.** Description and provenance share one centred caption; credits
-  stay a separate left line; table and equation captions keep their own form.
+- **Captions and centering.** Every formula, graph, diagram, illustration, and
+  table — along with its description and provenance line — is centred to its
+  measure; photograph credits stay a separate left line.
+- **Exercise workspace.** Practice problems and assessments leave generous
+  human error-recovery space matched to the question format (extended dotted
+  lines for prose, dot-grid/blank boxes for math proofs, tall padded cells plus
+  overflow rows for fill-in tables, coordinate grids, trace tables with scratch
+  columns, and per-part answer zones). Detail: `references/editorial.md`.
 - **Rhythm.** Level-2/3/4 headings open a measured blank band above the paragraph
   gap, and every heading reserves one body blank line below it. Do not add manual
   spacing.

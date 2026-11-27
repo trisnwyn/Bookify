@@ -330,6 +330,19 @@ def _check_table(block: dict[str, Any], locator: str) -> None:
         _require(len(block["align"]) == width, "one alignment per column", f"{locator}.align")
 
 
+def _check_assessment(block: dict[str, Any], locator: str) -> None:
+    space = block.get("responseSpace")
+    if not space:
+        return
+    kind = space["kind"]
+    if kind == "lines":
+        _require(space.get("lines", 4) >= 1, "responseSpace.lines must be >= 1 for kind=lines", f"{locator}.responseSpace.lines")
+    elif kind == "choices":
+        _require(bool(space.get("choices")), "responseSpace.choices is required for kind=choices", f"{locator}.responseSpace.choices")
+    elif kind == "trace":
+        _require(bool(space.get("traceColumns")), "responseSpace.traceColumns is required for kind=trace", f"{locator}.responseSpace.traceColumns")
+
+
 PAYLOAD_FIELDS = (
     "text",
     "term",
@@ -614,6 +627,8 @@ def load(
                 _check_diagram(block, locator, engine_root_path)
             elif kind == "table":
                 _check_table(block, locator)
+            elif kind == "assessment":
+                _check_assessment(block, locator)
             elif kind == "equation":
                 _check_equation(block, locator)
             elif kind == "illustration":

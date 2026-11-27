@@ -140,7 +140,7 @@ def measure(pdf: Path, document: dict[str, Any]) -> dict[str, Any]:
     exemptions = exempt_pages({"sections": sections_with_pages}, contents, plates, len(texts))
     tables_by_page: dict[int, int] = {}
     for page, text in enumerate(texts, start=1):
-        tables_by_page[page] = len(re.findall(r"(?m)^Table \d+\.", text))
+        tables_by_page[page] = len(re.findall(r"(?m)^[ \t]*Table \d+\.", text))
 
     body_pages = [
         page
