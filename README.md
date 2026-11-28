@@ -88,6 +88,21 @@ npx skills add trisnwyn/Bookify
 
 ---
 
+## Agent Benchmarks (v0.2.1)
+
+Standardized end-to-end benchmark authoring, visually inspecting, and verifying a 3-chapter + appendix monograph & exercise workbook (*"Gradient Descent and Regularised Regression"*, `teachable` mode). Full protocol and SHA-256 provenance in [`docs/benchmarks.md`](docs/benchmarks.md).
+
+| Harness | Model | Wall Time | Builds | Pages | `verify` Gate | Max Caption Δ | Warnings | Cost / Tokens |
+| --- | --- | ---: | ---: | ---: | --- | ---: | --- | --- |
+| **Google Antigravity** | Gemini Hydrogen | **235 s** (3m 55s) | 7 | 8 | `pass` | `0.784 pt` | 3 answered | Not recorded |
+| **Google Antigravity** | Gemini Neon | **596 s** (9m 56s) | 6 | 9 | `pass` | `0.784 pt` | `0` | Not recorded |
+| **OpenCode** | DeepSeek V4.1 Flash 1017 | **1083 s** (18m 03s) | 5 | 14 | `pass` | `0.784 pt` | `0` | Not recorded |
+| **Claude Code** | — | Un-benchmarked | — | — | — | — | — | — |
+| **OpenAI Codex** | — | Un-benchmarked | — | — | — | — | — | — |
+| **Cursor** | — | Un-benchmarked | — | — | — | — | — | — |
+
+---
+
 ## Core CLI Commands
 
 | Command | Purpose |
