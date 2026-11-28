@@ -6,10 +6,18 @@ Works out of the box with **Claude Code**, **OpenAI Codex**, **OpenCode**, **Cur
 
 <p align="center">
   <a href="docs/previews/bookify-demo.mp4">
-    <img src="docs/previews/bookify-demo.gif" alt="Bookify 20-second demo: install skill, offline Typst build, scholarly math monograph, exercise workbook, and 18-check verify gate" width="100%" />
+    <img src="docs/previews/bookify-demo.gif" alt="Bookify 20-second demo: 5 scattered lecture files turned with one AI-agent command into one verified publication-grade PDF/A-2b book and practice workbook" width="100%" />
   </a>
   <br />
-  <sub>20-second workflow overview (<a href="docs/previews/bookify-demo.mp4">watch HD MP4</a>) — install skill, compile offline, visually inspect pages, pass 18/18 checks.</sub>
+  <sub>20-second demo (<a href="docs/previews/bookify-demo.mp4">watch HD MP4</a>) — 5 scattered lecture files → 1 command → 1 verified publication-grade book &amp; workbook.</sub>
+</p>
+
+## Before & After: AI-Slop PDF vs. Classic Bookify Page
+
+<p align="center">
+  <img src="docs/previews/before-after-comparison.png" alt="Before and After comparison: typical rainbow AI-slop PDF with clashing colors, inconsistent font sizes, and cramped tables versus a classic black-and-white Bookify page set in Spectral and STIX Two Math" width="100%" />
+  <br />
+  <sub>Same Bias–Variance technical content: replace clashing gradient banners, random font sizes, and loud striped tables with quiet archival monochrome typography.</sub>
 </p>
 
 ## Output Showcase
