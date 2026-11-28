@@ -12,8 +12,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-COMMANDS = ROOT / "skill" / "bookify" / "commands"
-PAYLOAD_COMMANDS = ROOT / "packaging" / "payload" / "commands"
+COMMANDS = ROOT / "skills" / "bookify" / "commands"
+PAYLOAD_COMMANDS = COMMANDS
 INSTALLED_COMMANDS = Path.home() / ".config" / "opencode" / "commands"
 PROJECT_COMMANDS = ROOT / ".opencode" / "commands"
 

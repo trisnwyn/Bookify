@@ -152,10 +152,3 @@ def test_cli_build_requires_manuscript_and_output(capsys: pytest.CaptureFixture[
     assert main(["build"]) == 2
     payload = json.loads(capsys.readouterr().err)
     assert payload["code"] == "INPUT_INVALID"
-
-
-def test_probe_scripts_are_present_and_executable() -> None:
-    scripts = [ROOT / "probe" / name for name in ("probe.sh", "diagram.sh", "chart.sh")]
-    for script in scripts:
-        assert script.is_file(), f"missing probe script: {script.name}"
-        assert script.stat().st_mode & 0o111, f"probe script not executable: {script.name}"

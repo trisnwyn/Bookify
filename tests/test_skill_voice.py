@@ -14,7 +14,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCES = ROOT / "skill" / "bookify" / "references"
+REFERENCES = ROOT / "skills" / "bookify" / "references"
 EDITORIAL = REFERENCES / "editorial.md"
 SOURCE = REFERENCES / "source-and-provenance.md"
 VISUAL = REFERENCES / "visual-design.md"

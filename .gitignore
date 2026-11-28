@@ -4,6 +4,7 @@
 build/
 dist/
 probe/out/
+bookify-bench-run/
 
 # Python
 __pycache__/
