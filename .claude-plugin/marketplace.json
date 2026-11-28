@@ -11,7 +11,7 @@
       "name": "bookify",
       "source": "./",
       "description": "Author publication-grade designed books, scholarly math monographs, and practice workbooks offline with Typst and 18-check verification.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "license": "MIT",
       "category": "publishing"
     }

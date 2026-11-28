@@ -55,7 +55,7 @@ jobs:
 
   publish-pypi:
     needs: build
-    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.publish_pypi) || vars.PYPI_TRUSTED_PUBLISHING == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_pypi }}
     runs-on: ubuntu-latest
     environment: pypi
     steps:

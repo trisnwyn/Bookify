@@ -18,7 +18,7 @@ from bookify.errors import BookifyError
 
 ENGINE_ENV = "BOOKIFY_ENGINE"
 CACHE_ENV = "BOOKIFY_CACHE_DIR"
-FALLBACK_VERSION = "0.2.0"
+FALLBACK_VERSION = "0.2.1"
 
 
 def version() -> str:

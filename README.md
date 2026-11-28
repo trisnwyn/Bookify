@@ -18,8 +18,22 @@ Bookify turns PDFs, slide decks, or structured notes into publication-grade A4 *
 
 ### 1. Install the Bookify CLI Engine
 
+Install the pre-built **2.0 MB** wheel directly from GitHub Releases (plus pinned Typst `0.15.1` for Linux, macOS, or Windows):
+
 ```bash
-uv tool install bookify-typst  # or: pipx install bookify-typst
+# Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/trisnwyn/Bookify/main/install.sh | sh
+```
+
+```powershell
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/trisnwyn/Bookify/main/install.ps1 | iex
+```
+
+Or install directly with `uv` / `pipx` from the GitHub Release wheel (or `git+https://`):
+
+```bash
+uv tool install https://github.com/trisnwyn/Bookify/releases/download/v0.2.1/bookify_typst-0.2.1-py3-none-any.whl
 bookify toolchain install      # installs pinned Typst 0.15.1 for Linux / macOS / Windows
 bookify toolchain doctor       # checks Typst, fonts, and Poppler
 ```

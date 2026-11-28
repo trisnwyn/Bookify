@@ -1,6 +1,6 @@
 {
   "name": "bookify",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Author publication-grade designed books, scholarly monographs, and practice workbooks from PDFs, slides, or notes using offline Typst typesetting and 18-check verification.",
   "author": {
     "name": "Nguyen Duc Tri"
