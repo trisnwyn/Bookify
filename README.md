@@ -6,19 +6,56 @@ Bookify turns PDFs, slide decks, or structured notes into publication-grade A4 *
 
 ## Highlights
 
-- **Publication typography out of the box:** Vendored `Spectral` (all 7 weights) + `STIX Two Math` (display equations with stacked limits, matrices, integrals, and piecewise cases) + optional on-demand `Noto Serif CJK JP`.
+- **Two explicit authoring modes:** `source-faithful` (strict source order, zero outside material, presentation polish only) and `teachable` (standalone coursebook voice, worked examples, definitions, exercises, and glossaries — with source anchors and `authoring/record.json` provenance).
+- **Rich visual & layout system:** 7 monochrome cover compositions (`cover-1`–`cover-7`), 4 body compositions (`full`, `centred`, `side-left`, `side-right`), two-column chapters (`layout: {columns: 2}`), 15 deterministic chart families, 10 CeTZ diagram presets (`process`, `model`, `cycle`, `hierarchy`, `decision_tree`, `network`, `timeline`, `matrix`, `venn`, `swimlane`), depth-5 hierarchical numbering (`Chapter 1:` → `1.1` → `1.1.1.1.1` + `1.1 a)` branches + `§` cross-references), and optional intake-only Tesseract OCR (`eng` default, `vie` opt-in).
+- **Publication typography out of the box:** Vendored `Spectral` (all 7 weights) + `STIX Two Math` (true display-style equations with stacked limits, matrices, integrals, and piecewise cases) + optional on-demand `Noto Serif CJK JP`.
 - **Geometric centering:** Display formulas, formula descriptions, tables, graphs, diagrams, and illustrations are mathematically centered to their measure and verified within `±2 pt`.
 - **Human-friendly exercise workspaces:** Native Typst primitives (`responseSpace` + `fillSpace`/`extraRows`) and a 10-case editorial rule ensure practice problems leave realistic error-recovery space (handwriting-pitch dotted lines, dot-grid proof boxes, tall padded fill-in tables with overflow rows, coordinate grids, choice checkboxes with revision lines, and algorithm trace tables).
-- **18-check verification gate:** Checks offline determinism (byte-identical double builds), embedded glyphs, PDF/A-2b metadata, cover geometry, caption centering, heading rhythm, readability bands, cross-references, rights/provenance, and visual contact-sheet inspection.
-- **Multi-platform skill + lightweight CLI:** The portable agent skill (`skills/bookify/`) is **< 100 KB** of pure markdown and pairs with a **~4 MB** installable Python CLI working across **Linux, macOS, and Windows**.
+- **18-check verification gate:** Checks offline determinism (byte-identical double builds), embedded glyphs, PDF/A-2b metadata, cover geometry, caption centering, heading rhythm, readability bands, cross-references, rights/provenance, OCR-free builds, and visual contact-sheet inspection.
+- **Multi-platform skill + lightweight CLI:** The portable agent skill (`skills/bookify/`) is **`92 KB`** of pure markdown and pairs with a **`2.0 MB`** installable Python CLI working across **Linux, macOS, and Windows**.
 
 ---
 
-## Quickstart (30 Seconds)
+## Installation Guide
 
-### 1. Install the Bookify CLI Engine
+### Option A — For AI Agents / LLMs (Copy-Paste Prompt)
 
-Install the pre-built **2.0 MB** wheel directly from GitHub Releases (plus pinned Typst `0.15.1` for Linux, macOS, or Windows):
+Paste this prompt directly into **Claude Code, OpenAI Codex, OpenCode, Cursor, or Google Antigravity** and let your agent set everything up for you:
+
+```text
+Install Bookify (https://github.com/trisnwyn/Bookify) on this machine for my OS and agent harness:
+
+1. Check my OS and verify Python 3.12–3.13 plus `uv` (or `pipx`) and Poppler (`pdfinfo`, `pdftoppm`).
+   - If Poppler is missing, tell me the exact one-line install command for my OS (`brew install poppler`, `sudo apt install poppler-utils`, `sudo dnf install poppler-utils`, or `winget install oschwartz10612.Poppler`).
+2. Install the pre-built ~2 MB Bookify CLI wheel from the latest GitHub Release (do not install from PyPI and do not clone the full repo):
+   - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/trisnwyn/Bookify/main/install.sh | sh`
+   - Windows (PowerShell): `irm https://raw.githubusercontent.com/trisnwyn/Bookify/main/install.ps1 | iex`
+3. Verify the CLI and pinned Typst 0.15.1 binary:
+   - `bookify --version`
+   - `bookify toolchain install --json`
+4. Install the portable Bookify AI-agent skill for my harness:
+   - `bookify skill install --platform all --json` (or target my active platform: `claude`, `codex`, `opencode`, `cursor`, or `antigravity`).
+5. Run `bookify toolchain doctor --json` and confirm `"ok": true`.
+   - Only run `bookify fonts install cjk` if I ask for Japanese/CJK book support.
+6. Report the installed version, skill path, and doctor status concisely.
+```
+
+---
+
+### Option B — For Humans (Manual Step-by-Step)
+
+#### Prerequisites
+- **Python 3.12 or 3.13** and **`uv`** *(recommended)* or `pipx`
+- **Poppler** *(used by `bookify verify` and page rendering)*:
+  - **macOS:** `brew install poppler`
+  - **Ubuntu / Debian:** `sudo apt install poppler-utils` *(optional Linux strict sandbox: `bubblewrap`)*
+  - **Fedora:** `sudo dnf install poppler-utils` *(optional: `bubblewrap`)*
+  - **Windows:** `winget install oschwartz10612.Poppler` *(or `choco install poppler`)*
+- *(Optional, OCR intake only)* **Tesseract** (`tesseract` + `eng` language pack; build and verify never require OCR).
+
+#### Step 1 — Install the Bookify CLI Engine + Pinned Typst `0.15.1`
+
+Downloads only the **2.0 MB** pre-built wheel from GitHub Releases and fetches Typst `0.15.1` for your OS/architecture:
 
 ```bash
 # Linux / macOS
@@ -30,7 +67,7 @@ curl -fsSL https://raw.githubusercontent.com/trisnwyn/Bookify/main/install.sh | 
 irm https://raw.githubusercontent.com/trisnwyn/Bookify/main/install.ps1 | iex
 ```
 
-Or install directly with `uv` / `pipx` from the GitHub Release wheel (or `git+https://`):
+Or install the wheel directly with `uv` / `pipx`:
 
 ```bash
 uv tool install https://github.com/trisnwyn/Bookify/releases/download/v0.2.1/bookify_typst-0.2.1-py3-none-any.whl
@@ -44,7 +81,7 @@ bookify toolchain doctor       # checks Typst, fonts, and Poppler
 bookify fonts install cjk
 ```
 
-### 2. Install the AI-Agent Skill
+#### Step 2 — Install the AI-Agent Skill (`92 KB`)
 
 Install directly to one or all supported platforms with the built-in installer:
 
@@ -66,6 +103,14 @@ npx skills add trisnwyn/Bookify
 
 # Claude Code Plugin Marketplace
 # /plugin marketplace add trisnwyn/Bookify
+```
+
+#### Step 3 — Verify Everything Works
+
+```bash
+bookify --version
+bookify toolchain doctor --json
+bookify skill list
 ```
 
 ---
@@ -113,10 +158,12 @@ Standardized end-to-end benchmark authoring, visually inspecting, and verifying 
 | `bookify fonts status \| install cjk` | Check or install the optional Noto Serif CJK JP font pack |
 | `bookify skill list \| install` | List or install the portable skill across agent platforms |
 | `bookify intake --source FILE --out DIR` | Extract source PDF text/images with optional Tesseract OCR |
+| `bookify author plan \| apply \| select \| status \| contract check` | Manage incremental authoring drafts, selections, and `authoring/record.json` |
 | `bookify manuscript check --manuscript FILE` | Validate schema, cross-references, and exercise/figure rules |
 | `bookify design check --manuscript FILE` | Validate design tokens, presets, and exact glyph coverage |
-| `bookify build --manuscript FILE --out PDF --offline` | Compile deterministic PDF/A-2b offline (`--sandbox auto\|bwrap\|none`) |
+| `bookify figures render --manuscript FILE --out DIR` | Render deterministic SVG charts and CeTZ diagrams standalone |
 | `bookify figures contact-sheet --pdf PDF --out PNG` | Generate a PNG contact sheet with pure Pillow (no ImageMagick) |
+| `bookify build --manuscript FILE --out PDF --offline` | Compile deterministic PDF/A-2b offline (`--sandbox auto\|bwrap\|none`) |
 | `bookify verify --pdf PDF --manuscript FILE` | Run the 18-check acceptance gate |
 
 ---
@@ -155,15 +202,17 @@ uv run python -m pytest -q
 ### Repository Layout
 
 ```text
-skills/bookify/     portable multi-platform AI-agent skill (<100 KB, agentskills.io standard)
-.claude-plugin/     Claude Code plugin and marketplace manifests
-src/bookify/        CLI engine: runtime, toolchain, manuscript, design, figures, publish, intake, verify
-typst/              design tokens, block presets, 7 covers, compositions, CeTZ diagram engine
-schemas/            closed JSON Schema (v1.0) for manuscripts and exercise workspaces
-vendor/typst/       vendored CeTZ 0.5.3 and Oxifmt 1.0.0 packages
-assets/fonts/       Spectral (7 weights), STIX Two Math, and Noto Serif CJK JP
-tests/              comprehensive pytest verification suite
-.github/workflows/  Linux/macOS/Windows CI and PyPI/GitHub Release automation
+install.sh, install.ps1   1-line GitHub Release wheel installers (Linux/macOS & Windows)
+skills/bookify/           portable multi-platform AI-agent skill (92 KB, agentskills.io standard)
+.claude-plugin/           Claude Code plugin and marketplace manifests
+src/bookify/              CLI engine: runtime, toolchain, manuscript, design, figures, publish, intake, authoring, verify
+typst/                    design tokens, block presets, 7 covers, compositions, exercise workspaces, CeTZ diagrams
+schemas/                  closed JSON Schema (v1.0) for manuscripts and exercise workspaces
+vendor/typst/             vendored CeTZ 0.5.3 and Oxifmt 1.0.0 packages
+assets/fonts/             Spectral (7 weights), STIX Two Math, and Noto Serif CJK JP
+docs/                     architecture docs and cross-agent benchmarks (docs/benchmarks.md)
+tests/                    comprehensive pytest verification suite
+.github/workflows/        Linux/macOS/Windows CI and GitHub Release automation
 ```
 
 ---
