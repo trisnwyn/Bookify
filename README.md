@@ -4,6 +4,21 @@
 
 Works out of the box with **Claude Code**, **OpenAI Codex**, **OpenCode**, **Cursor**, and **Google Antigravity** on **Linux, macOS, and Windows**.
 
+<p align="center">
+  <a href="docs/previews/bookify-demo.mp4">
+    <img src="docs/previews/bookify-demo.gif" alt="Bookify 20-second demo: install skill, offline Typst build, scholarly math monograph, exercise workbook, and 18-check verify gate" width="100%" />
+  </a>
+  <br />
+  <sub>20-second workflow overview (<a href="docs/previews/bookify-demo.mp4">watch HD MP4</a>) — install skill, compile offline, visually inspect pages, pass 18/18 checks.</sub>
+</p>
+
+## Output Showcase
+
+| Scholarly Math Monograph (`STIX Two Math` + `Spectral`) | Human Error-Recovery Practice Workbook |
+| :---: | :---: |
+| ![Scholarly Math Monograph Spread](docs/previews/scholarly-math-spread.png) | ![Exercise Practice Workbook Spread](docs/previews/exercise-workbook-spread.png) |
+| *27 display equations, stacked limits, KKT matrices, bias–variance chart & tables — all 33 captions centred within ±0.78 pt.* | *24 pt handwriting dotted lines, dot-grid proof pads, padded fill-in tables with +2 overflow rows & coordinate axes.* |
+
 ---
 
 ## Why Bookify?
